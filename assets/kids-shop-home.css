@@ -1,30 +1,116 @@
 /* Home page dynamic layout */
+
+.kids-shop-hero {
+	margin-top: 16px;
+}
+
+.kids-shop-hero__container {
+	width: 100%;
+	max-width: 100%;
+}
+
+.kids-shop-hero-slider {
+	position: relative;
+	width: 100%;
+}
+
+.kids-shop-hero-slider .carousel-container {
+	position: relative;
+	overflow: hidden;
+	width: 100%;
+	height: 345px;
+	background: #e6e6e6;
+	border-radius: 4px;
+}
+
 .kids-shop-hero-slider .carousel-wrapper {
 	display: flex;
+	height: 100%;
 	transition: transform 0.45s ease;
+	will-change: transform;
 }
 
 .kids-shop-hero-slider .carousel-slide {
 	flex: 0 0 100%;
 	min-width: 100%;
+	height: 100%;
+	box-sizing: border-box;
 }
 
-.kids-shop-hero-slider .carousel-slide a {
+.kids-shop-hero-slider .carousel-slide a,
+.kids-shop-hero-slide-link {
 	display: block;
+	height: 100%;
 	line-height: 0;
 }
 
 .kids-shop-hero-slider .carousel-slide img {
 	width: 100%;
-	height: auto;
+	height: 100%;
 	display: block;
 	object-fit: cover;
 }
 
-.kids-shop-hero-slider .carousel-indicators .indicator {
+.kids-shop-hero-slider .carousel-control {
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	z-index: 5;
+	width: 40px;
+	height: 40px;
 	border: none;
-	padding: 0;
+	border-radius: 50%;
+	background: rgba(0, 0, 0, 0.45);
 	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	opacity: 0;
+	visibility: hidden;
+	transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+.kids-shop-hero-slider .carousel-container:hover .carousel-control {
+	opacity: 1;
+	visibility: visible;
+}
+
+.kids-shop-hero-slider .carousel-control.prev {
+	left: 12px;
+}
+
+.kids-shop-hero-slider .carousel-control.next {
+	right: 12px;
+}
+
+.kids-shop-hero-slider .carousel-indicators {
+	position: absolute;
+	bottom: 12px;
+	left: 50%;
+	transform: translateX(-50%);
+	display: flex;
+	gap: 8px;
+	z-index: 5;
+}
+
+.kids-shop-hero-slider .carousel-indicators .indicator {
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+	background: rgba(255, 255, 255, 0.55);
+	cursor: pointer;
+	padding: 0;
+}
+
+.kids-shop-hero-slider .carousel-indicators .indicator.active {
+	background: #fff;
+}
+
+@media only screen and (max-width: 599px) {
+	.kids-shop-hero-slider .carousel-container {
+		height: 31.46667vw;
+		min-height: 120px;
+	}
 }
 
 .kids-shop-home .products-cards {

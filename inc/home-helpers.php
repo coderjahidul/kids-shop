@@ -10,36 +10,27 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Hero slider slides from Theme Settings (or defaults).
+ * Hero slider slides from Theme Settings (uploaded images only).
  *
  * @return array<int, array{image: string, link: string, alt: string}>
  */
 function kids_shop_get_hero_slides() {
-	$fallback_assets = array(
-		'image-3-min-4b80.webp',
-		'image-min-2-9bba.webp',
-		'image-3-min-4b80.webp',
-		'image-min-2-9bba.webp',
-	);
-	$default_links = array(
-		kids_shop_get_products_url(),
-		kids_shop_get_products_url( 'winter-collection' ),
-		kids_shop_get_products_url( 'boys' ),
-		kids_shop_get_products_url( 'girls' ),
-	);
-
 	$slides = array();
 
-	for ( $i = 1; $i <= 4; $i++ ) {
-		$image = kids_shop_get_hero_slide_image_url( $i, $fallback_assets[ $i - 1 ] );
-		$link  = kids_shop_get_option( 'hero_slide_' . $i . '_link', '' );
-		$alt   = kids_shop_get_option( 'hero_slide_' . $i . '_alt', '' );
-
-		if ( ! $link ) {
-			$link = $default_links[ $i - 1 ];
+	foreach ( kids_shop_get_hero_slides_config() as $index => $slide ) {
+		$image = kids_shop_get_hero_slide_image_url(
+			$slide['image'],
+			isset( $slide['image_url'] ) ? $slide['image_url'] : ''
+		);
+		if ( ! $image ) {
+			continue;
 		}
+
+		$link = $slide['link'];
+		$alt  = $slide['alt'];
+
 		if ( ! $alt ) {
-			$alt = sprintf( /* translators: %d: slide number */ __( 'Slide %d', 'kids-shop' ), $i );
+			$alt = sprintf( /* translators: %d: slide number */ __( 'Slide %d', 'kids-shop' ), $index + 1 );
 		}
 
 		$slides[] = array(

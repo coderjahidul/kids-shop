@@ -40,19 +40,8 @@ function kids_shop_get_default_options() {
 		'color_secondary'      => '#D12C60',
 		'color_tertiary'       => '#e8007c',
 
-		// Hero slides (up to 4).
-		'hero_slide_1_image'   => 0,
-		'hero_slide_1_link'    => '',
-		'hero_slide_1_alt'     => 'Kiddo Mart',
-		'hero_slide_2_image'   => 0,
-		'hero_slide_2_link'    => '',
-		'hero_slide_2_alt'     => 'Winter Collection',
-		'hero_slide_3_image'   => 0,
-		'hero_slide_3_link'    => '',
-		'hero_slide_3_alt'     => 'Boys',
-		'hero_slide_4_image'   => 0,
-		'hero_slide_4_link'    => '',
-		'hero_slide_4_alt'     => 'Girls',
+		// Hero slider slides (repeater).
+		'hero_slides'          => array(),
 
 		// Home product sections (repeater).
 		'home_sections'            => array(),
@@ -111,21 +100,139 @@ function kids_shop_get_logo_url() {
 }
 
 /**
- * Hero slide image URL (attachment or bundled asset fallback).
+ * Validate a media library image attachment ID.
  *
- * @param int    $slide_index 1–4.
- * @param string $fallback_asset Filename in /assets/.
+ * @param mixed $attachment_id Attachment ID.
+ * @return int Valid attachment ID or 0.
+ */
+function kids_shop_validate_image_attachment_id( $attachment_id ) {
+	$attachment_id = absint( $attachment_id );
+	if ( ! $attachment_id ) {
+		return 0;
+	}
+
+	$post = get_post( $attachment_id );
+	if ( ! $post || 'attachment' !== $post->post_type ) {
+		return 0;
+	}
+
+	if ( ! wp_attachment_is_image( $attachment_id ) ) {
+		return 0;
+	}
+
+	return $attachment_id;
+}
+
+/**
+ * Normalize one hero slide row.
+ *
+ * @param array<string, mixed> $slide Raw slide data.
+ * @return array{image: int, image_url: string, link: string, alt: string}
+ */
+function kids_shop_normalize_hero_slide( $slide ) {
+	$defaults = array(
+		'image'     => 0,
+		'image_url' => '',
+		'link'      => '',
+		'alt'       => '',
+	);
+
+	$slide    = wp_parse_args( is_array( $slide ) ? $slide : array(), $defaults );
+	$image_id = kids_shop_validate_image_attachment_id( $slide['image'] );
+	$url      = '';
+
+	if ( $image_id ) {
+		$url = wp_get_attachment_image_url( $image_id, 'full' );
+		$url = $url ? $url : '';
+	} elseif ( ! empty( $slide['image_url'] ) ) {
+		$url = esc_url_raw( (string) $slide['image_url'] );
+	}
+
+	return array(
+		'image'     => $image_id,
+		'image_url' => $url ? $url : '',
+		'link'      => kids_shop_sanitize_view_all_url( $slide['link'] ),
+		'alt'       => sanitize_text_field( (string) $slide['alt'] ),
+	);
+}
+
+/**
+ * Migrate legacy hero_slide_1_* … hero_slide_4_* options.
+ *
+ * @return array<int, array{image: int, link: string, alt: string}>
+ */
+function kids_shop_migrate_legacy_hero_slides() {
+	$saved = get_option( KIDS_SHOP_OPTIONS_KEY, array() );
+	if ( ! is_array( $saved ) ) {
+		return array();
+	}
+
+	$slides = array();
+	for ( $i = 1; $i <= 4; $i++ ) {
+		$image_key = 'hero_slide_' . $i . '_image';
+		$link_key  = 'hero_slide_' . $i . '_link';
+		$alt_key   = 'hero_slide_' . $i . '_alt';
+
+		if ( ! isset( $saved[ $image_key ] ) && ! isset( $saved[ $link_key ] ) && ! isset( $saved[ $alt_key ] ) ) {
+			continue;
+		}
+
+		$slides[] = kids_shop_normalize_hero_slide(
+			array(
+				'image' => isset( $saved[ $image_key ] ) ? $saved[ $image_key ] : 0,
+				'link'  => isset( $saved[ $link_key ] ) ? $saved[ $link_key ] : '',
+				'alt'   => isset( $saved[ $alt_key ] ) ? $saved[ $alt_key ] : '',
+			)
+		);
+	}
+
+	return $slides;
+}
+
+/**
+ * Saved hero slides for admin and front end.
+ *
+ * @return array<int, array{image: int, link: string, alt: string}>
+ */
+function kids_shop_get_hero_slides_config() {
+	$saved  = get_option( KIDS_SHOP_OPTIONS_KEY, array() );
+	$slides = ( is_array( $saved ) && ! empty( $saved['hero_slides'] ) && is_array( $saved['hero_slides'] ) )
+		? $saved['hero_slides']
+		: array();
+
+	if ( empty( $slides ) ) {
+		$slides = kids_shop_migrate_legacy_hero_slides();
+	}
+
+	$normalized = array();
+	foreach ( $slides as $slide ) {
+		$row = kids_shop_normalize_hero_slide( $slide );
+		if ( $row['image'] || $row['image_url'] || '' !== $row['link'] || '' !== $row['alt'] ) {
+			$normalized[] = $row;
+		}
+	}
+
+	return $normalized;
+}
+
+/**
+ * Hero slide image URL from media library attachment.
+ *
+ * @param int $image_id Attachment ID.
  * @return string
  */
-function kids_shop_get_hero_slide_image_url( $slide_index, $fallback_asset ) {
-	$image_id = (int) kids_shop_get_option( 'hero_slide_' . $slide_index . '_image', 0 );
+function kids_shop_get_hero_slide_image_url( $image_id, $fallback_url = '' ) {
+	$image_id = kids_shop_validate_image_attachment_id( $image_id );
 	if ( $image_id ) {
 		$url = wp_get_attachment_image_url( $image_id, 'full' );
 		if ( $url ) {
 			return $url;
 		}
 	}
-	return get_template_directory_uri() . '/assets/' . ltrim( $fallback_asset, '/' );
+
+	$fallback_url = esc_url_raw( (string) $fallback_url );
+
+	return $fallback_url ? $fallback_url : '';
 }
 
 /**

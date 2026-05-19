@@ -40,6 +40,26 @@ function kids_shop_register_theme_settings() {
 add_action( 'admin_init', 'kids_shop_register_theme_settings' );
 
 /**
+ * After save, return to the same settings tab.
+ *
+ * @param string $location Redirect URL.
+ * @return string
+ */
+function kids_shop_theme_settings_redirect( $location ) {
+	if ( false === strpos( $location, 'kids-shop-theme-settings' ) ) {
+		return $location;
+	}
+
+	if ( ! empty( $_POST['kids_shop_settings_tab'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$tab = sanitize_key( wp_unslash( $_POST['kids_shop_settings_tab'] ) );
+		$location = add_query_arg( 'tab', $tab, $location );
+	}
+
+	return $location;
+}
+add_filter( 'wp_redirect', 'kids_shop_theme_settings_redirect', 10, 1 );
+
+/**
  * Sanitize saved options.
  *
  * @param array $input Raw POST data.
@@ -58,56 +78,79 @@ function kids_shop_sanitize_theme_options( $input ) {
 		'contact_email',
 		'contact_phone',
 		'contact_address',
-		'hero_slide_1_alt',
-		'hero_slide_2_alt',
-		'hero_slide_3_alt',
-		'hero_slide_4_alt',
 	);
 
 	foreach ( $text_fields as $field ) {
-		$output[ $field ] = isset( $input[ $field ] ) ? sanitize_text_field( $input[ $field ] ) : $defaults[ $field ];
+		if ( isset( $input[ $field ] ) ) {
+			$output[ $field ] = sanitize_text_field( $input[ $field ] );
+		}
 	}
 
 	$url_fields = array(
-		'hero_slide_1_link',
-		'hero_slide_2_link',
-		'hero_slide_3_link',
-		'hero_slide_4_link',
 		'social_facebook',
 		'social_instagram',
 		'social_youtube',
 	);
 
 	foreach ( $url_fields as $field ) {
-		if ( ! empty( $input[ $field ] ) ) {
-			$output[ $field ] = esc_url_raw( $input[ $field ] );
-		} else {
-			$output[ $field ] = '';
+		if ( ! isset( $input[ $field ] ) ) {
+			continue;
 		}
+		$output[ $field ] = ! empty( $input[ $field ] ) ? esc_url_raw( $input[ $field ] ) : '';
 	}
 
-	$output['contact_email'] = sanitize_email( $output['contact_email'] );
+	if ( isset( $output['contact_email'] ) ) {
+		$output['contact_email'] = sanitize_email( $output['contact_email'] );
+	}
 
 	$color_fields = array( 'color_primary', 'color_secondary', 'color_tertiary' );
 	foreach ( $color_fields as $field ) {
-		$color = isset( $input[ $field ] ) ? sanitize_hex_color( $input[ $field ] ) : '';
+		if ( ! isset( $input[ $field ] ) ) {
+			continue;
+		}
+		$color = sanitize_hex_color( $input[ $field ] );
 		$output[ $field ] = $color ? $color : $defaults[ $field ];
 	}
 
 	$int_fields = array(
 		'logo_id',
-		'hero_slide_1_image',
-		'hero_slide_2_image',
-		'hero_slide_3_image',
-		'hero_slide_4_image',
 		'shop_products_per_page',
 	);
 
 	foreach ( $int_fields as $field ) {
-		$output[ $field ] = isset( $input[ $field ] ) ? absint( $input[ $field ] ) : (int) $defaults[ $field ];
+		if ( isset( $input[ $field ] ) ) {
+			$value = absint( $input[ $field ] );
+			if ( 'logo_id' === $field ) {
+				$value = kids_shop_validate_image_attachment_id( $value );
+			}
+			$output[ $field ] = $value;
+		}
 	}
 
-	$output['shop_products_per_page'] = max( 4, min( 48, $output['shop_products_per_page'] ) );
+	if ( isset( $output['shop_products_per_page'] ) ) {
+		$output['shop_products_per_page'] = max( 4, min( 48, $output['shop_products_per_page'] ) );
+	}
+
+	if ( isset( $input['hero_slides'] ) && is_array( $input['hero_slides'] ) ) {
+		// Flat image IDs (reliable when nested option array drops attachment fields).
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- options.php verifies nonce.
+		if ( ! empty( $_POST['kids_shop_hero_image_ids'] ) && is_array( $_POST['kids_shop_hero_image_ids'] ) ) {
+			foreach ( $_POST['kids_shop_hero_image_ids'] as $idx => $img_id ) {
+				$idx = (int) $idx;
+				if ( ! isset( $input['hero_slides'][ $idx ] ) || ! is_array( $input['hero_slides'][ $idx ] ) ) {
+					$input['hero_slides'][ $idx ] = array();
+				}
+				if ( '' !== (string) $img_id && '0' !== (string) $img_id ) {
+					$input['hero_slides'][ $idx ]['image'] = $img_id;
+				}
+			}
+			ksort( $input['hero_slides'] );
+			$input['hero_slides'] = array_values( $input['hero_slides'] );
+		}
+		$output['hero_slides'] = kids_shop_sanitize_hero_slides_input( $input['hero_slides'] );
+	} else {
+		$output['hero_slides'] = kids_shop_get_hero_slides_config();
+	}
 
 	if ( isset( $input['home_sections'] ) && is_array( $input['home_sections'] ) ) {
 		$output['home_sections'] = kids_shop_sanitize_home_sections_input( $input['home_sections'] );
@@ -115,7 +158,85 @@ function kids_shop_sanitize_theme_options( $input ) {
 		$output['home_sections'] = kids_shop_get_home_sections_config();
 	}
 
-	return wp_parse_args( $output, $defaults );
+	$existing = get_option( KIDS_SHOP_OPTIONS_KEY, array() );
+	if ( ! is_array( $existing ) ) {
+		$existing = array();
+	}
+
+	// Merge with previously saved values so other tabs are not reset to defaults.
+	$merged = wp_parse_args( $output, $existing );
+
+	return wp_parse_args( $merged, $defaults );
+}
+
+/**
+ * Sanitize hero slides repeater from POST.
+ *
+ * @param array $slides Raw slides.
+ * @return array<int, array{image: int, link: string, alt: string}>
+ */
+function kids_shop_sanitize_hero_slides_input( $slides ) {
+	$clean         = array();
+	$max           = 12;
+	$existing      = kids_shop_get_hero_slides_config();
+	$invalid_image = false;
+
+	foreach ( array_values( $slides ) as $index => $slide ) {
+		if ( count( $clean ) >= $max ) {
+			break;
+		}
+
+		$raw_image = isset( $slide['image'] ) ? $slide['image'] : '';
+		$row       = kids_shop_normalize_hero_slide( $slide );
+
+		if ( '' !== (string) $raw_image && '0' !== (string) $raw_image && ! $row['image'] ) {
+			$invalid_image = true;
+		}
+
+		// Keep previously saved attachment if the hidden field was missing from POST.
+		if ( ! $row['image'] && isset( $existing[ $index ]['image'] ) ) {
+			$row['image'] = kids_shop_validate_image_attachment_id( $existing[ $index ]['image'] );
+		}
+
+		// Keep row in admin if it has any content (image optional until upload).
+		if ( ! $row['image'] && '' === $row['link'] && '' === $row['alt'] ) {
+			continue;
+		}
+		if ( '' === $row['alt'] ) {
+			$row['alt'] = sprintf(
+				/* translators: %d: slide number */
+				__( 'Slide %d', 'kids-shop' ),
+				count( $clean ) + 1
+			);
+		}
+		$clean[] = $row;
+	}
+
+	if ( $invalid_image ) {
+		add_settings_error(
+			'kids_shop_messages',
+			'hero_slides_invalid_image',
+			__( 'One or more slides had an invalid image. Please click Upload / Select, choose an image from the Media Library, then click “Use this image” before saving.', 'kids-shop' ),
+			'error'
+		);
+	}
+
+	if ( empty( $clean ) ) {
+		foreach ( array_values( $slides ) as $slide ) {
+			$row = kids_shop_normalize_hero_slide( $slide );
+			if ( $row['image'] || '' !== $row['link'] || '' !== $row['alt'] ) {
+				add_settings_error(
+					'kids_shop_messages',
+					'hero_slides_no_image',
+					__( 'Homepage slider: upload an image for each slide, then save again. Slides without an image are not shown on the home page.', 'kids-shop' ),
+					'warning'
+				);
+				break;
+			}
+		}
+	}
+
+	return $clean;
 }
 
 /**
@@ -171,7 +292,7 @@ function kids_shop_theme_settings_assets( $hook_suffix ) {
 	wp_enqueue_script(
 		'kids-shop-admin-settings',
 		get_template_directory_uri() . '/assets/admin-theme-settings.js',
-		array( 'jquery', 'wp-color-picker' ),
+		array( 'jquery', 'media-models', 'media-views', 'media-upload', 'wp-color-picker' ),
 		file_exists( $admin_js ) ? (string) filemtime( $admin_js ) : wp_get_theme()->get( 'Version' ),
 		true
 	);
@@ -182,36 +303,221 @@ function kids_shop_theme_settings_assets( $hook_suffix ) {
 		array(
 			'chooseImage'      => __( 'Choose image', 'kids-shop' ),
 			'useImage'         => __( 'Use this image', 'kids-shop' ),
+			'mediaError'       => __( 'WordPress media library did not load. Please refresh the page and try again.', 'kids-shop' ),
 			'removeImage'      => __( 'Remove', 'kids-shop' ),
 			'sectionLabel'     => __( 'Section', 'kids-shop' ),
 			'removeSection'    => __( 'Remove section', 'kids-shop' ),
 			'maxSections'      => 12,
 			'maxSectionsAlert' => __( 'You can add up to 12 home sections.', 'kids-shop' ),
+			'slideLabel'       => __( 'Slide', 'kids-shop' ),
+			'maxSlides'        => 12,
+			'maxSlidesAlert'   => __( 'You can add up to 12 hero slides.', 'kids-shop' ),
+			'ajaxUrl'          => admin_url( 'admin-ajax.php' ),
+			'nonce'            => wp_create_nonce( 'kids_shop_admin' ),
+			'imageSaved'       => __( 'Image saved.', 'kids-shop' ),
+			'imageSaveError'   => __( 'Could not save image. Try again.', 'kids-shop' ),
 		)
 	);
 }
 add_action( 'admin_enqueue_scripts', 'kids_shop_theme_settings_assets' );
 
 /**
+ * AJAX: save hero slide image immediately after media selection.
+ */
+function kids_shop_ajax_save_hero_slide_image() {
+	check_ajax_referer( 'kids_shop_admin', 'nonce' );
+
+	if ( ! current_user_can( 'manage_options' ) ) {
+		wp_send_json_error( array( 'message' => __( 'Permission denied.', 'kids-shop' ) ), 403 );
+	}
+
+	$index    = isset( $_POST['slide_index'] ) ? absint( $_POST['slide_index'] ) : 0;
+	$image_id = kids_shop_validate_image_attachment_id( isset( $_POST['image_id'] ) ? $_POST['image_id'] : 0 );
+
+	if ( ! $image_id ) {
+		wp_send_json_error( array( 'message' => __( 'Invalid image.', 'kids-shop' ) ) );
+	}
+
+	$stored = get_option( KIDS_SHOP_OPTIONS_KEY, array() );
+	if ( ! is_array( $stored ) ) {
+		$stored = array();
+	}
+
+	$slides = array();
+	if ( ! empty( $stored['hero_slides'] ) && is_array( $stored['hero_slides'] ) ) {
+		$slides = $stored['hero_slides'];
+	}
+
+	while ( count( $slides ) <= $index ) {
+		$slides[] = array(
+			'image'     => 0,
+			'image_url' => '',
+			'link'      => '',
+			'alt'       => '',
+		);
+	}
+
+	$existing = isset( $slides[ $index ] ) && is_array( $slides[ $index ] ) ? $slides[ $index ] : array();
+	$slides[ $index ] = kids_shop_normalize_hero_slide(
+		array_merge(
+			$existing,
+			array(
+				'image'     => $image_id,
+				'image_url' => wp_get_attachment_image_url( $image_id, 'full' ),
+			)
+		)
+	);
+
+	$stored['hero_slides'] = array_values( $slides );
+	update_option( KIDS_SHOP_OPTIONS_KEY, $stored );
+
+	wp_send_json_success(
+		array(
+			'image_id'  => $image_id,
+			'image_url' => $slides[ $index ]['image_url'],
+			'preview'   => wp_get_attachment_image_url( $image_id, 'medium' ),
+		)
+	);
+}
+add_action( 'wp_ajax_kids_shop_save_hero_slide_image', 'kids_shop_ajax_save_hero_slide_image' );
+
+/**
  * Render a media upload field.
  *
- * @param string $name  Field name.
- * @param int    $value Attachment ID.
- * @param string $label Field label.
+ * @param string               $name       Field name.
+ * @param int                  $value      Attachment ID.
+ * @param string               $label      Field label.
+ * @param string               $input_name Input name override.
+ * @param array<string, mixed> $extra      Optional: slide_index, image_url, url_input_name.
  */
-function kids_shop_settings_media_field( $name, $value, $label ) {
+function kids_shop_settings_media_field( $name, $value, $label, $input_name = '', $extra = array() ) {
+	$extra = wp_parse_args(
+		is_array( $extra ) ? $extra : array(),
+		array(
+			'slide_index'    => null,
+			'image_url'      => '',
+			'url_input_name' => '',
+		)
+	);
+
+	$value     = kids_shop_validate_image_attachment_id( $value );
+	$full_url  = $extra['image_url'] ? esc_url( (string) $extra['image_url'] ) : '';
+	if ( ! $full_url && $value ) {
+		$full_url = wp_get_attachment_image_url( $value, 'full' );
+	}
 	$image_url = $value ? wp_get_attachment_image_url( $value, 'medium' ) : '';
+	if ( ! $image_url && $full_url ) {
+		$image_url = $full_url;
+	}
+	$input_name = $input_name ? $input_name : KIDS_SHOP_OPTIONS_KEY . '[' . $name . ']';
 	?>
-	<div class="kids-shop-media-field">
+	<div class="kids-shop-media-field" data-slide-index="<?php echo esc_attr( null === $extra['slide_index'] ? '' : (string) $extra['slide_index'] ); ?>">
 		<label><strong><?php echo esc_html( $label ); ?></strong></label>
 		<div class="kids-shop-media-preview">
 			<?php if ( $image_url ) : ?>
 				<img src="<?php echo esc_url( $image_url ); ?>" alt=""/>
 			<?php endif; ?>
 		</div>
-		<input type="hidden" name="<?php echo esc_attr( KIDS_SHOP_OPTIONS_KEY ); ?>[<?php echo esc_attr( $name ); ?>]" value="<?php echo esc_attr( $value ); ?>" class="kids-shop-media-id"/>
+		<input
+			type="hidden"
+			name="<?php echo esc_attr( $input_name ); ?>"
+			value="<?php echo esc_attr( (string) $value ); ?>"
+			class="kids-shop-media-id"
+		/>
+		<?php if ( null !== $extra['slide_index'] ) : ?>
+			<input
+				type="hidden"
+				class="kids-shop-hero-image-flat"
+				name="kids_shop_hero_image_ids[<?php echo esc_attr( (string) $extra['slide_index'] ); ?>]"
+				value="<?php echo esc_attr( (string) $value ); ?>"
+			/>
+			<?php if ( $extra['url_input_name'] ) : ?>
+				<input
+					type="hidden"
+					class="kids-shop-media-url"
+					name="<?php echo esc_attr( $extra['url_input_name'] ); ?>"
+					value="<?php echo esc_attr( $full_url ? $full_url : '' ); ?>"
+				/>
+			<?php endif; ?>
+		<?php endif; ?>
 		<button type="button" class="button kids-shop-upload-btn"><?php esc_html_e( 'Upload / Select', 'kids-shop' ); ?></button>
 		<button type="button" class="button kids-shop-remove-media-btn"><?php esc_html_e( 'Remove', 'kids-shop' ); ?></button>
+		<span class="kids-shop-media-status" aria-live="polite"></span>
+	</div>
+	<?php
+}
+
+/**
+ * Render one hero slide card in Theme Settings.
+ *
+ * @param int|string $index Zero-based index or __INDEX__ for JS template.
+ * @param array      $slide Slide config.
+ */
+function kids_shop_render_hero_slide_card( $index, $slide ) {
+	$slide      = kids_shop_normalize_hero_slide( $slide );
+	$opt_key    = KIDS_SHOP_OPTIONS_KEY;
+	$index_key  = is_numeric( $index ) ? (string) (int) $index : '__INDEX__';
+	$name_base  = $opt_key . '[hero_slides][' . $index_key . ']';
+	$is_template = '__INDEX__' === $index_key;
+	?>
+	<div class="kids-shop-settings-card kids-shop-hero-slide-item" data-index="<?php echo esc_attr( $index_key ); ?>">
+		<div class="kids-shop-section-card-header">
+			<h2 class="kids-shop-slide-heading">
+				<?php
+				if ( $is_template ) {
+					esc_html_e( 'New slide', 'kids-shop' );
+				} else {
+					echo esc_html( sprintf( __( 'Slide %d', 'kids-shop' ), (int) $index + 1 ) );
+				}
+				?>
+			</h2>
+			<button type="button" class="button-link-delete kids-shop-remove-slide-btn" aria-label="<?php esc_attr_e( 'Remove slide', 'kids-shop' ); ?>">
+				<?php esc_html_e( 'Remove', 'kids-shop' ); ?>
+			</button>
+		</div>
+		<table class="form-table" role="presentation">
+			<tr>
+				<th scope="row"><?php esc_html_e( 'Image', 'kids-shop' ); ?></th>
+				<td>
+					<?php
+					$slide_image_url = ! empty( $slide['image_url'] ) ? $slide['image_url'] : '';
+					if ( ! $slide_image_url && (int) $slide['image'] ) {
+						$slide_image_url = wp_get_attachment_image_url( (int) $slide['image'], 'full' );
+					}
+					kids_shop_settings_media_field(
+						'',
+						(int) $slide['image'],
+						__( 'Slide image', 'kids-shop' ),
+						$name_base . '[image]',
+						array(
+							'slide_index'    => $index_key,
+							'image_url'      => $slide_image_url ? $slide_image_url : '',
+							'url_input_name' => $name_base . '[image_url]',
+						)
+					);
+					?>
+					<p class="description"><?php esc_html_e( 'Required for the home page slider.', 'kids-shop' ); ?></p>
+					<?php if ( ! (int) $slide['image'] && empty( $slide['image_url'] ) ) : ?>
+						<p class="description kids-shop-slide-missing-image" style="color:#b32d2e;">
+							<?php esc_html_e( 'No image yet — this slide will not appear on the home page until you upload one.', 'kids-shop' ); ?>
+						</p>
+					<?php endif; ?>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row"><label><?php esc_html_e( 'Link URL', 'kids-shop' ); ?></label></th>
+				<td>
+					<input type="url" class="large-text kids-shop-slide-link" name="<?php echo esc_attr( $name_base ); ?>[link]" value="<?php echo esc_attr( $slide['link'] ); ?>" placeholder="<?php echo esc_attr( home_url( '/' ) ); ?>"/>
+					<p class="description"><?php esc_html_e( 'Optional. Wraps the slide image in a link when set.', 'kids-shop' ); ?></p>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row"><label><?php esc_html_e( 'Alt text', 'kids-shop' ); ?></label></th>
+				<td>
+					<input type="text" class="regular-text kids-shop-slide-alt" name="<?php echo esc_attr( $name_base ); ?>[alt]" value="<?php echo esc_attr( $slide['alt'] ); ?>"/>
+				</td>
+			</tr>
+		</table>
 	</div>
 	<?php
 }
@@ -340,6 +646,7 @@ function kids_shop_render_theme_settings_page() {
 
 		<form method="post" action="options.php" class="kids-shop-settings-form">
 			<?php settings_fields( 'kids_shop_theme_settings_group' ); ?>
+			<input type="hidden" name="kids_shop_settings_tab" value="<?php echo esc_attr( $tab ); ?>"/>
 
 			<?php if ( 'general' === $tab ) : ?>
 				<table class="form-table" role="presentation">
@@ -406,32 +713,43 @@ function kids_shop_render_theme_settings_page() {
 			<?php endif; ?>
 
 			<?php if ( 'hero' === $tab ) : ?>
-				<p class="description"><?php esc_html_e( 'Up to 4 slides on the home page hero. Leave image empty to use the default theme image.', 'kids-shop' ); ?></p>
+				<p class="description"><?php esc_html_e( 'Home page slider: add slides here (no default images). Each slide needs an uploaded image. The slider appears on the home page only after you save at least one slide with an image.', 'kids-shop' ); ?></p>
 				<?php
-				$fallbacks = array( 'image-3-min-4b80.webp', 'image-min-2-9bba.webp', 'image-3-min-4b80.webp', 'image-min-2-9bba.webp' );
-				for ( $i = 1; $i <= 4; $i++ ) :
+				$raw_saved  = get_option( KIDS_SHOP_OPTIONS_KEY, array() );
+				$raw_slides = ( is_array( $raw_saved ) && ! empty( $raw_saved['hero_slides'] ) ) ? $raw_saved['hero_slides'] : array();
+				foreach ( $raw_slides as $raw_slide ) {
+					$raw_id = isset( $raw_slide['image'] ) ? absint( $raw_slide['image'] ) : 0;
+					if ( $raw_id && ! kids_shop_validate_image_attachment_id( $raw_id ) ) {
+						echo '<div class="notice notice-error inline"><p>';
+						esc_html_e( 'A saved slide has an invalid image. Please click Upload / Select, choose an image, click “Use this image”, then save again.', 'kids-shop' );
+						echo '</p></div>';
+						break;
+					}
+				}
+				?>
+				<div id="kids-shop-hero-slides-list" class="kids-shop-hero-slides-list">
+					<?php
+					$hero_slides = kids_shop_get_hero_slides_config();
+					if ( empty( $hero_slides ) ) {
+						$hero_slides = array(
+							array(
+								'image'     => 0,
+								'image_url' => '',
+								'link'      => '',
+								'alt'       => '',
+							),
+						);
+					}
+					foreach ( $hero_slides as $idx => $hero_slide ) {
+						kids_shop_render_hero_slide_card( $idx, $hero_slide );
+					}
 					?>
-					<div class="kids-shop-settings-card">
-						<h2><?php echo esc_html( sprintf( __( 'Slide %d', 'kids-shop' ), $i ) ); ?></h2>
-						<table class="form-table" role="presentation">
-							<tr>
-								<th scope="row"><?php esc_html_e( 'Image', 'kids-shop' ); ?></th>
-								<td>
-									<?php kids_shop_settings_media_field( 'hero_slide_' . $i . '_image', (int) $options[ 'hero_slide_' . $i . '_image' ], __( 'Slide image', 'kids-shop' ) ); ?>
-									<p class="description"><?php esc_html_e( 'Default:', 'kids-shop' ); ?> <code><?php echo esc_html( $fallbacks[ $i - 1 ] ); ?></code></p>
-								</td>
-							</tr>
-							<tr>
-								<th scope="row"><label><?php esc_html_e( 'Link URL', 'kids-shop' ); ?></label></th>
-								<td><input type="url" class="large-text" name="<?php echo esc_attr( KIDS_SHOP_OPTIONS_KEY ); ?>[hero_slide_<?php echo (int) $i; ?>_link]" value="<?php echo esc_attr( $options[ 'hero_slide_' . $i . '_link' ] ); ?>" placeholder="<?php echo esc_attr( home_url( '/' ) ); ?>"/></td>
-							</tr>
-							<tr>
-								<th scope="row"><label><?php esc_html_e( 'Alt text', 'kids-shop' ); ?></label></th>
-								<td><input type="text" class="regular-text" name="<?php echo esc_attr( KIDS_SHOP_OPTIONS_KEY ); ?>[hero_slide_<?php echo (int) $i; ?>_alt]" value="<?php echo esc_attr( $options[ 'hero_slide_' . $i . '_alt' ] ); ?>"/></td>
-							</tr>
-						</table>
-					</div>
-				<?php endfor; ?>
+				</div>
+				<p class="kids-shop-add-section-wrap">
+					<button type="button" class="button button-secondary" id="kids-shop-add-slide-btn">
+						<?php esc_html_e( '+ Add Slide', 'kids-shop' ); ?>
+					</button>
+				</p>
 			<?php endif; ?>
 
 			<?php if ( 'home' === $tab ) : ?>
@@ -449,21 +767,6 @@ function kids_shop_render_theme_settings_page() {
 						<?php esc_html_e( '+ Add Section', 'kids-shop' ); ?>
 					</button>
 				</p>
-				<div id="kids-shop-home-section-template" class="kids-shop-section-template" hidden aria-hidden="true">
-					<?php
-					kids_shop_render_home_section_card(
-						'__INDEX__',
-						array(
-							'title'         => '',
-							'type'          => 'category',
-							'category'      => '',
-							'limit'         => 5,
-							'view_all_text' => 'View All',
-							'view_all_url'  => '',
-						)
-					);
-					?>
-				</div>
 			<?php endif; ?>
 
 			<?php if ( 'shop' === $tab ) : ?>
@@ -489,6 +792,35 @@ function kids_shop_render_theme_settings_page() {
 
 			<?php submit_button(); ?>
 		</form>
+
+		<div id="kids-shop-hero-slide-template" class="kids-shop-section-template" hidden aria-hidden="true">
+			<?php
+			kids_shop_render_hero_slide_card(
+				'__INDEX__',
+				array(
+					'image'     => 0,
+					'image_url' => '',
+					'link'      => '',
+					'alt'       => '',
+				)
+			);
+			?>
+		</div>
+		<div id="kids-shop-home-section-template" class="kids-shop-section-template" hidden aria-hidden="true">
+			<?php
+			kids_shop_render_home_section_card(
+				'__INDEX__',
+				array(
+					'title'         => '',
+					'type'          => 'category',
+					'category'      => '',
+					'limit'         => 5,
+					'view_all_text' => 'View All',
+					'view_all_url'  => '',
+				)
+			);
+			?>
+		</div>
 	</div>
 	<?php
 }
@@ -504,12 +836,7 @@ function kids_shop_settings_hidden_fields( $options, $active_tab ) {
 		'general' => array( 'logo_id', 'footer_description' ),
 		'contact' => array( 'contact_email', 'contact_phone', 'contact_address', 'social_facebook', 'social_instagram', 'social_youtube', 'social_whatsapp' ),
 		'colors'  => array( 'color_primary', 'color_secondary', 'color_tertiary' ),
-		'hero'    => array(
-			'hero_slide_1_image', 'hero_slide_1_link', 'hero_slide_1_alt',
-			'hero_slide_2_image', 'hero_slide_2_link', 'hero_slide_2_alt',
-			'hero_slide_3_image', 'hero_slide_3_link', 'hero_slide_3_alt',
-			'hero_slide_4_image', 'hero_slide_4_link', 'hero_slide_4_alt',
-		),
+		'hero'    => array( 'hero_slides' ),
 		'home'    => array( 'home_sections' ),
 		'shop'    => array( 'shop_products_per_page' ),
 	);
@@ -518,6 +845,10 @@ function kids_shop_settings_hidden_fields( $options, $active_tab ) {
 
 	foreach ( $options as $key => $value ) {
 		if ( in_array( $key, $visible, true ) ) {
+			continue;
+		}
+		if ( 'hero_slides' === $key && is_array( $value ) ) {
+			kids_shop_settings_hidden_hero_slides( $value );
 			continue;
 		}
 		if ( 'home_sections' === $key && is_array( $value ) ) {
@@ -532,6 +863,32 @@ function kids_shop_settings_hidden_fields( $options, $active_tab ) {
 			esc_attr( KIDS_SHOP_OPTIONS_KEY ),
 			esc_attr( $key ),
 			esc_attr( (string) $value )
+		);
+	}
+}
+
+/**
+ * Hidden inputs for hero_slides when saving another tab.
+ *
+ * @param array<int, array{image: int, link: string, alt: string}> $slides Slides.
+ */
+function kids_shop_settings_hidden_hero_slides( $slides ) {
+	$opt_key = KIDS_SHOP_OPTIONS_KEY;
+	foreach ( $slides as $index => $slide ) {
+		$slide = kids_shop_normalize_hero_slide( $slide );
+		foreach ( $slide as $field => $val ) {
+			printf(
+				'<input type="hidden" name="%1$s[hero_slides][%2$d][%3$s]" value="%4$s" />',
+				esc_attr( $opt_key ),
+				(int) $index,
+				esc_attr( $field ),
+				esc_attr( (string) $val )
+			);
+		}
+		printf(
+			'<input type="hidden" name="kids_shop_hero_image_ids[%1$d]" value="%2$s" />',
+			(int) $index,
+			esc_attr( (string) (int) $slide['image'] )
 		);
 	}
 }

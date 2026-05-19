@@ -28,6 +28,13 @@
 	min-height: 40px;
 }
 
+.kids-shop-media-status {
+	display: inline-block;
+	margin-left: 8px;
+	color: #00a32a;
+	font-weight: 600;
+}
+
 .kids-shop-media-preview img {
 	max-width: 200px;
 	height: auto;

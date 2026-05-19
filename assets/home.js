@@ -14,20 +14,23 @@
 		var nextBtn = slider.querySelector('.kids-shop-carousel-next');
 		var total = slides.length;
 		var current = 0;
-		var timer;
+		var timer = null;
 
-		if (total <= 1) {
+		if (!wrapper || total < 1) {
 			return;
 		}
 
 		function goTo(index) {
-			current = (index + total) % total;
-			wrapper.style.transform = 'translateX(-' + current * 100 + '%)';
+			current = ((index % total) + total) % total;
+			wrapper.style.transform = 'translate3d(-' + current * 100 + '%, 0, 0)';
+
 			slides.forEach(function (slide, i) {
 				slide.classList.toggle('is-active', i === current);
 			});
+
 			indicators.forEach(function (dot, i) {
 				dot.classList.toggle('active', i === current);
+				dot.setAttribute('aria-selected', i === current ? 'true' : 'false');
 			});
 		}
 
@@ -41,12 +44,15 @@
 
 		function startAutoplay() {
 			stopAutoplay();
-			timer = setInterval(next, 5000);
+			if (total > 1) {
+				timer = window.setInterval(next, 5000);
+			}
 		}
 
 		function stopAutoplay() {
 			if (timer) {
-				clearInterval(timer);
+				window.clearInterval(timer);
+				timer = null;
 			}
 		}
 
@@ -56,6 +62,7 @@
 				startAutoplay();
 			});
 		}
+
 		if (nextBtn) {
 			nextBtn.addEventListener('click', function () {
 				next();
@@ -65,8 +72,11 @@
 
 		indicators.forEach(function (dot) {
 			dot.addEventListener('click', function () {
-				goTo(parseInt(dot.getAttribute('data-index'), 10));
-				startAutoplay();
+				var index = parseInt(dot.getAttribute('data-index'), 10);
+				if (!isNaN(index)) {
+					goTo(index);
+					startAutoplay();
+				}
 			});
 		});
 
@@ -110,13 +120,14 @@
 		});
 	}
 
-	if (document.readyState === 'loading') {
-		document.addEventListener('DOMContentLoaded', function () {
-			initHeroSlider();
-			initAddToCart();
-		});
-	} else {
+	function onReady() {
 		initHeroSlider();
 		initAddToCart();
+	}
+
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', onReady);
+	} else {
+		onReady();
 	}
 })();

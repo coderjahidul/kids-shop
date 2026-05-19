@@ -87,11 +87,12 @@ function kids_shop_enqueue_home_assets() {
 		return;
 	}
 
+	$home_css = get_template_directory() . '/assets/kids-shop-home.css';
 	wp_enqueue_style(
 		'kids-shop-home',
 		get_template_directory_uri() . '/assets/kids-shop-home.css',
 		array( 'kids-shop-style' ),
-		wp_get_theme()->get( 'Version' )
+		file_exists( $home_css ) ? (string) filemtime( $home_css ) : wp_get_theme()->get( 'Version' )
 	);
 
 	wp_enqueue_style(
@@ -107,11 +108,12 @@ function kids_shop_enqueue_home_assets() {
 		$deps[] = 'wc-add-to-cart';
 	}
 
+	$home_js = get_template_directory() . '/assets/home.js';
 	wp_enqueue_script(
 		'kids-shop-home-js',
 		get_template_directory_uri() . '/assets/home.js',
 		$deps,
-		wp_get_theme()->get( 'Version' ),
+		file_exists( $home_js ) ? (string) filemtime( $home_js ) : wp_get_theme()->get( 'Version' ),
 		true
 	);
 }
