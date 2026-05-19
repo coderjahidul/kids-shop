@@ -25,6 +25,8 @@ function kids_shop_get_template_replacements( $context = 'header' ) {
 	$logo_alt = sanitize_text_field( (string) kids_shop_get_option( 'logo_alt', $defaults['logo_alt'] ) );
 	$home     = home_url( '/' );
 	$shop     = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'shop' ) : home_url( '/shop/' );
+	$cart     = function_exists( 'wc_get_cart_url' ) ? wc_get_cart_url() : home_url( '/cart/' );
+	$checkout = function_exists( 'wc_get_checkout_url' ) ? wc_get_checkout_url() : home_url( '/checkout/' );
 	$wa       = kids_shop_get_whatsapp_url();
 
 	$map = array(
@@ -37,6 +39,10 @@ function kids_shop_get_template_replacements( $context = 'header' ) {
 		'https://kiddomart.softlabit.shop/'       => trailingslashit( $home ),
 		'https://kiddomart.softlabit.shop'        => untrailingslashit( $home ),
 		'href="https://kiddomart.softlabit.shop/products"' => 'href="' . esc_url( $shop ) . '"',
+		'https://kiddomart.softlabit.shop/cart'           => untrailingslashit( $cart ),
+		'href="https://kiddomart.softlabit.shop/cart"'    => 'href="' . esc_url( $cart ) . '"',
+		'https://kiddomart.softlabit.shop/checkout'       => untrailingslashit( $checkout ),
+		'href="https://kiddomart.softlabit.shop/checkout"' => 'href="' . esc_url( $checkout ) . '"',
 		'https://facebook.com/'                   => esc_url( kids_shop_get_option( 'social_facebook', $defaults['social_facebook'] ) ),
 		'https://instagram.com/'                  => esc_url( kids_shop_get_option( 'social_instagram', $defaults['social_instagram'] ) ),
 		'https://youtube.com/'                    => esc_url( kids_shop_get_option( 'social_youtube', $defaults['social_youtube'] ) ),
