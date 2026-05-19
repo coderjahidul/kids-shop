@@ -197,10 +197,6 @@
 
 		$item.find('.kids-shop-remove-section-btn').off('click.kidsShop').on('click.kidsShop', function (e) {
 			e.preventDefault();
-			var $list = $('#kids-shop-home-sections-list');
-			if ($list.find('.kids-shop-home-section-item').length <= 1) {
-				return;
-			}
 			$item.remove();
 			reindexHomeSections();
 		});
@@ -247,6 +243,39 @@
 		if (typeof reindexFn === 'function') {
 			reindexFn();
 		}
+	}
+
+	function collectHomeSectionsForSave() {
+		var sections = [];
+
+		$('#kids-shop-home-sections-list .kids-shop-home-section-item').each(function () {
+			var $item = $(this);
+			var title = $.trim($item.find('.kids-shop-section-title').val() || '');
+
+			if (!title) {
+				title = (kidsShopAdmin.sectionLabel || 'Section') + ' ' + (sections.length + 1);
+				$item.find('.kids-shop-section-title').val(title);
+			}
+
+			sections.push({
+				title: title,
+				type: $item.find('.kids-shop-section-type').val() || 'category',
+				category: $.trim($item.find('.kids-shop-section-category').val() || ''),
+				limit: parseInt($item.find('.kids-shop-section-limit').val(), 10) || 5,
+				view_all_text: $.trim($item.find('.kids-shop-section-view-all-text').val() || '') || 'View All',
+				view_all_url: $.trim($item.find('.kids-shop-section-view-all-url').val() || '')
+			});
+		});
+
+		return sections;
+	}
+
+	function syncHomeSectionsJsonField() {
+		var $json = $('#kids-shop-home-sections-json');
+		if (!$json.length) {
+			return;
+		}
+		$json.val(JSON.stringify(collectHomeSectionsForSave()));
 	}
 
 	function addHomeSection() {
@@ -300,6 +329,7 @@
 		$('.kids-shop-settings-form').on('submit', function () {
 			reindexHomeSections();
 			reindexHeroSlides();
+			syncHomeSectionsJsonField();
 			$('#kids-shop-hero-slide-template, #kids-shop-home-section-template').find(':input').prop('disabled', true);
 		});
 	});

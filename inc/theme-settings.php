@@ -152,10 +152,16 @@ function kids_shop_sanitize_theme_options( $input ) {
 		$output['hero_slides'] = kids_shop_get_hero_slides_config();
 	}
 
-	if ( isset( $input['home_sections'] ) && is_array( $input['home_sections'] ) ) {
-		$output['home_sections'] = kids_shop_sanitize_home_sections_input( $input['home_sections'] );
-	} else {
-		$output['home_sections'] = kids_shop_get_home_sections_config();
+	// phpcs:ignore WordPress.Security.NonceVerification.Missing -- options.php verifies nonce.
+	$settings_tab = isset( $_POST['kids_shop_settings_tab'] ) ? sanitize_key( wp_unslash( $_POST['kids_shop_settings_tab'] ) ) : '';
+
+	// phpcs:ignore WordPress.Security.NonceVerification.Missing -- options.php verifies nonce.
+	if ( isset( $_POST['kids_shop_home_sections_json'] ) ) {
+		$home_sections_post      = kids_shop_get_home_sections_post_data();
+		$output['home_sections'] = kids_shop_sanitize_home_sections_input( is_array( $home_sections_post ) ? $home_sections_post : array() );
+		kids_shop_remove_legacy_home_section_keys( $output );
+	} elseif ( 'home' !== $settings_tab ) {
+		$output['home_sections'] = kids_shop_get_home_sections_from_db();
 	}
 
 	$existing = get_option( KIDS_SHOP_OPTIONS_KEY, array() );
@@ -163,10 +169,68 @@ function kids_shop_sanitize_theme_options( $input ) {
 		$existing = array();
 	}
 
-	// Merge with previously saved values so other tabs are not reset to defaults.
-	$merged = wp_parse_args( $output, $existing );
+	$merged = kids_shop_merge_theme_options( $output, $existing, $defaults );
+	kids_shop_remove_legacy_home_section_keys( $merged );
 
-	return wp_parse_args( $merged, $defaults );
+	return $merged;
+}
+
+/**
+ * Read home_sections from POST (JSON field — nested option arrays are unreliable in WP admin).
+ *
+ * @return array<int, array<string, mixed>>|null Null when not submitted on this request.
+ */
+function kids_shop_get_home_sections_post_data() {
+	// phpcs:ignore WordPress.Security.NonceVerification.Missing -- options.php verifies nonce.
+	if ( isset( $_POST['kids_shop_home_sections_json'] ) ) {
+		$raw = wp_unslash( $_POST['kids_shop_home_sections_json'] );
+		if ( '' === $raw ) {
+			return array();
+		}
+		$decoded = json_decode( $raw, true );
+		return is_array( $decoded ) ? $decoded : array();
+	}
+
+	$opt_key = KIDS_SHOP_OPTIONS_KEY;
+	// phpcs:ignore WordPress.Security.NonceVerification.Missing -- options.php verifies nonce.
+	if ( ! empty( $_POST[ $opt_key ]['home_sections'] ) && is_array( $_POST[ $opt_key ]['home_sections'] ) ) {
+		return wp_unslash( $_POST[ $opt_key ]['home_sections'] );
+	}
+
+	return null;
+}
+
+/**
+ * Hidden input that carries home sections on save (JSON).
+ *
+ * @param array<int, array<string, mixed>> $sections Sections.
+ * @param string                           $id       Optional element ID for JS on the Home tab.
+ */
+function kids_shop_render_home_sections_json_field( $sections, $id = '' ) {
+	$json = wp_json_encode( array_values( $sections ) );
+	printf(
+		'<input type="hidden" name="kids_shop_home_sections_json"%1$s value="%2$s" />',
+		$id ? ' id="' . esc_attr( $id ) . '"' : '',
+		esc_attr( $json ? $json : '[]' )
+	);
+}
+
+/**
+ * Merge sanitized options with stored values (repeaters replace, do not deep-merge).
+ *
+ * @param array $output   Sanitized fields from the current save.
+ * @param array $existing Previously stored options.
+ * @param array $defaults Theme defaults.
+ * @return array
+ */
+function kids_shop_merge_theme_options( $output, $existing, $defaults ) {
+	$merged = wp_parse_args( $existing, $defaults );
+
+	foreach ( $output as $key => $value ) {
+		$merged[ $key ] = $value;
+	}
+
+	return $merged;
 }
 
 /**
@@ -253,15 +317,18 @@ function kids_shop_sanitize_home_sections_input( $sections ) {
 		if ( count( $clean ) >= $max ) {
 			break;
 		}
+
+		if ( ! is_array( $section ) ) {
+			continue;
+		}
+
 		$row = kids_shop_normalize_home_section( $section );
+
 		if ( '' === $row['title'] ) {
 			continue;
 		}
-		$clean[] = $row;
-	}
 
-	if ( empty( $clean ) ) {
-		return kids_shop_get_default_home_sections();
+		$clean[] = $row;
 	}
 
 	return $clean;
@@ -561,7 +628,8 @@ function kids_shop_render_home_section_card( $index, $section ) {
 			<tr>
 				<th scope="row"><label><?php esc_html_e( 'Title', 'kids-shop' ); ?></label></th>
 				<td>
-					<input type="text" class="regular-text kids-shop-section-title" name="<?php echo esc_attr( $name_base ); ?>[title]" value="<?php echo esc_attr( $section['title'] ); ?>"/>
+					<input type="text" class="regular-text kids-shop-section-title" name="<?php echo esc_attr( $name_base ); ?>[title]" value="<?php echo esc_attr( $section['title'] ); ?>" required aria-required="true"/>
+					<p class="description"><?php esc_html_e( 'Required. Shown as the heading on the home page.', 'kids-shop' ); ?></p>
 				</td>
 			</tr>
 			<tr>
@@ -753,10 +821,13 @@ function kids_shop_render_theme_settings_page() {
 			<?php endif; ?>
 
 			<?php if ( 'home' === $tab ) : ?>
-				<p class="description"><?php esc_html_e( 'Add product rows on the home page. Sections appear in the order listed below (up to 12).', 'kids-shop' ); ?></p>
+				<?php
+				$home_sections = kids_shop_get_home_sections_from_db();
+				kids_shop_render_home_sections_json_field( $home_sections, 'kids-shop-home-sections-json' );
+				?>
+				<p class="description"><?php esc_html_e( 'Add product rows on the home page. Enter a title for each section, then click Save Changes (up to 12).', 'kids-shop' ); ?></p>
 				<div id="kids-shop-home-sections-list" class="kids-shop-home-sections-list">
 					<?php
-					$home_sections = kids_shop_get_home_sections_config();
 					foreach ( $home_sections as $idx => $home_section ) {
 						kids_shop_render_home_section_card( $idx, $home_section );
 					}
@@ -851,8 +922,7 @@ function kids_shop_settings_hidden_fields( $options, $active_tab ) {
 			kids_shop_settings_hidden_hero_slides( $value );
 			continue;
 		}
-		if ( 'home_sections' === $key && is_array( $value ) ) {
-			kids_shop_settings_hidden_home_sections( $value );
+		if ( 'home_sections' === $key ) {
 			continue;
 		}
 		if ( is_array( $value ) ) {
@@ -864,6 +934,10 @@ function kids_shop_settings_hidden_fields( $options, $active_tab ) {
 			esc_attr( $key ),
 			esc_attr( (string) $value )
 		);
+	}
+
+	if ( 'home' !== $active_tab ) {
+		kids_shop_render_home_sections_json_field( kids_shop_get_home_sections_from_db() );
 	}
 }
 
@@ -893,23 +967,3 @@ function kids_shop_settings_hidden_hero_slides( $slides ) {
 	}
 }
 
-/**
- * Hidden inputs for home_sections when saving another tab.
- *
- * @param array<int, array{title: string, type: string, category: string, limit: int}> $sections Sections.
- */
-function kids_shop_settings_hidden_home_sections( $sections ) {
-	$opt_key = KIDS_SHOP_OPTIONS_KEY;
-	foreach ( $sections as $index => $section ) {
-		$section = kids_shop_normalize_home_section( $section );
-		foreach ( $section as $field => $val ) {
-			printf(
-				'<input type="hidden" name="%1$s[home_sections][%2$d][%3$s]" value="%4$s" />',
-				esc_attr( $opt_key ),
-				(int) $index,
-				esc_attr( $field ),
-				esc_attr( (string) $val )
-			);
-		}
-	}
-}

@@ -263,11 +263,11 @@ function kids_shop_output_theme_colors_css() {
 add_action( 'wp_head', 'kids_shop_output_theme_colors_css', 5 );
 
 /**
- * Default home page product sections.
+ * Legacy default home sections (used only for one-time migration cleanup).
  *
- * @return array<int, array{title: string, type: string, category: string, limit: int}>
+ * @return array<int, array{title: string, type: string, category: string, limit: int, view_all_text: string, view_all_url: string}>
  */
-function kids_shop_get_default_home_sections() {
+function kids_shop_get_legacy_default_home_sections() {
 	return array(
 		array(
 			'title'         => 'Winter Collection',
@@ -295,6 +295,63 @@ function kids_shop_get_default_home_sections() {
 		),
 	);
 }
+
+/**
+ * One-time upgrade: store repeater home_sections and remove legacy flat keys.
+ */
+function kids_shop_upgrade_home_sections_storage() {
+	if ( get_option( 'kids_shop_home_sections_upgraded', false ) ) {
+		return;
+	}
+
+	$saved = get_option( KIDS_SHOP_OPTIONS_KEY, array() );
+	if ( ! is_array( $saved ) ) {
+		update_option( 'kids_shop_home_sections_upgraded', true );
+		return;
+	}
+
+	if ( ! array_key_exists( 'home_sections', $saved ) ) {
+		$saved['home_sections'] = kids_shop_migrate_legacy_home_sections();
+	}
+
+	kids_shop_remove_legacy_home_section_keys( $saved );
+	update_option( KIDS_SHOP_OPTIONS_KEY, $saved );
+	update_option( 'kids_shop_home_sections_upgraded', true );
+}
+add_action( 'after_setup_theme', 'kids_shop_upgrade_home_sections_storage', 15 );
+
+/**
+ * Clear saved home sections when they still match the old theme defaults.
+ */
+function kids_shop_maybe_clear_legacy_default_home_sections() {
+	if ( get_option( 'kids_shop_legacy_home_sections_cleared', false ) ) {
+		return;
+	}
+
+	$saved = get_option( KIDS_SHOP_OPTIONS_KEY, array() );
+	if ( ! is_array( $saved ) || empty( $saved['home_sections'] ) || ! is_array( $saved['home_sections'] ) ) {
+		update_option( 'kids_shop_legacy_home_sections_cleared', true );
+		return;
+	}
+
+	$normalized_saved = array();
+	foreach ( $saved['home_sections'] as $section ) {
+		$normalized_saved[] = kids_shop_normalize_home_section( $section );
+	}
+
+	$normalized_defaults = array();
+	foreach ( kids_shop_get_legacy_default_home_sections() as $section ) {
+		$normalized_defaults[] = kids_shop_normalize_home_section( $section );
+	}
+
+	if ( $normalized_saved === $normalized_defaults ) {
+		$saved['home_sections'] = array();
+		update_option( KIDS_SHOP_OPTIONS_KEY, $saved );
+	}
+
+	update_option( 'kids_shop_legacy_home_sections_cleared', true );
+}
+add_action( 'after_setup_theme', 'kids_shop_maybe_clear_legacy_default_home_sections', 20 );
 
 /**
  * Allowed product source types for a home section.
@@ -367,18 +424,56 @@ function kids_shop_sanitize_view_all_url( $url ) {
 }
 
 /**
+ * Legacy flat option keys (pre-repeater) — removed after migration.
+ *
+ * @return string[]
+ */
+function kids_shop_get_legacy_home_section_option_keys() {
+	return array(
+		'home_section_1_title',
+		'home_section_1_category',
+		'home_section_1_limit',
+		'home_section_2_title',
+		'home_section_2_type',
+		'home_section_2_limit',
+		'home_section_3_title',
+		'home_section_3_type',
+		'home_section_3_limit',
+	);
+}
+
+/**
+ * Remove legacy flat home section keys from a theme options array.
+ *
+ * @param array $options Options array (passed by reference).
+ */
+function kids_shop_remove_legacy_home_section_keys( &$options ) {
+	if ( ! is_array( $options ) ) {
+		return;
+	}
+	foreach ( kids_shop_get_legacy_home_section_option_keys() as $key ) {
+		unset( $options[ $key ] );
+	}
+}
+
+/**
  * Build home sections from legacy flat option keys (pre-repeater).
+ * Only used when the repeater was never saved (`home_sections` key missing).
  *
  * @return array<int, array{title: string, type: string, category: string, limit: int}>
  */
 function kids_shop_migrate_legacy_home_sections() {
 	$saved = get_option( KIDS_SHOP_OPTIONS_KEY, array() );
 	if ( ! is_array( $saved ) ) {
-		return kids_shop_get_default_home_sections();
+		return array();
+	}
+
+	if ( array_key_exists( 'home_sections', $saved ) ) {
+		return array();
 	}
 
 	if ( empty( $saved['home_section_1_title'] ) && empty( $saved['home_section_2_title'] ) ) {
-		return kids_shop_get_default_home_sections();
+		return array();
 	}
 
 	return array(
@@ -410,31 +505,57 @@ function kids_shop_migrate_legacy_home_sections() {
 }
 
 /**
- * Saved home sections for admin and front end.
+ * Raw home sections from the database (repeater only, no legacy fallback).
  *
- * @return array<int, array{title: string, type: string, category: string, limit: int}>
+ * @return array<int, array{title: string, type: string, category: string, limit: int, view_all_text: string, view_all_url: string}>
  */
-function kids_shop_get_home_sections_config() {
-	$options  = kids_shop_get_all_options();
-	$sections = isset( $options['home_sections'] ) && is_array( $options['home_sections'] ) ? $options['home_sections'] : array();
+function kids_shop_get_home_sections_from_db() {
+	$saved = get_option( KIDS_SHOP_OPTIONS_KEY, array() );
+	if ( ! is_array( $saved ) ) {
+		return array();
+	}
 
-	if ( empty( $sections ) ) {
-		$sections = kids_shop_migrate_legacy_home_sections();
+	if ( ! array_key_exists( 'home_sections', $saved ) ) {
+		return kids_shop_migrate_legacy_home_sections();
+	}
+
+	if ( ! is_array( $saved['home_sections'] ) ) {
+		return array();
 	}
 
 	$normalized = array();
-	foreach ( $sections as $section ) {
-		$row = kids_shop_normalize_home_section( $section );
-		if ( '' !== $row['title'] ) {
-			$normalized[] = $row;
-		}
-	}
-
-	if ( empty( $normalized ) ) {
-		$normalized = kids_shop_get_default_home_sections();
+	foreach ( $saved['home_sections'] as $section ) {
+		$normalized[] = kids_shop_normalize_home_section( $section );
 	}
 
 	return $normalized;
+}
+
+/**
+ * Saved home sections for the front end (sections must have a title).
+ *
+ * @return array<int, array{title: string, type: string, category: string, limit: int, view_all_text: string, view_all_url: string}>
+ */
+function kids_shop_get_saved_home_sections() {
+	$sections   = kids_shop_get_home_sections_from_db();
+	$normalized = array();
+
+	foreach ( $sections as $section ) {
+		if ( '' !== $section['title'] ) {
+			$normalized[] = $section;
+		}
+	}
+
+	return $normalized;
+}
+
+/**
+ * Home sections for admin and front end.
+ *
+ * @return array<int, array{title: string, type: string, category: string, limit: int, view_all_text: string, view_all_url: string}>
+ */
+function kids_shop_get_home_sections_config() {
+	return kids_shop_get_saved_home_sections();
 }
 
 /**

@@ -128,12 +128,23 @@ function kids_shop_loop_columns() {
 add_filter( 'loop_shop_columns', 'kids_shop_loop_columns' );
 
 /**
- * Products per page.
+ * Products per page (Theme Settings → Shop).
  */
 function kids_shop_products_per_page() {
 	return (int) kids_shop_get_option( 'shop_products_per_page', 12 );
 }
 add_filter( 'loop_shop_per_page', 'kids_shop_products_per_page' );
+
+/**
+ * Always apply theme products-per-page on shop archives.
+ *
+ * WooCommerce skips loop_shop_per_page when posts_per_page is already set
+ * (e.g. WordPress Reading → "Blog pages show at most 20 posts").
+ */
+function kids_shop_apply_shop_products_per_page( $query ) {
+	$query->set( 'posts_per_page', kids_shop_products_per_page() );
+}
+add_action( 'woocommerce_product_query', 'kids_shop_apply_shop_products_per_page' );
 
 /**
  * Shop page body class for layout CSS.
