@@ -134,6 +134,21 @@ function kids_shop_enqueue_home_assets() {
 		file_exists( $home_js ) ? (string) filemtime( $home_js ) : wp_get_theme()->get( 'Version' ),
 		true
 	);
+
+	wp_localize_script(
+		'kids-shop-home-js',
+		'kidsShopHome',
+		array(
+			'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+			'cartUrl' => function_exists( 'wc_get_cart_url' ) ? wc_get_cart_url() : '',
+			'i18n'    => array(
+				'addedToCart' => __( 'Product added to cart!', 'kids-shop' ),
+				'viewCart'    => __( 'View Cart', 'kids-shop' ),
+				'close'       => __( 'Close', 'kids-shop' ),
+				'error'       => __( 'Could not add to cart. Please try again.', 'kids-shop' ),
+			),
+		)
+	);
 }
 add_action( 'wp_enqueue_scripts', 'kids_shop_enqueue_home_assets', 20 );
 

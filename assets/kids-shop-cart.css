@@ -357,19 +357,16 @@
 	display: none;
 }
 
-/* Floating cart tab on cart page */
-.kids-shop-cart-page .cart-fixed-box {
-	display: block !important;
-}
-
+/* ——— Desktop layout overrides (min-width: 600px) ——— */
 @media only screen and (min-width: 600px) {
-	.kids-shop-cart-page .kids-shop-cart-layout {
+	/* High-specificity overrides for layout containers */
+	app-cart[_nghost-ng-c713332739] .container.kids-shop-cart-layout {
 		display: flex !important;
-		align-items: flex-start;
-		justify-content: space-between;
+		align-items: flex-start !important;
+		justify-content: space-between !important;
 	}
 
-	.kids-shop-cart-page .cart-checkout {
+	app-cart[_nghost-ng-c713332739] .cart-checkout[_ngcontent-ng-c713332739] {
 		position: relative !important;
 		bottom: auto !important;
 		left: auto !important;
@@ -377,125 +374,139 @@
 		padding: 20px 5px 20px 40px !important;
 		background: transparent !important;
 		z-index: 1 !important;
-		flex: 0 0 340px;
-		max-width: 340px;
+		flex: 0 0 340px !important;
+		max-width: 340px !important;
 	}
 
-	.kids-shop-cart-page .checkout-container {
+	app-cart[_nghost-ng-c713332739] .checkout-container[_ngcontent-ng-c713332739] {
 		position: sticky !important;
-		top: 100px;
+		top: 100px !important;
 		border: 2px solid var(--shop-color-primary) !important;
 		padding: 20px 15px !important;
-		background: #fff;
-		border-radius: 4px;
+		background: #fff !important;
+		border-radius: 4px !important;
 	}
 
-	.kids-shop-cart-page .cart-items {
-		flex: 1;
-		min-width: 0;
-		margin-right: 24px;
-		padding-bottom: 40px;
+	app-cart[_nghost-ng-c713332739] .cart-items[_ngcontent-ng-c713332739] {
+		flex: 1 !important;
+		min-width: 0 !important;
+		margin-right: 24px !important;
+		padding-bottom: 40px !important;
 	}
 
-	/* Table header + rows: flex so columns align (fixes huge gap) */
-	.kids-shop-cart-page .cart-header {
+	/* Table header: flex so columns align perfectly */
+	app-cart[_nghost-ng-c713332739] .cart-items[_ngcontent-ng-c713332739] .cart-header[_ngcontent-ng-c713332739] {
 		display: flex !important;
-		align-items: center;
+		align-items: center !important;
 		grid-template-columns: unset !important;
-		padding: 10px 12px;
+		padding: 10px 12px !important;
 	}
 
-	.kids-shop-cart-page .cart-header .header-area {
-		flex: 1;
-		min-width: 0;
-	}
-
-	.kids-shop-cart-page .cart-header .header-right {
+	app-cart[_nghost-ng-c713332739] .cart-items[_ngcontent-ng-c713332739] .cart-header[_ngcontent-ng-c713332739] .header-area[_ngcontent-ng-c713332739] {
 		display: flex !important;
-		flex-shrink: 0;
-		width: var(--kids-cart-cols-width);
-		grid-template-columns: unset !important;
-		justify-content: space-between;
+		align-items: center !important;
+		flex: 1 !important;
+		min-width: 0 !important;
 	}
 
-	.kids-shop-cart-page .cart-header .header-item.quantity {
-		width: var(--kids-cart-col-qty);
-		flex-shrink: 0;
-	}
-
-	.kids-shop-cart-page .cart-header .header-item.price {
-		width: var(--kids-cart-col-price);
-		flex-shrink: 0;
-	}
-
-	.kids-shop-cart-page .cart-header .header-item.total {
-		width: var(--kids-cart-col-total);
-		flex-shrink: 0;
-		padding-right: var(--kids-cart-col-delete);
-		box-sizing: content-box;
-	}
-
-	.kids-shop-cart-page .cart-item {
+	app-cart[_nghost-ng-c713332739] .cart-items[_ngcontent-ng-c713332739] .cart-header[_ngcontent-ng-c713332739] .header-right[_ngcontent-ng-c713332739] {
 		display: flex !important;
-		align-items: center;
+		flex: none !important;
+		flex-shrink: 0 !important;
+		width: var(--kids-cart-cols-width) !important;
 		grid-template-columns: unset !important;
-		padding: 12px;
+		justify-content: space-between !important;
 	}
 
-	.kids-shop-cart-page .cart-item .product-info {
-		flex: 1;
-		min-width: 0;
+	app-cart[_nghost-ng-c713332739] .cart-items[_ngcontent-ng-c713332739] .cart-header[_ngcontent-ng-c713332739] .header-item.quantity[_ngcontent-ng-c713332739] {
+		width: var(--kids-cart-col-qty) !important;
+		flex: none !important;
+		flex-shrink: 0 !important;
 	}
 
-	.kids-shop-cart-page .cart-item .qty-area {
+	app-cart[_nghost-ng-c713332739] .cart-items[_ngcontent-ng-c713332739] .cart-header[_ngcontent-ng-c713332739] .header-item.price[_ngcontent-ng-c713332739] {
+		width: var(--kids-cart-col-price) !important;
+		flex: none !important;
+		flex-shrink: 0 !important;
+	}
+
+	app-cart[_nghost-ng-c713332739] .cart-items[_ngcontent-ng-c713332739] .cart-header[_ngcontent-ng-c713332739] .header-item.total[_ngcontent-ng-c713332739] {
+		width: var(--kids-cart-col-total) !important;
+		flex: none !important;
+		flex-shrink: 0 !important;
+		padding-right: var(--kids-cart-col-delete) !important;
+		box-sizing: content-box !important;
+	}
+
+	/* Table rows: flex so columns align perfectly */
+	app-cart[_nghost-ng-c713332739] .cart-items[_ngcontent-ng-c713332739] .cart-item[_ngcontent-ng-c713332739] {
 		display: flex !important;
-		flex-shrink: 0;
-		align-items: center;
-		justify-content: space-between;
-		width: var(--kids-cart-cols-width);
+		align-items: center !important;
+		grid-template-columns: unset !important;
+		padding: 12px !important;
+	}
+
+	app-cart[_nghost-ng-c713332739] .cart-items[_ngcontent-ng-c713332739] .cart-item[_ngcontent-ng-c713332739] .product-info[_ngcontent-ng-c713332739] {
+		display: flex !important;
+		align-items: center !important;
+		flex: 1 !important;
+		min-width: 0 !important;
+	}
+
+	app-cart[_nghost-ng-c713332739] .cart-items[_ngcontent-ng-c713332739] .cart-item[_ngcontent-ng-c713332739] .qty-area[_ngcontent-ng-c713332739] {
+		display: flex !important;
+		flex: none !important;
+		flex-shrink: 0 !important;
+		align-items: center !important;
+		justify-content: space-between !important;
+		width: var(--kids-cart-cols-width) !important;
 		grid-template-columns: unset !important;
 	}
 
-	.kids-shop-cart-page .cart-item .qty-area .quantity-container {
-		width: var(--kids-cart-col-qty);
-		flex-shrink: 0;
-		justify-content: center;
+	app-cart[_nghost-ng-c713332739] .cart-items[_ngcontent-ng-c713332739] .cart-item[_ngcontent-ng-c713332739] .qty-area[_ngcontent-ng-c713332739] .quantity-container[_ngcontent-ng-c713332739] {
+		width: var(--kids-cart-col-qty) !important;
+		flex: none !important;
+		flex-shrink: 0 !important;
+		justify-content: center !important;
 	}
 
-	.kids-shop-cart-page .cart-item .qty-area .price {
-		width: var(--kids-cart-col-price);
-		flex-shrink: 0;
-		text-align: center;
+	app-cart[_nghost-ng-c713332739] .cart-items[_ngcontent-ng-c713332739] .cart-item[_ngcontent-ng-c713332739] .qty-area[_ngcontent-ng-c713332739] .price[_ngcontent-ng-c713332739] {
+		width: var(--kids-cart-col-price) !important;
+		flex: none !important;
+		flex-shrink: 0 !important;
+		text-align: center !important;
 	}
 
-	.kids-shop-cart-page .cart-item .qty-area .price p {
-		margin: 0;
+	app-cart[_nghost-ng-c713332739] .cart-items[_ngcontent-ng-c713332739] .cart-item[_ngcontent-ng-c713332739] .qty-area[_ngcontent-ng-c713332739] .price[_ngcontent-ng-c713332739] p[_ngcontent-ng-c713332739] {
+		margin: 0 !important;
 	}
 
-	.kids-shop-cart-page .cart-item .qty-area .total {
-		width: var(--kids-cart-col-total);
-		flex-shrink: 0;
-		text-align: center;
-		font-weight: 700;
-		margin: 0;
+	app-cart[_nghost-ng-c713332739] .cart-items[_ngcontent-ng-c713332739] .cart-item[_ngcontent-ng-c713332739] .qty-area[_ngcontent-ng-c713332739] .total[_ngcontent-ng-c713332739] {
+		width: var(--kids-cart-col-total) !important;
+		flex: none !important;
+		flex-shrink: 0 !important;
+		text-align: center !important;
+		font-weight: 700 !important;
+		margin: 0 !important;
 	}
 
-	.kids-shop-cart-page .cart-item .qty-area .delete-icon {
-		width: var(--kids-cart-col-delete);
-		flex-shrink: 0;
+	app-cart[_nghost-ng-c713332739] .cart-items[_ngcontent-ng-c713332739] .cart-item[_ngcontent-ng-c713332739] .qty-area[_ngcontent-ng-c713332739] .delete-icon[_ngcontent-ng-c713332739] {
+		width: var(--kids-cart-col-delete) !important;
+		flex: none !important;
+		flex-shrink: 0 !important;
 	}
 
-	.kids-shop-cart-page .kids-shop-mobile-checkout {
+	app-cart[_nghost-ng-c713332739] .cart-items[_ngcontent-ng-c713332739] .kids-shop-mobile-checkout {
 		display: none !important;
 	}
 
-	.kids-shop-cart-page .kids-shop-desktop-summary {
+	app-cart[_nghost-ng-c713332739] .kids-shop-desktop-summary {
 		display: block !important;
 	}
 
-	.kids-shop-cart-page .kids-shop-cart-suggestions {
+	app-cart[_nghost-ng-c713332739] .kids-shop-cart-suggestions {
 		display: block !important;
-		margin-top: 32px;
+		margin-top: 32px !important;
 	}
 }
 
@@ -554,4 +565,296 @@
 .kids-shop-cart-page .btn[_ngcontent-ng-c713332739],
 .kids-shop-cart-page app-cart .btn.kids-shop-checkout-btn {
 	background-color: #27a7b8 !important;
+}
+
+/* =====================================================
+   RESPONSIVE CART — comprehensive mobile overrides
+   ===================================================== */
+
+/* ——— Tablet (600px – 1080px) ——— */
+@media only screen and (min-width: 600px) and (max-width: 1080px) {
+	.kids-shop-cart-page app-cart .container.kids-shop-cart-layout {
+		flex-direction: column !important;
+		align-items: stretch !important;
+	}
+
+	.kids-shop-cart-page .cart-checkout {
+		width: 100% !important;
+		max-width: 100% !important;
+		padding: 16px 0 0 !important;
+	}
+
+	.kids-shop-cart-page .checkout-container {
+		position: static !important;
+		border-radius: 8px !important;
+		padding: 20px !important;
+	}
+
+	.kids-shop-cart-page .kids-shop-desktop-summary {
+		display: block !important;
+	}
+}
+
+/* ——— Mobile (≤ 599px) — full overhaul ——— */
+@media only screen and (max-width: 599px) {
+
+	/* Page background & spacing */
+	.kids-shop-cart-page {
+		padding-top: 12px !important;
+		padding-bottom: 130px !important; /* room for sticky bottom bar + mobile nav */
+		background: #f0f1f6 !important;
+	}
+
+	/* Container width */
+	.kids-shop-cart-page app-cart .container.kids-shop-cart-layout,
+	.kids-shop-cart-page .container.kids-shop-cart-suggestions {
+		width: 100% !important;
+		padding: 0 12px !important;
+		margin: 0 auto !important;
+		flex-direction: column !important;
+	}
+
+	/* "My Cart" heading row */
+	.kids-shop-cart-page .cart-items-heading {
+		padding: 10px 0 8px !important;
+		min-height: auto !important;
+	}
+
+	.kids-shop-cart-page .cart-items-heading .title {
+		font-size: 18px !important;
+	}
+
+	/* Individual cart item card — mobile layout */
+	.kids-shop-cart-page .cart-item {
+		display: flex !important;
+		flex-direction: column !important;
+		border-radius: 12px !important;
+		padding: 12px !important;
+		margin: 10px 0 !important;
+		background: #fff !important;
+		box-shadow: 0 2px 8px rgba(0,0,0,0.07) !important;
+		gap: 0 !important;
+	}
+
+	/* Product info row — image + details side by side */
+	.kids-shop-cart-page .cart-item .product-info {
+		display: flex !important;
+		align-items: flex-start !important;
+		width: 100% !important;
+		gap: 10px !important;
+	}
+
+	/* Product image */
+	.kids-shop-cart-page .cart-item .product-info img.product-image,
+	.kids-shop-cart-page .cart-item .product-info img.attachment-woocommerce_thumbnail {
+		width: 75px !important;
+		height: 75px !important;
+		min-width: 75px !important;
+		min-height: 75px !important;
+		border-radius: 10px !important;
+		object-fit: cover !important;
+	}
+
+	/* Product image link */
+	.kids-shop-cart-page .cart-item .product-info .product-image-link {
+		flex-shrink: 0 !important;
+		margin-right: 0 !important;
+	}
+
+	/* Text details */
+	.kids-shop-cart-page .cart-item .details {
+		flex: 1 !important;
+		min-width: 0 !important;
+	}
+
+	.kids-shop-cart-page .cart-item .details .product-title {
+		font-size: 14px !important;
+		font-weight: 600 !important;
+		line-height: 1.4 !important;
+		display: -webkit-box !important;
+		-webkit-line-clamp: 2 !important;
+		-webkit-box-orient: vertical !important;
+		overflow: hidden !important;
+	}
+
+	.kids-shop-cart-page .cart-item .details .sku {
+		font-size: 12px !important;
+		margin-top: 3px !important;
+	}
+
+	/* Qty / price / total row */
+	.kids-shop-cart-page .cart-item .qty-area {
+		display: flex !important;
+		flex-direction: row !important;
+		align-items: center !important;
+		justify-content: space-between !important;
+		width: 100% !important;
+		margin-top: 10px !important;
+		padding-top: 10px !important;
+		border-top: 1px solid #f0f0f0 !important;
+		grid-template-columns: unset !important;
+	}
+
+	/* Quantity stepper */
+	.kids-shop-cart-page .quantity-container {
+		display: flex !important;
+		align-items: center !important;
+		background: #f5f5f5 !important;
+		border-radius: 8px !important;
+		padding: 2px 4px !important;
+	}
+
+	.kids-shop-cart-page .quantity-button {
+		padding: 4px 8px !important;
+		font-size: 18px !important;
+	}
+
+	.kids-shop-cart-page .quantity-input {
+		width: 36px !important;
+		font-size: 14px !important;
+		border: none !important;
+		background: transparent !important;
+		border-radius: 0 !important;
+		margin: 0 !important;
+		padding: 4px 2px !important;
+	}
+
+	/* Mobile price + total (shown via .mobile-view) */
+	.kids-shop-cart-page .cart-item .mobile-view {
+		display: flex !important;
+		align-items: center !important;
+		gap: 14px !important;
+	}
+
+	.kids-shop-cart-page .cart-item .mobile-view .price p {
+		font-size: 14px !important;
+		font-weight: 500 !important;
+		color: #555 !important;
+		margin: 0 !important;
+	}
+
+	.kids-shop-cart-page .cart-item .mobile-view .price .price-discount del {
+		font-size: 12px !important;
+	}
+
+	.kids-shop-cart-page .cart-item .mobile-view .delete-icon svg {
+		width: 20px !important;
+		height: 20px !important;
+	}
+
+	/* Sticky mobile checkout bar */
+	.kids-shop-cart-page .cart-checkout {
+		position: fixed !important;
+		bottom: 58px !important; /* sits above the bottom nav bar */
+		left: 0 !important;
+		right: 0 !important;
+		width: 100% !important;
+		background: #fff !important;
+		box-shadow: 0 -4px 16px rgba(0,0,0,0.12) !important;
+		z-index: 200 !important;
+		padding: 10px 16px !important;
+		border-top: 1px solid #e8e8e8 !important;
+	}
+
+	.kids-shop-cart-page .cart-checkout .sticky-view {
+		display: flex !important;
+		align-items: center !important;
+		justify-content: space-between !important;
+		width: 100% !important;
+		gap: 10px !important;
+	}
+
+	/* "All" select checkbox area */
+	.kids-shop-cart-page .kids-shop-mobile-checkout .select-all {
+		display: flex !important;
+		align-items: center !important;
+		gap: 6px !important;
+		white-space: nowrap !important;
+	}
+
+	.kids-shop-cart-page .kids-shop-mobile-checkout .select-all label {
+		font-size: 13px !important;
+		color: #333 !important;
+	}
+
+	/* Order summary area in sticky bar */
+	.kids-shop-cart-page .kids-shop-mobile-checkout .order-summary-container {
+		flex: 1 !important;
+		min-width: 0 !important;
+	}
+
+	.kids-shop-cart-page .kids-shop-mobile-checkout .order-summary {
+		display: flex !important;
+		flex-direction: column !important;
+		align-items: flex-start !important;
+	}
+
+	.kids-shop-cart-page .kids-shop-mobile-checkout .sub-total-cart {
+		flex-direction: row !important;
+		gap: 6px !important;
+		align-items: center !important;
+	}
+
+	.kids-shop-cart-page .kids-shop-mobile-checkout .subtotal {
+		display: flex !important;
+		align-items: center !important;
+		gap: 6px !important;
+		font-size: 13px !important;
+		font-weight: 700 !important;
+		color: #27a7b8 !important;
+	}
+
+	.kids-shop-cart-page .kids-shop-mobile-checkout .shipping-fee {
+		font-size: 11px !important;
+		color: #777 !important;
+	}
+
+	/* Checkout button in sticky bar */
+	.kids-shop-cart-page .cart-checkout .mb-btn {
+		display: flex !important;
+		align-items: center !important;
+		justify-content: center !important;
+		background: #27a7b8 !important;
+		color: #fff !important;
+		border-radius: 8px !important;
+		padding: 10px 18px !important;
+		font-size: 14px !important;
+		font-weight: 600 !important;
+		white-space: nowrap !important;
+		text-decoration: none !important;
+		min-width: 110px !important;
+		height: 42px !important;
+	}
+
+	/* Suggestions section */
+	.kids-shop-cart-page .container.kids-shop-cart-suggestions {
+		margin-top: 8px !important;
+	}
+
+	.kids-shop-cart-page .suggestion-section .title {
+		font-size: 16px !important;
+	}
+
+	/* Hide desktop-only elements */
+	.kids-shop-cart-page .kids-shop-desktop-summary {
+		display: none !important;
+	}
+
+	.kids-shop-cart-page .kids-shop-delete-desktop {
+		display: none !important;
+	}
+
+	.kids-shop-cart-page .cart-header,
+	.kids-shop-cart-page .mobile-d-none {
+		display: none !important;
+	}
+
+	/* Show mobile-only elements */
+	.kids-shop-cart-page .web-d-none {
+		display: flex !important;
+	}
+
+	.kids-shop-cart-page .kids-shop-mobile-checkout {
+		display: flex !important;
+	}
 }
