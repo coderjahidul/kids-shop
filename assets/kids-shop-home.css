@@ -1,0 +1,51 @@
+/* Home page dynamic layout */
+.kids-shop-hero-slider .carousel-wrapper {
+	display: flex;
+	transition: transform 0.45s ease;
+}
+
+.kids-shop-hero-slider .carousel-slide {
+	flex: 0 0 100%;
+	min-width: 100%;
+}
+
+.kids-shop-hero-slider .carousel-slide a {
+	display: block;
+	line-height: 0;
+}
+
+.kids-shop-hero-slider .carousel-slide img {
+	width: 100%;
+	height: auto;
+	display: block;
+	object-fit: cover;
+}
+
+.kids-shop-hero-slider .carousel-indicators .indicator {
+	border: none;
+	padding: 0;
+	cursor: pointer;
+}
+
+.kids-shop-home .products-cards {
+	display: grid;
+	grid-template-columns: repeat(5, 1fr);
+	gap: 16px;
+}
+
+@media (max-width: 1199px) {
+	.kids-shop-home .products-cards {
+		grid-template-columns: repeat(3, 1fr);
+	}
+}
+
+@media (max-width: 767px) {
+	.kids-shop-home .products-cards {
+		grid-template-columns: repeat(2, 1fr);
+		gap: 12px;
+	}
+}
+
+.kids-shop-home-section:empty {
+	display: none;
+}

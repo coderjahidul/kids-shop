@@ -1,0 +1,105 @@
+/* Dynamic shop / category page tweaks */
+.kids-shop-products-page .category-row-link {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+	text-decoration: none;
+	color: inherit;
+	padding: 10px 16px;
+	box-sizing: border-box;
+}
+
+.kids-shop-products-page .category-row-link:hover {
+	background: var(--shop-color-primary-light-3, rgba(39, 167, 184, 0.08));
+}
+
+.kids-shop-products-page .category-item.selected > .category-row-link,
+.kids-shop-products-page .category-child.selected {
+	background: var(--shop-color-primary-light-3, rgba(39, 167, 184, 0.12));
+	border-left: 3px solid var(--shop-color-primary, #27a7b8);
+}
+
+.kids-shop-products-page .clear-filters .clear-btn {
+	display: block;
+	width: 100%;
+	text-align: center;
+	padding: 12px;
+	text-decoration: none;
+	color: inherit;
+	background: #fff;
+	border: 1px solid #e6e6e6;
+	border-radius: 4px;
+	cursor: pointer;
+	box-sizing: border-box;
+}
+
+.kids-shop-products-page .kids-shop-category-title {
+	margin: 0;
+	font-size: 1.25rem;
+	font-weight: 600;
+}
+
+.kids-shop-products-page .kids-shop-no-products {
+	grid-column: 1 / -1;
+	text-align: center;
+	padding: 48px 16px;
+}
+
+.kids-shop-products-page .woocommerce-pagination {
+	grid-column: 1 / -1;
+	margin-top: 24px;
+}
+
+/* Hide default WooCommerce product list wrappers */
+.kids-shop-archive .woocommerce ul.products {
+	display: contents;
+}
+
+.kids-shop-archive .woocommerce .products::before,
+.kids-shop-archive .woocommerce .products::after {
+	display: none;
+}
+
+/* Mobile sidebar overlay */
+@media (max-width: 991px) {
+	.kids-shop-products-page .left-area .sidebar {
+		position: fixed;
+		top: 0;
+		left: 0;
+		z-index: 10001;
+		height: 100%;
+		width: min(320px, 88vw);
+		background: #fff;
+		transform: translateX(-110%);
+		transition: transform 0.25s ease;
+		overflow-y: auto;
+		box-shadow: 2px 0 12px rgba(0, 0, 0, 0.12);
+	}
+
+	.kids-shop-products-page .left-area .sidebar.is-open {
+		transform: translateX(0);
+	}
+
+	body.kids-shop-sidebar-open::before {
+		content: "";
+		position: fixed;
+		inset: 0;
+		background: rgba(0, 0, 0, 0.45);
+		z-index: 10000;
+	}
+
+	.kids-shop-products-page .slide-top.kids-shop-sidebar-close {
+		display: flex;
+		justify-content: flex-end;
+		padding: 12px 16px;
+		cursor: pointer;
+		font-weight: 700;
+	}
+}
+
+@media (min-width: 992px) {
+	.kids-shop-products-page .slide-top.kids-shop-sidebar-close {
+		display: none;
+	}
+}

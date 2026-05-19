@@ -1,0 +1,73 @@
+.kids-shop-settings-wrap {
+	max-width: 960px;
+}
+
+.kids-shop-settings-wrap .nav-tab-wrapper {
+	margin-bottom: 20px;
+}
+
+.kids-shop-settings-card {
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+	padding: 8px 20px 4px;
+	margin: 0 0 20px;
+}
+
+.kids-shop-settings-card h2 {
+	margin-top: 12px;
+	font-size: 1.1em;
+}
+
+.kids-shop-media-field {
+	margin-bottom: 12px;
+}
+
+.kids-shop-media-preview {
+	margin: 8px 0;
+	min-height: 40px;
+}
+
+.kids-shop-media-preview img {
+	max-width: 200px;
+	height: auto;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	display: block;
+}
+
+.kids-shop-media-field .button {
+	margin-right: 6px;
+}
+
+.kids-shop-section-card-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+}
+
+.kids-shop-section-card-header h2 {
+	margin-bottom: 0;
+}
+
+.kids-shop-add-section-wrap {
+	margin: 0 0 24px;
+}
+
+.kids-shop-home-sections-list .kids-shop-settings-card:last-child {
+	margin-bottom: 12px;
+}
+
+.button-link-delete.kids-shop-remove-section-btn {
+	color: #b32d2e;
+	text-decoration: none;
+}
+
+.button-link-delete.kids-shop-remove-section-btn:hover {
+	color: #a00;
+}
+
+.kids-shop-section-template {
+	display: none !important;
+}
