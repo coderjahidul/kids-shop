@@ -6,7 +6,16 @@
  */
 
 function kids_shop_enqueue_styles() {
-	wp_enqueue_style( 'kids-shop-style', get_stylesheet_uri(), array(), wp_get_theme()->get( 'Version' ) );
+	$theme_version = wp_get_theme()->get( 'Version' );
+	wp_enqueue_style( 'kids-shop-style', get_stylesheet_uri(), array(), $theme_version );
+
+	$logo_css = get_template_directory() . '/assets/kids-shop-logo.css';
+	wp_enqueue_style(
+		'kids-shop-logo',
+		get_template_directory_uri() . '/assets/kids-shop-logo.css',
+		array( 'kids-shop-style' ),
+		file_exists( $logo_css ) ? (string) filemtime( $logo_css ) : $theme_version
+	);
 
 	if ( function_exists( 'is_woocommerce' ) && ( is_woocommerce() || is_shop() || is_product_taxonomy() ) ) {
 		wp_enqueue_style(
@@ -43,6 +52,13 @@ function kids_shop_setup() {
 	add_theme_support( 'title-tag' );
 	add_theme_support( 'post-thumbnails' );
 
+	register_nav_menus(
+		array(
+			'footer-quick-links'  => __( 'Footer — Quick Links', 'kids-shop' ),
+			'footer-useful-links' => __( 'Footer — Useful Links', 'kids-shop' ),
+		)
+	);
+
 	add_theme_support(
 		'woocommerce',
 		array(
@@ -64,6 +80,7 @@ add_action( 'after_setup_theme', 'kids_shop_setup' );
 require get_template_directory() . '/inc/theme-options.php';
 require get_template_directory() . '/inc/theme-settings.php';
 require get_template_directory() . '/inc/template-filters.php';
+require get_template_directory() . '/inc/header-search.php';
 require get_template_directory() . '/inc/shop-helpers.php';
 require get_template_directory() . '/inc/home-helpers.php';
 

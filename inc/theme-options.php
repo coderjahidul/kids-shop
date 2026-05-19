@@ -22,7 +22,24 @@ function kids_shop_get_default_options() {
 	return array(
 		// General.
 		'logo_id'              => 0,
+		'header_logo_id'       => 0,
+		'footer_logo_id'       => 0,
+		'logo_alt'             => 'KiddoMart',
 		'footer_description'   => __( 'A Best Online shop in Bangladesh, All the product are available online.', 'kids-shop' ),
+		'footer_copyright_text' => 'Copyright © {year} {site}',
+		'footer_copyright_site_name' => '',
+		'footer_powered_by_name' => 'Nixsoftware',
+		'footer_powered_by_url'  => 'https://nixsoftware.net/',
+		'footer_quick_links_title'  => __( 'Quick Links', 'kids-shop' ),
+		'footer_useful_links_title' => __( 'Useful Links', 'kids-shop' ),
+		'footer_quick_links_menu'   => 0,
+		'footer_useful_links_menu'  => 0,
+
+		// Header search.
+		'search_placeholder'   => __( 'Search products...', 'kids-shop' ),
+		'search_empty_message' => __( "Sorry! We couldn't find your Product.", 'kids-shop' ),
+		'search_button_text'   => __( 'Search', 'kids-shop' ),
+		'search_keywords'      => "iphone\ncharger\nheadphone\nusb cable",
 
 		// Contact.
 		'contact_email'        => 'mail@gmail.com',
@@ -84,19 +101,212 @@ function kids_shop_get_option( $key, $default = null ) {
 }
 
 /**
- * Logo URL (custom upload or theme default).
+ * Default theme logo asset URL.
  *
  * @return string
  */
-function kids_shop_get_logo_url() {
-	$logo_id = (int) kids_shop_get_option( 'logo_id', 0 );
+function kids_shop_get_default_logo_url() {
+	return get_template_directory_uri() . '/assets/gemini-generated-image-dzqentdzqentdzqe-29a1.webp';
+}
+
+/**
+ * Legacy CDN logo URL baked into exported header/footer markup.
+ *
+ * @return string
+ */
+function kids_shop_get_legacy_cdn_logo_url() {
+	return 'https://cdn.softlabit.shop/upload/images/694cdfd63c34047b6887a9a0/gemini-generated-image-dzqentdzqentdzqe-29a1.webp';
+}
+
+/**
+ * Resolve logo attachment ID (header, footer, or shared fallback).
+ *
+ * @param string $context header|footer.
+ * @return int
+ */
+function kids_shop_get_logo_attachment_id( $context = 'header' ) {
+	$specific = 'footer' === $context
+		? (int) kids_shop_get_option( 'footer_logo_id', 0 )
+		: (int) kids_shop_get_option( 'header_logo_id', 0 );
+
+	if ( $specific ) {
+		return kids_shop_validate_image_attachment_id( $specific );
+	}
+
+	$shared = (int) kids_shop_get_option( 'logo_id', 0 );
+	return kids_shop_validate_image_attachment_id( $shared );
+}
+
+/**
+ * Logo URL for a given context (custom upload or theme default).
+ *
+ * @param string $context header|footer.
+ * @return string
+ */
+function kids_shop_get_logo_url_for( $context = 'header' ) {
+	$logo_id = kids_shop_get_logo_attachment_id( $context );
 	if ( $logo_id ) {
 		$url = wp_get_attachment_image_url( $logo_id, 'full' );
 		if ( $url ) {
 			return $url;
 		}
 	}
-	return get_template_directory_uri() . '/assets/gemini-generated-image-dzqentdzqentdzqe-29a1.webp';
+	return kids_shop_get_default_logo_url();
+}
+
+/**
+ * Logo URL (custom upload or theme default) — header context.
+ *
+ * @return string
+ */
+function kids_shop_get_logo_url() {
+	return kids_shop_get_logo_url_for( 'header' );
+}
+
+/**
+ * srcset attribute for a logo image (attachment or empty).
+ *
+ * @param string $context header|footer.
+ * @return string
+ */
+function kids_shop_get_logo_srcset_attr( $context = 'header' ) {
+	$logo_id = kids_shop_get_logo_attachment_id( $context );
+	if ( ! $logo_id ) {
+		return '';
+	}
+
+	$srcset = wp_get_attachment_image_srcset( $logo_id, 'full' );
+	return $srcset ? ' srcset="' . esc_attr( $srcset ) . '"' : '';
+}
+
+/**
+ * Saved header search suggestion keywords (mobile rotating text).
+ *
+ * @return string[]
+ */
+function kids_shop_get_search_keywords() {
+	$raw = (string) kids_shop_get_option( 'search_keywords', '' );
+	if ( '' === trim( $raw ) ) {
+		return array();
+	}
+
+	$parts = preg_split( '/[\r\n,]+/', $raw );
+	$keywords = array();
+
+	foreach ( $parts as $part ) {
+		$part = sanitize_text_field( trim( $part ) );
+		if ( '' !== $part ) {
+			$keywords[] = $part;
+		}
+	}
+
+	return $keywords;
+}
+
+/**
+ * Product search form action URL (WooCommerce shop).
+ *
+ * @return string
+ */
+function kids_shop_get_product_search_url() {
+	if ( function_exists( 'wc_get_page_permalink' ) ) {
+		$shop = wc_get_page_permalink( 'shop' );
+		if ( $shop ) {
+			return $shop;
+		}
+	}
+	return home_url( '/shop/' );
+}
+
+/**
+ * Footer copyright line HTML ({year} and {site} placeholders).
+ *
+ * @return string
+ */
+function kids_shop_get_footer_copyright_html() {
+	$defaults = kids_shop_get_default_options();
+	$text     = (string) kids_shop_get_option( 'footer_copyright_text', $defaults['footer_copyright_text'] );
+	$year     = gmdate( 'Y' );
+	$home     = esc_url( home_url( '/' ) );
+
+	$site_name = trim( (string) kids_shop_get_option( 'footer_copyright_site_name', '' ) );
+	if ( '' === $site_name ) {
+		$site_name = get_bloginfo( 'name' );
+	}
+
+	$site_link = '<a href="' . $home . '">' . esc_html( $site_name ) . '</a>';
+	$text      = str_replace( array( '{year}', '{site}' ), array( esc_html( $year ), $site_link ), $text );
+
+	$powered_name = trim( (string) kids_shop_get_option( 'footer_powered_by_name', $defaults['footer_powered_by_name'] ) );
+	$powered_url  = (string) kids_shop_get_option( 'footer_powered_by_url', $defaults['footer_powered_by_url'] );
+
+	if ( '' !== $powered_name ) {
+		$powered_url = $powered_url ? esc_url( $powered_url ) : '';
+		$powered_link = $powered_url
+			? '<a href="' . $powered_url . '" style="font-weight: bold;" target="_blank" rel="noopener noreferrer">' . esc_html( $powered_name ) . '</a>'
+			: esc_html( $powered_name );
+
+		$text .= '<br/>' . esc_html__( 'Powered by', 'kids-shop' ) . ' ' . $powered_link;
+	}
+
+	return $text;
+}
+
+/**
+ * Sanitize a nav menu term ID from theme settings (0 = use default footer links).
+ *
+ * @param mixed $menu_id Menu term ID.
+ * @return int
+ */
+function kids_shop_sanitize_nav_menu_id( $menu_id ) {
+	$menu_id = absint( $menu_id );
+	if ( ! $menu_id ) {
+		return 0;
+	}
+	return is_nav_menu( $menu_id ) ? $menu_id : 0;
+}
+
+/**
+ * Build footer menu list items HTML matching exported Angular markup.
+ *
+ * @param int $menu_id Nav menu term ID.
+ * @return string
+ */
+function kids_shop_build_footer_menu_items_html( $menu_id ) {
+	$menu_id = kids_shop_sanitize_nav_menu_id( $menu_id );
+	if ( ! $menu_id ) {
+		return '';
+	}
+
+	$items = wp_get_nav_menu_items(
+		$menu_id,
+		array(
+			'update_post_term_cache' => false,
+		)
+	);
+
+	if ( empty( $items ) || ! is_array( $items ) ) {
+		return '';
+	}
+
+	$html = '';
+	foreach ( $items as $item ) {
+		if ( ! empty( $item->menu_item_parent ) ) {
+			continue;
+		}
+
+		$url   = $item->url ? $item->url : '';
+		$title = $item->title ? $item->title : '';
+
+		if ( '' === $url || '' === $title ) {
+			continue;
+		}
+
+		$html .= '<li _ngcontent-ng-c693230799=""><a _ngcontent-ng-c693230799="" href="' . esc_url( $url ) . '">'
+			. esc_html( $title ) . '</a></li>';
+	}
+
+	return $html;
 }
 
 /**

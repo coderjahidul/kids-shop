@@ -75,6 +75,14 @@ function kids_shop_sanitize_theme_options( $input ) {
 
 	$text_fields = array(
 		'footer_description',
+		'footer_copyright_site_name',
+		'footer_powered_by_name',
+		'footer_quick_links_title',
+		'footer_useful_links_title',
+		'logo_alt',
+		'search_placeholder',
+		'search_empty_message',
+		'search_button_text',
 		'contact_email',
 		'contact_phone',
 		'contact_address',
@@ -86,10 +94,15 @@ function kids_shop_sanitize_theme_options( $input ) {
 		}
 	}
 
+	if ( isset( $input['footer_copyright_text'] ) ) {
+		$output['footer_copyright_text'] = sanitize_textarea_field( $input['footer_copyright_text'] );
+	}
+
 	$url_fields = array(
 		'social_facebook',
 		'social_instagram',
 		'social_youtube',
+		'footer_powered_by_url',
 	);
 
 	foreach ( $url_fields as $field ) {
@@ -114,17 +127,38 @@ function kids_shop_sanitize_theme_options( $input ) {
 
 	$int_fields = array(
 		'logo_id',
+		'header_logo_id',
+		'footer_logo_id',
 		'shop_products_per_page',
 	);
 
 	foreach ( $int_fields as $field ) {
 		if ( isset( $input[ $field ] ) ) {
 			$value = absint( $input[ $field ] );
-			if ( 'logo_id' === $field ) {
+			if ( in_array( $field, array( 'logo_id', 'header_logo_id', 'footer_logo_id' ), true ) ) {
 				$value = kids_shop_validate_image_attachment_id( $value );
 			}
 			$output[ $field ] = $value;
 		}
+	}
+
+	$menu_fields = array( 'footer_quick_links_menu', 'footer_useful_links_menu' );
+	foreach ( $menu_fields as $field ) {
+		if ( isset( $input[ $field ] ) ) {
+			$output[ $field ] = kids_shop_sanitize_nav_menu_id( $input[ $field ] );
+		}
+	}
+
+	if ( isset( $input['search_keywords'] ) ) {
+		$lines = preg_split( '/[\r\n,]+/', (string) $input['search_keywords'] );
+		$clean = array();
+		foreach ( $lines as $line ) {
+			$line = sanitize_text_field( trim( $line ) );
+			if ( '' !== $line ) {
+				$clean[] = $line;
+			}
+		}
+		$output['search_keywords'] = implode( "\n", $clean );
 	}
 
 	if ( isset( $output['shop_products_per_page'] ) ) {
@@ -674,6 +708,27 @@ function kids_shop_render_home_section_card( $index, $section ) {
 }
 
 /**
+ * Render a nav menu dropdown for Theme Settings.
+ *
+ * @param string $field_name Option key.
+ * @param int    $selected   Selected menu term ID.
+ */
+function kids_shop_render_nav_menu_select( $field_name, $selected ) {
+	$menus   = wp_get_nav_menus();
+	$opt_key = KIDS_SHOP_OPTIONS_KEY;
+	?>
+	<select id="<?php echo esc_attr( $field_name ); ?>" name="<?php echo esc_attr( $opt_key ); ?>[<?php echo esc_attr( $field_name ); ?>]">
+		<option value="0" <?php selected( $selected, 0 ); ?>><?php esc_html_e( 'Default (built-in links)', 'kids-shop' ); ?></option>
+		<?php foreach ( $menus as $menu ) : ?>
+			<option value="<?php echo esc_attr( (string) $menu->term_id ); ?>" <?php selected( $selected, (int) $menu->term_id ); ?>>
+				<?php echo esc_html( $menu->name ); ?>
+			</option>
+		<?php endforeach; ?>
+	</select>
+	<?php
+}
+
+/**
  * Settings page markup.
  */
 function kids_shop_render_theme_settings_page() {
@@ -719,12 +774,104 @@ function kids_shop_render_theme_settings_page() {
 			<?php if ( 'general' === $tab ) : ?>
 				<table class="form-table" role="presentation">
 					<tr>
-						<th scope="row"><?php esc_html_e( 'Site logo', 'kids-shop' ); ?></th>
-						<td><?php kids_shop_settings_media_field( 'logo_id', (int) $options['logo_id'], __( 'Header & footer logo', 'kids-shop' ) ); ?></td>
+						<th scope="row"><?php esc_html_e( 'Header logo', 'kids-shop' ); ?></th>
+						<td>
+							<?php kids_shop_settings_media_field( 'header_logo_id', (int) $options['header_logo_id'], __( 'Shown in the site header', 'kids-shop' ) ); ?>
+							<p class="description"><?php esc_html_e( 'Leave empty to use the shared site logo below.', 'kids-shop' ); ?></p>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row"><?php esc_html_e( 'Footer logo', 'kids-shop' ); ?></th>
+						<td>
+							<?php kids_shop_settings_media_field( 'footer_logo_id', (int) $options['footer_logo_id'], __( 'Shown in the site footer', 'kids-shop' ) ); ?>
+							<p class="description"><?php esc_html_e( 'Leave empty to use the shared site logo below.', 'kids-shop' ); ?></p>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row"><?php esc_html_e( 'Site logo (fallback)', 'kids-shop' ); ?></th>
+						<td><?php kids_shop_settings_media_field( 'logo_id', (int) $options['logo_id'], __( 'Used when header or footer logo is not set', 'kids-shop' ) ); ?></td>
+					</tr>
+					<tr>
+						<th scope="row"><label for="logo_alt"><?php esc_html_e( 'Logo alt text', 'kids-shop' ); ?></label></th>
+						<td><input type="text" class="regular-text" id="logo_alt" name="<?php echo esc_attr( KIDS_SHOP_OPTIONS_KEY ); ?>[logo_alt]" value="<?php echo esc_attr( $options['logo_alt'] ); ?>"/></td>
 					</tr>
 					<tr>
 						<th scope="row"><label for="footer_description"><?php esc_html_e( 'Footer description', 'kids-shop' ); ?></label></th>
 						<td><textarea name="<?php echo esc_attr( KIDS_SHOP_OPTIONS_KEY ); ?>[footer_description]" id="footer_description" class="large-text" rows="3"><?php echo esc_textarea( $options['footer_description'] ); ?></textarea></td>
+					</tr>
+					<tr><th colspan="2"><h2 class="title"><?php esc_html_e( 'Footer copyright', 'kids-shop' ); ?></h2></th></tr>
+					<tr>
+						<th scope="row"><label for="footer_copyright_text"><?php esc_html_e( 'Copyright line', 'kids-shop' ); ?></label></th>
+						<td>
+							<input type="text" class="large-text" id="footer_copyright_text" name="<?php echo esc_attr( KIDS_SHOP_OPTIONS_KEY ); ?>[footer_copyright_text]" value="<?php echo esc_attr( $options['footer_copyright_text'] ); ?>"/>
+							<p class="description"><?php esc_html_e( 'Use {year} for the current year and {site} for a link to your home page.', 'kids-shop' ); ?></p>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row"><label for="footer_copyright_site_name"><?php esc_html_e( 'Site name in copyright', 'kids-shop' ); ?></label></th>
+						<td>
+							<input type="text" class="regular-text" id="footer_copyright_site_name" name="<?php echo esc_attr( KIDS_SHOP_OPTIONS_KEY ); ?>[footer_copyright_site_name]" value="<?php echo esc_attr( $options['footer_copyright_site_name'] ); ?>"/>
+							<p class="description"><?php esc_html_e( 'Leave empty to use the WordPress site title.', 'kids-shop' ); ?></p>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row"><label for="footer_powered_by_name"><?php esc_html_e( '"Powered by" link text', 'kids-shop' ); ?></label></th>
+						<td>
+							<input type="text" class="regular-text" id="footer_powered_by_name" name="<?php echo esc_attr( KIDS_SHOP_OPTIONS_KEY ); ?>[footer_powered_by_name]" value="<?php echo esc_attr( $options['footer_powered_by_name'] ); ?>"/>
+							<p class="description"><?php esc_html_e( 'Leave empty to hide the powered-by line.', 'kids-shop' ); ?></p>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row"><label for="footer_powered_by_url"><?php esc_html_e( '"Powered by" link URL', 'kids-shop' ); ?></label></th>
+						<td><input type="url" class="large-text" id="footer_powered_by_url" name="<?php echo esc_attr( KIDS_SHOP_OPTIONS_KEY ); ?>[footer_powered_by_url]" value="<?php echo esc_attr( $options['footer_powered_by_url'] ); ?>"/></td>
+					</tr>
+					<tr><th colspan="2"><h2 class="title"><?php esc_html_e( 'Footer link columns', 'kids-shop' ); ?></h2></th></tr>
+					<tr>
+						<th scope="row"><label for="footer_quick_links_title"><?php esc_html_e( 'Quick Links heading', 'kids-shop' ); ?></label></th>
+						<td><input type="text" class="regular-text" id="footer_quick_links_title" name="<?php echo esc_attr( KIDS_SHOP_OPTIONS_KEY ); ?>[footer_quick_links_title]" value="<?php echo esc_attr( $options['footer_quick_links_title'] ); ?>"/></td>
+					</tr>
+					<tr>
+						<th scope="row"><label for="footer_quick_links_menu"><?php esc_html_e( 'Quick Links menu', 'kids-shop' ); ?></label></th>
+						<td>
+							<?php kids_shop_render_nav_menu_select( 'footer_quick_links_menu', (int) $options['footer_quick_links_menu'] ); ?>
+							<p class="description">
+								<?php
+								printf(
+									/* translators: %s: Menus admin URL */
+									wp_kses_post( __( 'Choose a menu from <a href="%s">Appearance → Menus</a>. Leave as default to keep the built-in footer links.', 'kids-shop' ) ),
+									esc_url( admin_url( 'nav-menus.php' ) )
+								);
+								?>
+							</p>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row"><label for="footer_useful_links_title"><?php esc_html_e( 'Useful Links heading', 'kids-shop' ); ?></label></th>
+						<td><input type="text" class="regular-text" id="footer_useful_links_title" name="<?php echo esc_attr( KIDS_SHOP_OPTIONS_KEY ); ?>[footer_useful_links_title]" value="<?php echo esc_attr( $options['footer_useful_links_title'] ); ?>"/></td>
+					</tr>
+					<tr>
+						<th scope="row"><label for="footer_useful_links_menu"><?php esc_html_e( 'Useful Links menu', 'kids-shop' ); ?></label></th>
+						<td><?php kids_shop_render_nav_menu_select( 'footer_useful_links_menu', (int) $options['footer_useful_links_menu'] ); ?></td>
+					</tr>
+					<tr><th colspan="2"><h2 class="title"><?php esc_html_e( 'Header search', 'kids-shop' ); ?></h2></th></tr>
+					<tr>
+						<th scope="row"><label for="search_placeholder"><?php esc_html_e( 'Search placeholder', 'kids-shop' ); ?></label></th>
+						<td><input type="text" class="large-text" id="search_placeholder" name="<?php echo esc_attr( KIDS_SHOP_OPTIONS_KEY ); ?>[search_placeholder]" value="<?php echo esc_attr( $options['search_placeholder'] ); ?>"/></td>
+					</tr>
+					<tr>
+						<th scope="row"><label for="search_empty_message"><?php esc_html_e( 'No results message', 'kids-shop' ); ?></label></th>
+						<td><input type="text" class="large-text" id="search_empty_message" name="<?php echo esc_attr( KIDS_SHOP_OPTIONS_KEY ); ?>[search_empty_message]" value="<?php echo esc_attr( $options['search_empty_message'] ); ?>"/></td>
+					</tr>
+					<tr>
+						<th scope="row"><label for="search_button_text"><?php esc_html_e( 'Mobile search button', 'kids-shop' ); ?></label></th>
+						<td><input type="text" class="regular-text" id="search_button_text" name="<?php echo esc_attr( KIDS_SHOP_OPTIONS_KEY ); ?>[search_button_text]" value="<?php echo esc_attr( $options['search_button_text'] ); ?>"/></td>
+					</tr>
+					<tr>
+						<th scope="row"><label for="search_keywords"><?php esc_html_e( 'Mobile search suggestions', 'kids-shop' ); ?></label></th>
+						<td>
+							<textarea name="<?php echo esc_attr( KIDS_SHOP_OPTIONS_KEY ); ?>[search_keywords]" id="search_keywords" class="large-text" rows="5"><?php echo esc_textarea( $options['search_keywords'] ); ?></textarea>
+							<p class="description"><?php esc_html_e( 'One keyword per line (rotating text on mobile header).', 'kids-shop' ); ?></p>
+						</td>
 					</tr>
 				</table>
 			<?php endif; ?>
@@ -854,7 +1001,7 @@ function kids_shop_render_theme_settings_page() {
 			foreach ( $options as $key => $val ) {
 				$rendered = false;
 				// Hidden fields are output below for non-active tabs.
-				if ( 'general' === $tab && in_array( $key, array( 'logo_id', 'footer_description' ), true ) ) {
+				if ( 'general' === $tab && in_array( $key, array( 'logo_id', 'header_logo_id', 'footer_logo_id', 'logo_alt', 'footer_description', 'footer_copyright_text', 'footer_copyright_site_name', 'footer_powered_by_name', 'footer_powered_by_url', 'search_placeholder', 'search_empty_message', 'search_button_text', 'search_keywords' ), true ) ) {
 					$rendered = true;
 				}
 			}
@@ -904,7 +1051,7 @@ function kids_shop_render_theme_settings_page() {
  */
 function kids_shop_settings_hidden_fields( $options, $active_tab ) {
 	$tab_fields = array(
-		'general' => array( 'logo_id', 'footer_description' ),
+		'general' => array( 'logo_id', 'header_logo_id', 'footer_logo_id', 'logo_alt', 'footer_description', 'footer_copyright_text', 'footer_copyright_site_name', 'footer_powered_by_name', 'footer_powered_by_url', 'footer_quick_links_title', 'footer_useful_links_title', 'footer_quick_links_menu', 'footer_useful_links_menu', 'search_placeholder', 'search_empty_message', 'search_button_text', 'search_keywords' ),
 		'contact' => array( 'contact_email', 'contact_phone', 'contact_address', 'social_facebook', 'social_instagram', 'social_youtube', 'social_whatsapp' ),
 		'colors'  => array( 'color_primary', 'color_secondary', 'color_tertiary' ),
 		'hero'    => array( 'hero_slides' ),
