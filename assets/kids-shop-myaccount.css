@@ -352,6 +352,11 @@
 	transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
+.kids-shop-orders__card.is-filtered-out,
+.kids-shop-orders__card[hidden] {
+	display: none !important;
+}
+
 .kids-shop-orders__card:hover {
 	border-color: color-mix(in srgb, var(--kids-ma-primary) 45%, var(--kids-ma-border));
 	box-shadow: var(--kids-ma-shadow);
@@ -488,6 +493,32 @@
 	display: flex;
 	gap: 12px;
 	justify-content: center;
+}
+
+.kids-shop-orders__filter-empty {
+	text-align: center;
+	padding: 32px 20px;
+	margin-top: 4px;
+	border: 1px dashed var(--kids-ma-border);
+	border-radius: var(--kids-ma-card-radius);
+	background: #fafbfc;
+}
+
+.kids-shop-orders__filter-empty[hidden] {
+	display: none !important;
+}
+
+.kids-shop-orders__filter-empty-title {
+	margin: 0 0 8px;
+	font-size: 16px;
+	font-weight: 600;
+	color: var(--kids-ma-muted);
+}
+
+.kids-shop-orders__filter-empty-text {
+	margin: 0;
+	font-size: 14px;
+	color: var(--kids-ma-muted);
 }
 
 .kids-shop-orders__empty {
@@ -1162,6 +1193,411 @@
 
 .kids-shop-myaccount-page .woocommerce-MyAccount-navigation {
 	display: none !important;
+}
+
+/* ----- View order (order details) ----- */
+.kids-shop-myaccount__endpoint--view-order {
+	background: transparent;
+	box-shadow: none;
+	padding: 0;
+}
+
+.kids-shop-view-order {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+}
+
+.kids-shop-view-order__back {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--kids-ma-primary);
+	text-decoration: none;
+	width: fit-content;
+}
+
+.kids-shop-view-order__back:hover {
+	text-decoration: underline;
+}
+
+.kids-shop-view-order__back-icon {
+	display: flex;
+	color: var(--kids-ma-primary);
+}
+
+.kids-shop-view-order__header {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 16px;
+	flex-wrap: wrap;
+	background: #fff;
+	border: 1px solid var(--kids-ma-border);
+	border-radius: var(--kids-ma-card-radius);
+	box-shadow: var(--kids-ma-shadow);
+	padding: 22px 24px;
+}
+
+.kids-shop-view-order__title {
+	margin: 0 0 8px;
+	font-size: 22px;
+	font-weight: 700;
+	color: var(--kids-ma-text);
+	line-height: 1.25;
+}
+
+.kids-shop-view-order__meta {
+	margin: 0;
+	font-size: 14px;
+	line-height: 1.55;
+	color: var(--kids-ma-muted);
+}
+
+.kids-shop-view-order__meta-id {
+	font-weight: 600;
+	color: var(--kids-ma-primary);
+}
+
+.kids-shop-view-order__meta-sep {
+	margin: 0 6px;
+}
+
+.kids-shop-view-order__badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 6px 14px;
+	border-radius: 999px;
+	font-size: 13px;
+	font-weight: 600;
+	background: #fff4e6;
+	color: #c2410c;
+	flex-shrink: 0;
+}
+
+.kids-shop-view-order__badge-dot {
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: currentColor;
+}
+
+.kids-shop-view-order__badge--status-processing,
+.kids-shop-view-order__badge--status-completed {
+	background: color-mix(in srgb, var(--kids-ma-primary) 12%, #fff);
+	color: var(--kids-ma-primary);
+}
+
+.kids-shop-view-order__badge--status-cancelled,
+.kids-shop-view-order__badge--status-refunded,
+.kids-shop-view-order__badge--status-failed {
+	background: #fee2e2;
+	color: #b91c1c;
+}
+
+.kids-shop-view-order__badge--status-on-hold {
+	background: #e0f2fe;
+	color: #0369a1;
+}
+
+.kids-shop-view-order__badge--status-pending {
+	background: #fff4e6;
+	color: #c2410c;
+}
+
+.kids-shop-view-order__section-title {
+	margin: 0 0 16px;
+	font-size: 17px;
+	font-weight: 700;
+	color: var(--kids-ma-text);
+}
+
+.kids-shop-view-order__section-title--shipping {
+	margin-top: 20px;
+}
+
+.kids-shop-view-order__updates {
+	background: #fff;
+	border: 1px solid var(--kids-ma-border);
+	border-radius: var(--kids-ma-card-radius);
+	box-shadow: var(--kids-ma-shadow);
+	padding: 22px 24px;
+}
+
+.kids-shop-view-order__timeline {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.kids-shop-view-order__timeline-item {
+	padding-left: 16px;
+	border-left: 3px solid var(--kids-ma-primary);
+}
+
+.kids-shop-view-order__timeline-date {
+	display: block;
+	margin-bottom: 6px;
+	font-size: 12px;
+	font-weight: 600;
+	color: var(--kids-ma-muted);
+}
+
+.kids-shop-view-order__timeline-text {
+	font-size: 14px;
+	line-height: 1.55;
+	color: var(--kids-ma-text);
+}
+
+.kids-shop-view-order__timeline-text p {
+	margin: 0;
+}
+
+.kids-shop-view-order-items {
+	background: #fff;
+	border: 1px solid var(--kids-ma-border);
+	border-radius: var(--kids-ma-card-radius);
+	box-shadow: var(--kids-ma-shadow);
+	padding: 22px 24px;
+}
+
+.kids-shop-view-order-items__list {
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+	margin-bottom: 24px;
+}
+
+.kids-shop-view-order-items__card {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	padding: 14px 16px;
+	border: 1px solid var(--kids-ma-border);
+	border-radius: var(--kids-ma-card-radius);
+	background: #fafbfc;
+}
+
+.kids-shop-view-order-items__thumb {
+	flex-shrink: 0;
+	width: 64px;
+	height: 64px;
+	border-radius: 8px;
+	overflow: hidden;
+	background: #f3f4f6;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.kids-shop-view-order-items__thumb img,
+.kids-shop-view-order-items__thumb-img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+
+.kids-shop-view-order-items__thumb-placeholder {
+	width: 100%;
+	height: 100%;
+	background: #e5e7eb
+		url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' fill='none' stroke='%239ca3af' stroke-width='1.5' viewBox='0 0 24 24'%3E%3Crect x='3' y='3' width='18' height='18' rx='2'/%3E%3Ccircle cx='8.5' cy='8.5' r='1.5'/%3E%3Cpath d='M21 15l-5-5L5 21'/%3E%3C/svg%3E")
+		center / 28px 28px no-repeat;
+}
+
+.kids-shop-view-order-items__info {
+	flex: 1;
+	min-width: 0;
+	text-align: left;
+}
+
+.kids-shop-view-order-items__name {
+	margin: 0 0 4px;
+	font-size: 15px;
+	font-weight: 600;
+	color: var(--kids-ma-text);
+	line-height: 1.35;
+}
+
+.kids-shop-view-order-items__name a {
+	color: inherit;
+	text-decoration: none;
+}
+
+.kids-shop-view-order-items__name a:hover {
+	color: var(--kids-ma-primary);
+	text-decoration: underline;
+}
+
+.kids-shop-view-order-items__qty {
+	margin: 0;
+	font-size: 13px;
+	color: var(--kids-ma-muted);
+}
+
+.kids-shop-view-order-items__meta {
+	margin-top: 6px;
+	font-size: 12px;
+	color: var(--kids-ma-muted);
+}
+
+.kids-shop-view-order-items__meta dl {
+	margin: 0;
+}
+
+.kids-shop-view-order-items__price {
+	flex-shrink: 0;
+	font-size: 15px;
+	font-weight: 700;
+	color: var(--kids-ma-text);
+	text-align: right;
+}
+
+.kids-shop-view-order-items__note {
+	margin: -6px 0 0;
+	padding: 12px 16px;
+	border-radius: 8px;
+	background: #f0fdf4;
+	border: 1px solid #bbf7d0;
+	font-size: 13px;
+	line-height: 1.5;
+	color: #166534;
+}
+
+.kids-shop-view-order-summary {
+	padding-top: 20px;
+	border-top: 1px solid #f0f0f0;
+}
+
+.kids-shop-view-order-summary__title {
+	margin: 0 0 14px;
+	font-size: 16px;
+	font-weight: 700;
+	color: var(--kids-ma-text);
+}
+
+.kids-shop-view-order-summary__rows {
+	margin: 0;
+}
+
+.kids-shop-view-order-summary__row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	padding: 10px 0;
+	font-size: 14px;
+}
+
+.kids-shop-view-order-summary__row dt {
+	margin: 0;
+	font-weight: 500;
+	color: var(--kids-ma-muted);
+}
+
+.kids-shop-view-order-summary__row dd {
+	margin: 0;
+	font-weight: 600;
+	color: var(--kids-ma-text);
+	text-align: right;
+}
+
+.kids-shop-view-order-summary__row--order_total {
+	margin-top: 8px;
+	padding-top: 16px;
+	border-top: 2px solid #f0f0f0;
+}
+
+.kids-shop-view-order-summary__row--order_total dt,
+.kids-shop-view-order-summary__row--order_total dd {
+	font-size: 16px;
+	font-weight: 700;
+	color: var(--kids-ma-text);
+}
+
+.kids-shop-view-order-summary__row--order_total dd {
+	color: var(--kids-ma-primary);
+}
+
+.kids-shop-view-order-summary__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	margin-top: 18px;
+	padding-top: 16px;
+	border-top: 1px solid #f0f0f0;
+}
+
+.kids-shop-view-order-address {
+	background: #fff;
+	border: 1px solid var(--kids-ma-border);
+	border-radius: var(--kids-ma-card-radius);
+	box-shadow: var(--kids-ma-shadow);
+	padding: 22px 24px;
+}
+
+.kids-shop-view-order-address__card {
+	padding: 16px 18px;
+	border: 1px solid var(--kids-ma-border);
+	border-radius: var(--kids-ma-card-radius);
+	background: #fafbfc;
+	font-size: 14px;
+	line-height: 1.65;
+	color: var(--kids-ma-muted);
+}
+
+.kids-shop-view-order-address__name {
+	margin: 0 0 10px;
+	font-size: 16px;
+	font-weight: 700;
+	color: var(--kids-ma-text);
+}
+
+.kids-shop-view-order-address__line {
+	margin: 0 0 8px;
+}
+
+.kids-shop-view-order-address__label {
+	font-weight: 600;
+	color: var(--kids-ma-text);
+}
+
+.kids-shop-view-order-address__formatted {
+	margin-top: 4px;
+}
+
+.kids-shop-view-order-address__empty {
+	margin: 0;
+}
+
+@media (max-width: 640px) {
+	.kids-shop-view-order__header {
+		padding: 18px 16px;
+	}
+
+	.kids-shop-view-order-items,
+	.kids-shop-view-order-address,
+	.kids-shop-view-order__updates {
+		padding: 18px 16px;
+	}
+
+	.kids-shop-view-order-items__card {
+		flex-wrap: wrap;
+		align-items: flex-start;
+	}
+
+	.kids-shop-view-order-items__price {
+		width: 100%;
+		text-align: left;
+		padding-left: 78px;
+	}
 }
 
 /* Responsive */

@@ -112,6 +112,11 @@ $filter_tabs = function_exists( 'kids_shop_get_account_order_filter_tabs' ) ? ki
 			?>
 		</div>
 
+		<div class="kids-shop-orders__filter-empty" hidden>
+			<p class="kids-shop-orders__filter-empty-title"><?php esc_html_e( 'No orders in this status', 'kids-shop' ); ?></p>
+			<p class="kids-shop-orders__filter-empty-text"><?php esc_html_e( 'Try another filter to see more orders.', 'kids-shop' ); ?></p>
+		</div>
+
 		<?php do_action( 'woocommerce_before_account_orders_pagination' ); ?>
 
 		<?php if ( 1 < $customer_orders->max_num_pages ) : ?>

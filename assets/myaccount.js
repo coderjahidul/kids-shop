@@ -9,7 +9,11 @@
 		}
 
 		var buttons = root.querySelectorAll('[data-order-filter]');
-		var cards = list.querySelectorAll('[data-order-status]');
+		var emptyState = list.querySelector('.kids-shop-orders__filter-empty');
+
+		function getCards() {
+			return list.querySelectorAll('[data-order-status]');
+		}
 
 		function statusMatchesFilter(status, filter) {
 			if (filter === 'all') {
@@ -22,6 +26,8 @@
 		}
 
 		function setActive(filter) {
+			var visibleCount = 0;
+
 			buttons.forEach(function (btn) {
 				var slug = btn.getAttribute('data-order-filter');
 				var on = slug === filter;
@@ -29,10 +35,19 @@
 				btn.setAttribute('aria-selected', on ? 'true' : 'false');
 			});
 
-			cards.forEach(function (card) {
+			getCards().forEach(function (card) {
 				var st = card.getAttribute('data-order-status') || '';
-				card.hidden = !statusMatchesFilter(st, filter);
+				var show = statusMatchesFilter(st, filter);
+				card.classList.toggle('is-filtered-out', !show);
+				card.setAttribute('aria-hidden', show ? 'false' : 'true');
+				if (show) {
+					visibleCount += 1;
+				}
 			});
+
+			if (emptyState) {
+				emptyState.hidden = visibleCount > 0;
+			}
 		}
 
 		root.addEventListener('click', function (e) {
