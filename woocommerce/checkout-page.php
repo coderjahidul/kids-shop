@@ -9,7 +9,7 @@ defined( 'ABSPATH' ) || exit;
 
 get_header();
 ?>
-<main class="kids-shop-checkout-page-wrap">
+<main class="kids-shop-checkout-page-wrap kids-shop-checkout-page">
 	<?php
 	if ( function_exists( 'wc_print_notices' ) ) {
 		wc_print_notices();

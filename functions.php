@@ -36,7 +36,7 @@ function kids_shop_enqueue_styles()
 		);
 
 		$shop_deps = kids_shop_enqueue_cart_fragment_scripts();
-		$shop_js   = get_template_directory() . '/assets/shop.js';
+		$shop_js = get_template_directory() . '/assets/shop.js';
 
 		wp_enqueue_script(
 			'kids-shop-shop-js',
@@ -52,11 +52,11 @@ function kids_shop_enqueue_styles()
 			array(
 				'ajaxUrl' => admin_url('admin-ajax.php'),
 				'cartUrl' => function_exists('wc_get_cart_url') ? wc_get_cart_url() : '',
-				'i18n'    => array(
-					'addedToCart' => __( 'Product added to cart!', 'kids-shop' ),
-					'viewCart'    => __( 'View Cart', 'kids-shop' ),
-					'close'       => __( 'Close', 'kids-shop' ),
-					'error'       => __( 'Could not add to cart. Please try again.', 'kids-shop' ),
+				'i18n' => array(
+					'addedToCart' => __('Product added to cart!', 'kids-shop'),
+					'viewCart' => __('View Cart', 'kids-shop'),
+					'close' => __('Close', 'kids-shop'),
+					'error' => __('Could not add to cart. Please try again.', 'kids-shop'),
 				),
 			)
 		);
@@ -217,7 +217,7 @@ function kids_shop_body_class($classes)
 	if (function_exists('is_cart') && is_cart()) {
 		$classes[] = 'kids-shop-cart-page';
 	}
-	if ( function_exists( 'is_checkout' ) && is_checkout() && ! is_wc_endpoint_url( 'order-received' ) ) {
+	if (function_exists('is_checkout') && is_checkout() && !is_wc_endpoint_url('order-received')) {
 		$classes[] = 'kids-shop-checkout-page';
 	}
 	if (is_page('login')) {
@@ -259,16 +259,17 @@ add_filter('template_include', 'kids_shop_cart_page_template', 99);
  * @param string $template Path to template.
  * @return string
  */
-function kids_shop_checkout_page_template( $template ) {
-	if ( function_exists( 'is_checkout' ) && is_checkout() && ! is_wc_endpoint_url( 'order-received' ) && ! is_admin() ) {
+function kids_shop_checkout_page_template($template)
+{
+	if (function_exists('is_checkout') && is_checkout() && !is_wc_endpoint_url('order-received') && !is_admin()) {
 		$custom = get_template_directory() . '/woocommerce/checkout-page.php';
-		if ( file_exists( $custom ) ) {
+		if (file_exists($custom)) {
 			return $custom;
 		}
 	}
 	return $template;
 }
-add_filter( 'template_include', 'kids_shop_checkout_page_template', 99 );
+add_filter('template_include', 'kids_shop_checkout_page_template', 99);
 
 /**
  * Use theme My Account layout on the WooCommerce account page.
@@ -276,16 +277,17 @@ add_filter( 'template_include', 'kids_shop_checkout_page_template', 99 );
  * @param string $template Path to template.
  * @return string
  */
-function kids_shop_myaccount_page_template( $template ) {
-	if ( function_exists( 'is_account_page' ) && is_account_page() && ! is_admin() ) {
+function kids_shop_myaccount_page_template($template)
+{
+	if (function_exists('is_account_page') && is_account_page() && !is_admin()) {
 		$custom = get_template_directory() . '/woocommerce/myaccount-page.php';
-		if ( file_exists( $custom ) ) {
+		if (file_exists($custom)) {
 			return $custom;
 		}
 	}
 	return $template;
 }
-add_filter( 'template_include', 'kids_shop_myaccount_page_template', 99 );
+add_filter('template_include', 'kids_shop_myaccount_page_template', 99);
 
 /**
  * Enqueue cart page assets.
@@ -341,32 +343,34 @@ add_action('wp_enqueue_scripts', 'kids_shop_enqueue_cart_assets', 20);
 /**
  * Enqueue checkout page assets.
  */
-function kids_shop_enqueue_checkout_assets() {
-	if ( ! function_exists( 'is_checkout' ) || ! is_checkout() || is_wc_endpoint_url( 'order-received' ) ) {
+function kids_shop_enqueue_checkout_assets()
+{
+	if (!function_exists('is_checkout') || !is_checkout() || is_wc_endpoint_url('order-received')) {
 		return;
 	}
 
-	$theme_version = wp_get_theme()->get( 'Version' );
-	$css_path      = get_template_directory() . '/assets/kids-shop-checkout.css';
+	$theme_version = wp_get_theme()->get('Version');
+	$css_path = get_template_directory() . '/assets/kids-shop-checkout.css';
 
 	wp_enqueue_style(
 		'kids-shop-checkout',
 		get_template_directory_uri() . '/assets/kids-shop-checkout.css',
-		array( 'kids-shop-style' ),
-		file_exists( $css_path ) ? (string) filemtime( $css_path ) : $theme_version
+		array('kids-shop-style'),
+		file_exists($css_path) ? (string) filemtime($css_path) : $theme_version
 	);
 }
-add_action( 'wp_enqueue_scripts', 'kids_shop_enqueue_checkout_assets', 20 );
+add_action('wp_enqueue_scripts', 'kids_shop_enqueue_checkout_assets', 20);
 
 /**
  * Match checkout CTA text to design.
  *
  * @return string
  */
-function kids_shop_checkout_order_button_text() {
-	return __( 'Confirm Order', 'kids-shop' );
+function kids_shop_checkout_order_button_text()
+{
+	return __('Confirm Order', 'kids-shop');
 }
-add_filter( 'woocommerce_order_button_text', 'kids_shop_checkout_order_button_text' );
+add_filter('woocommerce_order_button_text', 'kids_shop_checkout_order_button_text');
 
 /**
  * Simplify checkout fields to match reference design.
@@ -374,8 +378,9 @@ add_filter( 'woocommerce_order_button_text', 'kids_shop_checkout_order_button_te
  * @param array $fields Checkout fields.
  * @return array
  */
-function kids_shop_customize_checkout_fields( $fields ) {
-	if ( isset( $fields['billing'] ) ) {
+function kids_shop_customize_checkout_fields($fields)
+{
+	if (isset($fields['billing'])) {
 		unset(
 			$fields['billing']['billing_last_name'],
 			$fields['billing']['billing_company'],
@@ -386,54 +391,54 @@ function kids_shop_customize_checkout_fields( $fields ) {
 			$fields['billing']['billing_email']
 		);
 
-		if ( isset( $fields['billing']['billing_first_name'] ) ) {
-			$fields['billing']['billing_first_name']['label']       = __( 'Full Name', 'kids-shop' );
+		if (isset($fields['billing']['billing_first_name'])) {
+			$fields['billing']['billing_first_name']['label'] = __('Full Name', 'kids-shop');
 			$fields['billing']['billing_first_name']['placeholder'] = '';
-			$fields['billing']['billing_first_name']['priority']    = 10;
-			$fields['billing']['billing_first_name']['class']       = array( 'form-row-first' );
+			$fields['billing']['billing_first_name']['priority'] = 10;
+			$fields['billing']['billing_first_name']['class'] = array('form-row-first');
 		}
 
-		if ( isset( $fields['billing']['billing_phone'] ) ) {
-			$fields['billing']['billing_phone']['label']       = __( 'Enter Your Phone Number', 'kids-shop' );
+		if (isset($fields['billing']['billing_phone'])) {
+			$fields['billing']['billing_phone']['label'] = __('Enter Your Phone Number', 'kids-shop');
 			$fields['billing']['billing_phone']['placeholder'] = '';
-			$fields['billing']['billing_phone']['required']    = true;
-			$fields['billing']['billing_phone']['priority']    = 20;
-			$fields['billing']['billing_phone']['class']       = array( 'form-row-last' );
+			$fields['billing']['billing_phone']['required'] = true;
+			$fields['billing']['billing_phone']['priority'] = 20;
+			$fields['billing']['billing_phone']['class'] = array('form-row-last');
 		}
 
 		$fields['billing']['billing_state'] = array(
-			'type'        => 'select',
-			'label'       => __( 'Select Division', 'kids-shop' ),
-			'required'    => true,
-			'class'       => array( 'form-row-wide' ),
-			'priority'    => 30,
-			'options'     => array(
-				''            => __( 'Select Division', 'kids-shop' ),
-				'dhaka'       => __( 'Dhaka', 'kids-shop' ),
-				'chattogram'  => __( 'Chattogram', 'kids-shop' ),
-				'rajshahi'    => __( 'Rajshahi', 'kids-shop' ),
-				'khulna'      => __( 'Khulna', 'kids-shop' ),
-				'barishal'    => __( 'Barishal', 'kids-shop' ),
-				'sylhet'      => __( 'Sylhet', 'kids-shop' ),
-				'rangpur'     => __( 'Rangpur', 'kids-shop' ),
-				'mymensingh'  => __( 'Mymensingh', 'kids-shop' ),
+			'type' => 'select',
+			'label' => __('Select Division', 'kids-shop'),
+			'required' => true,
+			'class' => array('form-row-wide'),
+			'priority' => 30,
+			'options' => array(
+				'' => __('Select Division', 'kids-shop'),
+				'dhaka' => __('Dhaka', 'kids-shop'),
+				'chattogram' => __('Chattogram', 'kids-shop'),
+				'rajshahi' => __('Rajshahi', 'kids-shop'),
+				'khulna' => __('Khulna', 'kids-shop'),
+				'barishal' => __('Barishal', 'kids-shop'),
+				'sylhet' => __('Sylhet', 'kids-shop'),
+				'rangpur' => __('Rangpur', 'kids-shop'),
+				'mymensingh' => __('Mymensingh', 'kids-shop'),
 			),
 		);
 
-		$fields['billing']['billing_address_1']['label']       = __( 'Full Address', 'kids-shop' );
+		$fields['billing']['billing_address_1']['label'] = __('Full Address', 'kids-shop');
 		$fields['billing']['billing_address_1']['placeholder'] = '';
-		$fields['billing']['billing_address_1']['type']        = 'textarea';
-		$fields['billing']['billing_address_1']['class']       = array( 'form-row-wide' );
-		$fields['billing']['billing_address_1']['priority']    = 40;
-		unset( $fields['billing']['billing_address_2'] );
+		$fields['billing']['billing_address_1']['type'] = 'textarea';
+		$fields['billing']['billing_address_1']['class'] = array('form-row-wide');
+		$fields['billing']['billing_address_1']['priority'] = 40;
+		unset($fields['billing']['billing_address_2']);
 	}
 
-	$fields['shipping']   = array();
-	$fields['account']    = array();
-	$fields['order']      = array();
+	$fields['shipping'] = array();
+	$fields['account'] = array();
+	$fields['order'] = array();
 	return $fields;
 }
-add_filter( 'woocommerce_checkout_fields', 'kids_shop_customize_checkout_fields', 20 );
+add_filter('woocommerce_checkout_fields', 'kids_shop_customize_checkout_fields', 20);
 
 /**
  * Keep header cart UI in sync on all front-end pages (fragment refresh on load).
@@ -446,7 +451,7 @@ function kids_shop_enqueue_global_cart_fragments()
 
 	wp_enqueue_script('wc-cart-fragments');
 
-	if ( ! function_exists( 'kids_shop_enqueue_cart_fragment_scripts' ) || ! function_exists( 'kids_shop_get_cart_fragments' ) ) {
+	if (!function_exists('kids_shop_enqueue_cart_fragment_scripts') || !function_exists('kids_shop_get_cart_fragments')) {
 		return;
 	}
 
@@ -457,82 +462,85 @@ add_action('wp_enqueue_scripts', 'kids_shop_enqueue_global_cart_fragments', 15);
 /**
  * Apply header cart fragments after the header buffer is done (avoids nested ob_start).
  */
-function kids_shop_print_cart_fragment_bootstrap() {
-	if ( is_admin() || ! function_exists( 'WC' ) || ! function_exists( 'kids_shop_get_cart_fragments' ) ) {
+function kids_shop_print_cart_fragment_bootstrap()
+{
+	if (is_admin() || !function_exists('WC') || !function_exists('kids_shop_get_cart_fragments')) {
 		return;
 	}
 
-	$fragments = wp_json_encode( kids_shop_get_cart_fragments() );
-	if ( ! $fragments || '{}' === $fragments ) {
+	$fragments = wp_json_encode(kids_shop_get_cart_fragments());
+	if (!$fragments || '{}' === $fragments) {
 		return;
 	}
 
 	wp_print_inline_script_tag(
 		'(function($){var f=' . $fragments . ';function apply(){if(typeof window.kidsShopApplyCartFragments==="function"){window.kidsShopApplyCartFragments(f);}}$(apply);setTimeout(apply,100);setTimeout(apply,600);$(document.body).on("wc_fragments_refreshed added_to_cart",apply);})(jQuery);',
-		array( 'id' => 'kids-shop-cart-fragments-bootstrap' )
+		array('id' => 'kids-shop-cart-fragments-bootstrap')
 	);
 }
-add_action( 'wp_footer', 'kids_shop_print_cart_fragment_bootstrap', 5 );
+add_action('wp_footer', 'kids_shop_print_cart_fragment_bootstrap', 5);
 
 /**
  * Enqueue login & sign up page assets.
  */
-function kids_shop_enqueue_auth_assets() {
-	if ( ! is_page( 'login' ) && ! is_page( 'signup' ) ) {
+function kids_shop_enqueue_auth_assets()
+{
+	if (!is_page('login') && !is_page('signup')) {
 		return;
 	}
 
-	$theme_version = wp_get_theme()->get( 'Version' );
-	$auth_css      = get_template_directory() . '/assets/kids-shop-auth.css';
-	$auth_js       = get_template_directory() . '/assets/auth.js';
+	$theme_version = wp_get_theme()->get('Version');
+	$auth_css = get_template_directory() . '/assets/kids-shop-auth.css';
+	$auth_js = get_template_directory() . '/assets/auth.js';
 
 	wp_enqueue_style(
 		'kids-shop-auth',
 		get_template_directory_uri() . '/assets/kids-shop-auth.css',
-		array( 'kids-shop-style' ),
-		file_exists( $auth_css ) ? (string) filemtime( $auth_css ) : $theme_version
+		array('kids-shop-style'),
+		file_exists($auth_css) ? (string) filemtime($auth_css) : $theme_version
 	);
 
 	wp_enqueue_script(
 		'kids-shop-auth-js',
 		get_template_directory_uri() . '/assets/auth.js',
 		array(),
-		file_exists( $auth_js ) ? (string) filemtime( $auth_js ) : $theme_version,
+		file_exists($auth_js) ? (string) filemtime($auth_js) : $theme_version,
 		true
 	);
 }
-add_action( 'wp_enqueue_scripts', 'kids_shop_enqueue_auth_assets', 20 );
+add_action('wp_enqueue_scripts', 'kids_shop_enqueue_auth_assets', 20);
 
 /**
  * Enqueue My Account page assets.
  */
-function kids_shop_enqueue_myaccount_assets() {
-	if ( ! function_exists( 'is_account_page' ) || ! is_account_page() ) {
+function kids_shop_enqueue_myaccount_assets()
+{
+	if (!function_exists('is_account_page') || !is_account_page()) {
 		return;
 	}
 
-	$theme_version = wp_get_theme()->get( 'Version' );
-	$css_path      = get_template_directory() . '/assets/kids-shop-myaccount.css';
+	$theme_version = wp_get_theme()->get('Version');
+	$css_path = get_template_directory() . '/assets/kids-shop-myaccount.css';
 
 	wp_enqueue_style(
 		'kids-shop-myaccount',
 		get_template_directory_uri() . '/assets/kids-shop-myaccount.css',
-		array( 'kids-shop-style' ),
-		file_exists( $css_path ) ? (string) filemtime( $css_path ) : $theme_version
+		array('kids-shop-style'),
+		file_exists($css_path) ? (string) filemtime($css_path) : $theme_version
 	);
 
-	if ( is_user_logged_in() ) {
+	if (is_user_logged_in()) {
 		$js_path = get_template_directory() . '/assets/myaccount.js';
 		wp_enqueue_script(
 			'kids-shop-myaccount',
 			get_template_directory_uri() . '/assets/myaccount.js',
 			array(),
-			file_exists( $js_path ) ? (string) filemtime( $js_path ) : $theme_version,
+			file_exists($js_path) ? (string) filemtime($js_path) : $theme_version,
 			true
 		);
 	}
 }
-add_action( 'wp_enqueue_scripts', 'kids_shop_enqueue_myaccount_assets', 20 );
+add_action('wp_enqueue_scripts', 'kids_shop_enqueue_myaccount_assets', 20);
 
 /**
  * Use theme login page instead of wp-login.php for front-end links.
@@ -541,41 +549,57 @@ add_action( 'wp_enqueue_scripts', 'kids_shop_enqueue_myaccount_assets', 20 );
  * @param string $redirect  Redirect target.
  * @return string
  */
-function kids_shop_login_url( $login_url, $redirect ) {
+function kids_shop_login_url($login_url, $redirect)
+{
 	$url = kids_shop_get_login_url();
-	if ( $redirect ) {
-		$url = add_query_arg( 'redirect_to', urlencode( $redirect ), $url );
+	if ($redirect) {
+		$url = add_query_arg('redirect_to', urlencode($redirect), $url);
 	}
 	return $url;
 }
-add_filter( 'login_url', 'kids_shop_login_url', 10, 2 );
+add_filter('login_url', 'kids_shop_login_url', 10, 2);
 
 /**
  * Send failed logins back to the themed login page.
  */
-function kids_shop_login_failed_redirect() {
-	if ( is_admin() ) {
+function kids_shop_login_failed_redirect()
+{
+	if (is_admin()) {
 		return;
 	}
-	$url = add_query_arg( 'login', 'failed', kids_shop_get_login_url() );
-	wp_safe_redirect( $url );
+	$url = add_query_arg('login', 'failed', kids_shop_get_login_url());
+	wp_safe_redirect($url);
 	exit;
 }
-add_action( 'wp_login_failed', 'kids_shop_login_failed_redirect' );
+add_action('wp_login_failed', 'kids_shop_login_failed_redirect');
 
 /**
  * Redirect empty login attempts from the themed form.
  */
-function kids_shop_authenticate_empty_login( $user, $username, $password ) {
-	if ( is_admin() || empty( $_POST['wp-submit'] ) ) {
+function kids_shop_authenticate_empty_login($user, $username, $password)
+{
+	if (is_admin() || empty($_POST['wp-submit'])) {
 		return $user;
 	}
-	if ( empty( $username ) || empty( $password ) ) {
-		$url = add_query_arg( 'login', 'empty', kids_shop_get_login_url() );
-		wp_safe_redirect( $url );
+	if (empty($username) || empty($password)) {
+		$url = add_query_arg('login', 'empty', kids_shop_get_login_url());
+		wp_safe_redirect($url);
 		exit;
 	}
 	return $user;
 }
-add_filter( 'authenticate', 'kids_shop_authenticate_empty_login', 30, 3 );
+add_filter('authenticate', 'kids_shop_authenticate_empty_login', 30, 3);
+
+/**
+ * Add kids-shop-checkout-page class to body on checkout page.
+ */
+function kids_shop_checkout_body_class($classes)
+{
+	if (function_exists('is_checkout') && is_checkout()) {
+		$classes[] = 'kids-shop-checkout-page';
+	}
+	return $classes;
+}
+add_filter('body_class', 'kids_shop_checkout_body_class');
+
 
