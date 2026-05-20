@@ -660,7 +660,7 @@
 	float: none !important;
 	width: auto !important;
 	max-width: none !important;
-	flex: 0 0 calc((100% - 64px) / 6);
+	flex: 0 0 calc((100% - 64px) / 5);
 	min-width: 0;
 	margin: 0 !important;
 	clear: none !important;

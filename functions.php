@@ -217,6 +217,9 @@ function kids_shop_body_class($classes)
 	if (function_exists('is_cart') && is_cart()) {
 		$classes[] = 'kids-shop-cart-page';
 	}
+	if ( function_exists( 'is_checkout' ) && is_checkout() && ! is_wc_endpoint_url( 'order-received' ) ) {
+		$classes[] = 'kids-shop-checkout-page';
+	}
 	if (is_page('login')) {
 		$classes[] = 'kids-shop-auth-page-body';
 		$classes[] = 'kids-shop-login-page';
@@ -249,6 +252,23 @@ function kids_shop_cart_page_template($template)
 	return $template;
 }
 add_filter('template_include', 'kids_shop_cart_page_template', 99);
+
+/**
+ * Use theme checkout layout on the WooCommerce checkout page.
+ *
+ * @param string $template Path to template.
+ * @return string
+ */
+function kids_shop_checkout_page_template( $template ) {
+	if ( function_exists( 'is_checkout' ) && is_checkout() && ! is_wc_endpoint_url( 'order-received' ) && ! is_admin() ) {
+		$custom = get_template_directory() . '/woocommerce/checkout-page.php';
+		if ( file_exists( $custom ) ) {
+			return $custom;
+		}
+	}
+	return $template;
+}
+add_filter( 'template_include', 'kids_shop_checkout_page_template', 99 );
 
 /**
  * Use theme My Account layout on the WooCommerce account page.
@@ -317,6 +337,103 @@ function kids_shop_enqueue_cart_assets()
 	}
 }
 add_action('wp_enqueue_scripts', 'kids_shop_enqueue_cart_assets', 20);
+
+/**
+ * Enqueue checkout page assets.
+ */
+function kids_shop_enqueue_checkout_assets() {
+	if ( ! function_exists( 'is_checkout' ) || ! is_checkout() || is_wc_endpoint_url( 'order-received' ) ) {
+		return;
+	}
+
+	$theme_version = wp_get_theme()->get( 'Version' );
+	$css_path      = get_template_directory() . '/assets/kids-shop-checkout.css';
+
+	wp_enqueue_style(
+		'kids-shop-checkout',
+		get_template_directory_uri() . '/assets/kids-shop-checkout.css',
+		array( 'kids-shop-style' ),
+		file_exists( $css_path ) ? (string) filemtime( $css_path ) : $theme_version
+	);
+}
+add_action( 'wp_enqueue_scripts', 'kids_shop_enqueue_checkout_assets', 20 );
+
+/**
+ * Match checkout CTA text to design.
+ *
+ * @return string
+ */
+function kids_shop_checkout_order_button_text() {
+	return __( 'Confirm Order', 'kids-shop' );
+}
+add_filter( 'woocommerce_order_button_text', 'kids_shop_checkout_order_button_text' );
+
+/**
+ * Simplify checkout fields to match reference design.
+ *
+ * @param array $fields Checkout fields.
+ * @return array
+ */
+function kids_shop_customize_checkout_fields( $fields ) {
+	if ( isset( $fields['billing'] ) ) {
+		unset(
+			$fields['billing']['billing_last_name'],
+			$fields['billing']['billing_company'],
+			$fields['billing']['billing_country'],
+			$fields['billing']['billing_state'],
+			$fields['billing']['billing_city'],
+			$fields['billing']['billing_postcode'],
+			$fields['billing']['billing_email']
+		);
+
+		if ( isset( $fields['billing']['billing_first_name'] ) ) {
+			$fields['billing']['billing_first_name']['label']       = __( 'Full Name', 'kids-shop' );
+			$fields['billing']['billing_first_name']['placeholder'] = '';
+			$fields['billing']['billing_first_name']['priority']    = 10;
+			$fields['billing']['billing_first_name']['class']       = array( 'form-row-first' );
+		}
+
+		if ( isset( $fields['billing']['billing_phone'] ) ) {
+			$fields['billing']['billing_phone']['label']       = __( 'Enter Your Phone Number', 'kids-shop' );
+			$fields['billing']['billing_phone']['placeholder'] = '';
+			$fields['billing']['billing_phone']['required']    = true;
+			$fields['billing']['billing_phone']['priority']    = 20;
+			$fields['billing']['billing_phone']['class']       = array( 'form-row-last' );
+		}
+
+		$fields['billing']['billing_state'] = array(
+			'type'        => 'select',
+			'label'       => __( 'Select Division', 'kids-shop' ),
+			'required'    => true,
+			'class'       => array( 'form-row-wide' ),
+			'priority'    => 30,
+			'options'     => array(
+				''            => __( 'Select Division', 'kids-shop' ),
+				'dhaka'       => __( 'Dhaka', 'kids-shop' ),
+				'chattogram'  => __( 'Chattogram', 'kids-shop' ),
+				'rajshahi'    => __( 'Rajshahi', 'kids-shop' ),
+				'khulna'      => __( 'Khulna', 'kids-shop' ),
+				'barishal'    => __( 'Barishal', 'kids-shop' ),
+				'sylhet'      => __( 'Sylhet', 'kids-shop' ),
+				'rangpur'     => __( 'Rangpur', 'kids-shop' ),
+				'mymensingh'  => __( 'Mymensingh', 'kids-shop' ),
+			),
+		);
+
+		$fields['billing']['billing_address_1']['label']       = __( 'Full Address', 'kids-shop' );
+		$fields['billing']['billing_address_1']['placeholder'] = '';
+		$fields['billing']['billing_address_1']['type']        = 'textarea';
+		$fields['billing']['billing_address_1']['class']       = array( 'form-row-wide' );
+		$fields['billing']['billing_address_1']['priority']    = 40;
+		unset( $fields['billing']['billing_address_2'] );
+	}
+
+	$fields['shipping']   = array();
+	$fields['account']    = array();
+	$fields['order']      = array();
+	return $fields;
+}
+add_filter( 'woocommerce_checkout_fields', 'kids_shop_customize_checkout_fields', 20 );
 
 /**
  * Keep header cart UI in sync on all front-end pages (fragment refresh on load).
