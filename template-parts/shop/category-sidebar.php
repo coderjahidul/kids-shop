@@ -9,14 +9,19 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+$kids_shop_sidebar_layout = isset( $GLOBALS['kids_shop_sidebar_layout'] ) ? (string) $GLOBALS['kids_shop_sidebar_layout'] : 'archive';
+
 $active_slug = kids_shop_get_active_category_slug();
 $categories  = kids_shop_get_sidebar_categories();
 $shop_url    = kids_shop_get_products_url();
+$sidebar_title = ( 'single-product' === $kids_shop_sidebar_layout )
+	? __( 'Category', 'kids-shop' )
+	: __( 'Categories', 'kids-shop' );
 ?>
-<app-products-category-view _nghost-ng-c1609131114="" class="ng-star-inserted">
+<app-products-category-view _nghost-ng-c1609131114="" class="ng-star-inserted <?php echo 'single-product' === $kids_shop_sidebar_layout ? 'kids-shop-category-sidebar--single' : ''; ?>">
 	<div _ngcontent-ng-c1609131114="" class="nested-category-sidebar">
 		<div _ngcontent-ng-c1609131114="" class="sidebar-header">
-			<h3 _ngcontent-ng-c1609131114=""><?php esc_html_e( 'Categories', 'kids-shop' ); ?></h3>
+			<h3 _ngcontent-ng-c1609131114=""><?php echo esc_html( $sidebar_title ); ?></h3>
 		</div>
 		<div _ngcontent-ng-c1609131114="" class="category-tree">
 			<?php foreach ( $categories as $term ) : ?>
@@ -59,7 +64,7 @@ $shop_url    = kids_shop_get_products_url();
 				</div>
 			<?php endforeach; ?>
 		</div>
-		<?php if ( $active_slug ) : ?>
+		<?php if ( $active_slug && 'single-product' !== $kids_shop_sidebar_layout ) : ?>
 			<div _ngcontent-ng-c1609131114="" class="clear-filters ng-star-inserted">
 				<a _ngcontent-ng-c1609131114="" class="clear-btn" href="<?php echo esc_url( $shop_url ); ?>"><?php esc_html_e( 'Clear All Filters', 'kids-shop' ); ?></a>
 			</div>

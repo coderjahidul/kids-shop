@@ -26,21 +26,23 @@ function kids_shop_enqueue_styles()
 		file_exists($header_cart_css) ? (string) filemtime($header_cart_css) : $theme_version
 	);
 
-	if (function_exists('is_woocommerce') && (is_woocommerce() || is_shop() || is_product_taxonomy())) {
+	if (function_exists('is_woocommerce') && (is_woocommerce() || is_shop() || is_product_taxonomy() || (function_exists('is_product') && is_product()))) {
+		$shop_css = get_template_directory() . '/assets/kids-shop-shop.css';
 		wp_enqueue_style(
 			'kids-shop-shop',
 			get_template_directory_uri() . '/assets/kids-shop-shop.css',
 			array('kids-shop-style'),
-			wp_get_theme()->get('Version')
+			file_exists($shop_css) ? (string) filemtime($shop_css) : wp_get_theme()->get('Version')
 		);
 
 		$shop_deps = kids_shop_enqueue_cart_fragment_scripts();
+		$shop_js   = get_template_directory() . '/assets/shop.js';
 
 		wp_enqueue_script(
 			'kids-shop-shop-js',
 			get_template_directory_uri() . '/assets/shop.js',
 			$shop_deps,
-			wp_get_theme()->get('Version'),
+			file_exists($shop_js) ? (string) filemtime($shop_js) : wp_get_theme()->get('Version'),
 			true
 		);
 
@@ -50,6 +52,12 @@ function kids_shop_enqueue_styles()
 			array(
 				'ajaxUrl' => admin_url('admin-ajax.php'),
 				'cartUrl' => function_exists('wc_get_cart_url') ? wc_get_cart_url() : '',
+				'i18n'    => array(
+					'addedToCart' => __( 'Product added to cart!', 'kids-shop' ),
+					'viewCart'    => __( 'View Cart', 'kids-shop' ),
+					'close'       => __( 'Close', 'kids-shop' ),
+					'error'       => __( 'Could not add to cart. Please try again.', 'kids-shop' ),
+				),
 			)
 		);
 	}
@@ -199,6 +207,9 @@ function kids_shop_body_class($classes)
 {
 	if (function_exists('is_woocommerce') && (is_shop() || is_product_taxonomy())) {
 		$classes[] = 'kids-shop-archive';
+	}
+	if (function_exists('is_product') && is_product()) {
+		$classes[] = 'kids-shop-single-product-page';
 	}
 	if (is_front_page()) {
 		$classes[] = 'kids-shop-home-page';
