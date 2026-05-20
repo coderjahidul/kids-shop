@@ -1,0 +1,60 @@
+/**
+ * Header cart icon — matches KiddoMart reference (teal badge, outline cart).
+ */
+
+app-header-cart-1 .cart-button,
+app-header-sm-1 a.cart.kids-shop-header-cart-link {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	text-decoration: none;
+	line-height: 1;
+}
+
+app-header-cart-1 .cart-button svg,
+app-header-sm-1 a.cart.kids-shop-header-cart-link svg {
+	display: block;
+	width: 24px;
+	height: 24px;
+}
+
+app-header-cart-1 .cart-button .kids-shop-header-cart-count,
+app-header-sm-1 a.cart .kids-shop-header-cart-count {
+	position: absolute;
+	top: -6px;
+	right: -8px;
+	min-width: 18px;
+	height: 18px;
+	padding: 0 4px;
+	box-sizing: border-box;
+	border-radius: 50%;
+	background-color: #27a7b8;
+	color: #fff;
+	font-family: Satoshi, sans-serif;
+	font-size: 11px;
+	font-weight: 600;
+	line-height: 18px;
+	text-align: center;
+	pointer-events: none;
+}
+
+app-header-cart-1 .cart-button .kids-shop-header-cart-count--empty,
+app-header-sm-1 a.cart .kids-shop-header-cart-count--empty {
+	display: none;
+}
+
+/* Override compiled Angular header styles (pink badge on .cart-button span). */
+.cart .cart-button.kids-shop-header-cart-link span.kids-shop-header-cart-count,
+app-header-sm-1 a.cart.kids-shop-header-cart-link span.kids-shop-header-cart-count {
+	top: -6px;
+	right: -8px;
+	min-width: 18px;
+	width: auto;
+	height: 18px;
+	line-height: 18px;
+	border-radius: 50%;
+	background-color: #27a7b8;
+	font-size: 11px;
+	font-weight: 600;
+}

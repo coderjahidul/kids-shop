@@ -13,12 +13,12 @@
 	});
 
 	/* ─── Toast ───────────────────────────────────────────────────── */
-	var cfg    = (typeof kidsShop !== 'undefined') ? kidsShop : {};
-	var i18n   = { addedToCart: 'Product added to cart!', viewCart: 'View Cart', close: 'Close', error: 'Could not add to cart.' };
+	var cfg = (typeof kidsShop !== 'undefined') ? kidsShop : {};
+	var i18n = { addedToCart: 'Product added to cart!', viewCart: 'View Cart', close: 'Close', error: 'Could not add to cart.' };
 	var cartUrl = cfg.cartUrl || '';
 
 	var $activeToast = null;
-	var toastTimer   = null;
+	var toastTimer = null;
 
 	function hideToast() {
 		clearTimeout(toastTimer);
@@ -43,10 +43,10 @@
 
 		$activeToast = $(
 			'<div class="ks-toast ' + (success ? 'ks-toast--success' : 'ks-toast--error') + '" role="status">' +
-				'<span class="ks-toast__icon">' + icon + '</span>' +
-				'<span class="ks-toast__msg">' + msg + '</span>' +
-				viewCartHtml +
-				'<button type="button" class="ks-toast__close">Close</button>' +
+			'<span class="ks-toast__icon">' + icon + '</span>' +
+			'<span class="ks-toast__msg">' + msg + '</span>' +
+			viewCartHtml +
+			'<button type="button" class="ks-toast__close">Close</button>' +
 			'</div>'
 		);
 
@@ -61,12 +61,12 @@
 	/* ─── AJAX Add to Cart ────────────────────────────────────────── */
 	var spinnerSvg =
 		'<svg class="ks-spin" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round">' +
-			'<path d="M12 2a10 10 0 0 1 10 10"/>' +
+		'<path d="M12 2a10 10 0 0 1 10 10"/>' +
 		'</svg>';
 
 	$(document).on('click', '.kids-shop-add-to-cart', function (e) {
 		e.preventDefault();
-		var $btn      = $(this);
+		var $btn = $(this);
 		var productId = $btn.data('product_id');
 
 		if (!productId || typeof wc_add_to_cart_params === 'undefined') { return; }
@@ -85,9 +85,10 @@
 				if (!response) { showToast(false, i18n.error); return; }
 				if (response.error && response.product_url) { window.location = response.product_url; return; }
 
-				// Fire added_to_cart WITHOUT $btn reference so WooCommerce updates
-				// cart count fragments but does NOT rewrite our custom button HTML.
 				if (response.fragments) {
+					if (typeof window.kidsShopApplyCartFragments === 'function') {
+						window.kidsShopApplyCartFragments(response.fragments);
+					}
 					$(document.body).trigger('added_to_cart', [response.fragments, response.cart_hash]);
 				}
 

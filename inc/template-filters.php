@@ -125,6 +125,7 @@ function kids_shop_apply_template_replacements( $html, $context = 'header' ) {
 		}
 
 		$html = kids_shop_replace_header_search_markup( $html );
+		$html = kids_shop_replace_header_cart_markup( $html );
 	}
 
 	if ( 'footer' === $context ) {
@@ -193,6 +194,113 @@ function kids_shop_replace_footer_link_columns( $html ) {
 		$html,
 		2
 	);
+}
+
+/**
+ * Replace static header cart counts with live WooCommerce cart data.
+ *
+ * @param string $html Header HTML.
+ * @return string
+ */
+function kids_shop_replace_header_cart_markup( $html ) {
+	if ( ! function_exists( 'kids_shop_get_cart_display_state' ) ) {
+		return $html;
+	}
+
+	$display = kids_shop_get_cart_display_state();
+	$count   = (int) $display['count'];
+
+	$desktop_badge = kids_shop_header_cart_count_html( $count, '_ngcontent-ng-c3456407154=""' );
+	$mobile_badge  = kids_shop_header_cart_count_html( $count, '_ngcontent-ng-c454772091=""' );
+
+	$html = preg_replace(
+		'#<span _ngcontent-ng-c3456407154="" class="kids-shop-header-cart-count[^"]*" data-cart-count="\d+">\d+</span>#',
+		$desktop_badge,
+		$html,
+		1
+	);
+
+	if ( ! str_contains( $html, 'kids-shop-header-cart-count' ) ) {
+		$html = preg_replace(
+			'#(class="cart-button kids-shop-header-cart-link"[^>]*>[\s\S]*?<span _ngcontent-ng-c3456407154="">)\d+(</span>)#',
+			'${1}' . esc_html( (string) $count ) . '${2}',
+			$html,
+			1
+		);
+	}
+
+	$html = preg_replace(
+		'#(class="cart-box-top"[^>]*><span _ngcontent-ng-c3456407154="">)[^<]+(</span>)#',
+		'${1}' . esc_html( $display['items_text'] ) . '${2}',
+		$html,
+		1
+	);
+
+	$html = preg_replace(
+		'#(class="cart-price"[^>]*><span _ngcontent-ng-c3456407154="">)[^<]+(</span>)#',
+		'${1}' . $display['total_html'] . '${2}',
+		$html,
+		1
+	);
+
+	$html = preg_replace(
+		'#<span _ngcontent-ng-c454772091="" class="kids-shop-header-cart-count[^"]*" data-cart-count="\d+">\d+</span>#',
+		$mobile_badge,
+		$html,
+		1
+	);
+
+	if ( ! preg_match( '#app-header-sm-1[\s\S]*?kids-shop-header-cart-count#', $html ) ) {
+		$html = preg_replace(
+			'#(<app-header-sm-1[\s\S]*?class="cart kids-shop-header-cart-link"[^>]*>[\s\S]*?<span _ngcontent-ng-c454772091="">)\d+(</span>)#',
+			'${1}' . esc_html( (string) $count ) . '${2}',
+			$html,
+			1
+		);
+	}
+
+	$html = kids_shop_replace_header_cart_dropdown( $html );
+
+	return $html;
+}
+
+/**
+ * Replace static exported mini-cart dropdown with live WooCommerce cart items.
+ *
+ * @param string $html Header HTML.
+ * @return string
+ */
+function kids_shop_replace_header_cart_dropdown( $html ) {
+	if ( ! function_exists( 'kids_shop_get_header_cart_dropdown_wrap_html' ) ) {
+		return $html;
+	}
+
+	$open_marker  = 'class="cart-dropdown-wrap';
+	$close_marker = 'class="cart-fixed-box';
+
+	$open_pos = strpos( $html, $open_marker );
+	if ( false === $open_pos ) {
+		return $html;
+	}
+
+	$start = strrpos( substr( $html, 0, $open_pos ), '<div' );
+	if ( false === $start ) {
+		return $html;
+	}
+
+	$close_pos = strpos( $html, $close_marker, $open_pos );
+	if ( false === $close_pos ) {
+		return $html;
+	}
+
+	$close_end = strrpos( substr( $html, 0, $close_pos ), '</div>' );
+	if ( false === $close_end ) {
+		$close_end = $close_pos;
+	} else {
+		$close_end += strlen( '</div>' );
+	}
+
+	return substr( $html, 0, $start ) . kids_shop_get_header_cart_dropdown_wrap_html() . substr( $html, $close_end );
 }
 
 /**

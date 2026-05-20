@@ -6,14 +6,14 @@
 		var slider = document.querySelector('.kids-shop-hero-slider');
 		if (!slider) { return; }
 
-		var wrapper    = slider.querySelector('.carousel-wrapper');
-		var slides     = slider.querySelectorAll('.carousel-slide');
+		var wrapper = slider.querySelector('.carousel-wrapper');
+		var slides = slider.querySelectorAll('.carousel-slide');
 		var indicators = slider.querySelectorAll('.kids-shop-carousel-indicators .indicator');
-		var prevBtn    = slider.querySelector('.kids-shop-carousel-prev');
-		var nextBtn    = slider.querySelector('.kids-shop-carousel-next');
-		var total      = slides.length;
-		var current    = 0;
-		var timer      = null;
+		var prevBtn = slider.querySelector('.kids-shop-carousel-prev');
+		var nextBtn = slider.querySelector('.kids-shop-carousel-next');
+		var total = slides.length;
+		var current = 0;
+		var timer = null;
 
 		if (!wrapper || total < 1) { return; }
 
@@ -59,11 +59,11 @@
 
 	/* ─── Toast Notification ──────────────────────────────────────── */
 	function KidsShopToast() {
-		var cfg     = (typeof kidsShopHome !== 'undefined') ? kidsShopHome : {};
-		var i18n    = cfg.i18n || { addedToCart: 'Product added to cart!', viewCart: 'View Cart', close: 'Close', error: 'Could not add to cart.' };
+		var cfg = (typeof kidsShopHome !== 'undefined') ? kidsShopHome : {};
+		var i18n = cfg.i18n || { addedToCart: 'Product added to cart!', viewCart: 'View Cart', close: 'Close', error: 'Could not add to cart.' };
 		var cartUrl = cfg.cartUrl || '';
 		var $active = null;
-		var timer   = null;
+		var timer = null;
 
 		function hide() {
 			clearTimeout(timer);
@@ -88,10 +88,10 @@
 
 			$active = jQuery(
 				'<div class="ks-toast ' + (success ? 'ks-toast--success' : 'ks-toast--error') + '" role="status">' +
-					'<span class="ks-toast__icon">' + icon + '</span>' +
-					'<span class="ks-toast__msg">' + msg + '</span>' +
-					viewCart +
-					'<button type="button" class="ks-toast__close">' + i18n.close + '</button>' +
+				'<span class="ks-toast__icon">' + icon + '</span>' +
+				'<span class="ks-toast__msg">' + msg + '</span>' +
+				viewCart +
+				'<button type="button" class="ks-toast__close">' + i18n.close + '</button>' +
 				'</div>'
 			);
 
@@ -112,17 +112,17 @@
 		if (typeof jQuery === 'undefined') { return; }
 
 		var toast = KidsShopToast();
-		var cfg   = (typeof kidsShopHome !== 'undefined') ? kidsShopHome : {};
-		var i18n  = cfg.i18n || { addedToCart: 'Product added to cart!', error: 'Could not add to cart.' };
+		var cfg = (typeof kidsShopHome !== 'undefined') ? kidsShopHome : {};
+		var i18n = cfg.i18n || { addedToCart: 'Product added to cart!', error: 'Could not add to cart.' };
 
 		var spinnerSvg =
 			'<svg class="ks-spin" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round">' +
-				'<path d="M12 2a10 10 0 0 1 10 10"/>' +
+			'<path d="M12 2a10 10 0 0 1 10 10"/>' +
 			'</svg>';
 
 		jQuery(document).on('click', '.kids-shop-add-to-cart', function (e) {
 			e.preventDefault();
-			var $btn      = jQuery(this);
+			var $btn = jQuery(this);
 			var productId = $btn.data('product_id');
 
 			if (!productId || typeof wc_add_to_cart_params === 'undefined') { return; }
@@ -141,9 +141,10 @@
 					if (!response) { toast.show(false, i18n.error); return; }
 					if (response.error && response.product_url) { window.location = response.product_url; return; }
 
-					// Trigger added_to_cart WITHOUT passing $btn so WooCommerce
-					// updates the cart count fragment but does NOT rewrite our button.
 					if (response.fragments) {
+						if (typeof window.kidsShopApplyCartFragments === 'function') {
+							window.kidsShopApplyCartFragments(response.fragments);
+						}
 						jQuery(document.body).trigger('added_to_cart', [response.fragments, response.cart_hash]);
 					}
 
