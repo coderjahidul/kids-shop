@@ -1,0 +1,249 @@
+/* Thank you / order received — KiddoMart reference */
+.kids-shop-thankyou-page {
+	--kids-thankyou-success: #00c153;
+	--kids-thankyou-success-hover: #00a847;
+	--kids-thankyou-text: #1a1a1a;
+	--kids-thankyou-muted: #6b7280;
+	--kids-thankyou-border: #e5e7eb;
+	--kids-thankyou-bg: #f5f6f8;
+	background: var(--kids-thankyou-bg);
+	min-height: calc(100vh - 180px);
+	padding: 48px 16px 80px;
+	box-sizing: border-box;
+}
+
+.kids-shop-thankyou-page__wrap {
+	max-width: 520px;
+	margin: 0 auto;
+}
+
+/* Hide default WooCommerce thank-you clutter */
+.kids-shop-thankyou-page .woocommerce-thankyou-order-received,
+.kids-shop-thankyou-page .woocommerce-order-overview,
+.kids-shop-thankyou-page .woocommerce-order-details,
+.kids-shop-thankyou-page .woocommerce-customer-details {
+	display: none !important;
+}
+
+.kids-shop-thankyou-order {
+	margin: 0;
+}
+
+.kids-shop-thankyou-card {
+	background: #fff;
+	border: 1px solid var(--kids-thankyou-border);
+	border-radius: 8px;
+	padding: 48px 40px 40px;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+	text-align: center;
+}
+
+.kids-shop-thankyou-card__icon {
+	width: 72px;
+	height: 72px;
+	margin: 0 auto 28px;
+	border-radius: 50%;
+	background: var(--kids-thankyou-success);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.kids-shop-thankyou-card__icon--failed {
+	background: #ef4444;
+}
+
+.kids-shop-thankyou-card__eyebrow {
+	margin: 0 0 10px;
+	font-size: 18px;
+	font-weight: 700;
+	line-height: 1.2;
+	color: var(--kids-thankyou-text);
+	text-transform: uppercase;
+	letter-spacing: 0.02em;
+}
+
+.kids-shop-thankyou-card__headline {
+	margin: 0 0 20px;
+	font-size: clamp(1.75rem, 4vw, 2.125rem);
+	font-weight: 800;
+	line-height: 1.15;
+	color: var(--kids-thankyou-text);
+	text-transform: uppercase;
+	letter-spacing: -0.01em;
+}
+
+.kids-shop-thankyou-card__message {
+	margin: 0 0 16px;
+	font-size: 15px;
+	line-height: 1.6;
+	color: var(--kids-thankyou-muted);
+	max-width: 380px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.kids-shop-thankyou-card__order {
+	margin: 0 0 32px;
+	font-size: 15px;
+	line-height: 1.5;
+	color: var(--kids-thankyou-muted);
+}
+
+.kids-shop-thankyou-card__btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	min-width: 180px;
+	height: 48px;
+	padding: 0 28px;
+	border: none;
+	border-radius: 6px;
+	background: var(--kids-thankyou-success);
+	color: #fff;
+	font-size: 16px;
+	font-weight: 600;
+	text-decoration: none;
+	cursor: pointer;
+	transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.kids-shop-thankyou-card__btn:hover {
+	background: var(--kids-thankyou-success-hover);
+	color: #fff;
+}
+
+.kids-shop-thankyou-card__btn:active {
+	transform: scale(0.99);
+}
+
+.kids-shop-thankyou-card__btn-arrow {
+	font-size: 18px;
+	line-height: 1;
+}
+
+.kids-shop-thankyou-card__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+	justify-content: center;
+}
+
+.kids-shop-thankyou-card__btn--outline {
+	background: transparent;
+	color: var(--kids-thankyou-success);
+	border: 1.5px solid var(--kids-thankyou-success);
+}
+
+.kids-shop-thankyou-card__btn--outline:hover {
+	background: rgba(0, 193, 83, 0.08);
+	color: var(--kids-thankyou-success-hover);
+}
+
+.kids-shop-thankyou-extras:empty {
+	display: none;
+}
+
+.kids-shop-thankyou-extras:not(:empty) {
+	margin-top: 24px;
+	padding: 20px 24px;
+	background: #fff;
+	border: 1px solid var(--kids-thankyou-border);
+	border-radius: 8px;
+	font-size: 14px;
+	line-height: 1.55;
+	color: var(--kids-thankyou-muted);
+	text-align: left;
+}
+
+/* WooCommerce notices & fallback forms (email verify, login) */
+.kids-shop-thankyou-page .woocommerce-error,
+.kids-shop-thankyou-page .woocommerce-message,
+.kids-shop-thankyou-page .woocommerce-info {
+	list-style: none;
+	margin: 0 0 20px;
+	padding: 12px 14px;
+	border-radius: 6px;
+	font-size: 14px;
+}
+
+.kids-shop-thankyou-page .woocommerce-error {
+	background: #fef2f2;
+	border: 1px solid #fecaca;
+	color: #b91c1c;
+}
+
+.kids-shop-thankyou-page .woocommerce-message {
+	background: #ecfdf5;
+	border: 1px solid #a7f3d0;
+	color: #047857;
+}
+
+.kids-shop-thankyou-page .woocommerce-info {
+	background: #eff6ff;
+	border: 1px solid #bfdbfe;
+	color: #1d4ed8;
+}
+
+.kids-shop-thankyou-page .woocommerce-error li,
+.kids-shop-thankyou-page .woocommerce-message li,
+.kids-shop-thankyou-page .woocommerce-info li {
+	margin: 0;
+	list-style: none;
+}
+
+.kids-shop-thankyou-page .woocommerce-verify-email,
+.kids-shop-thankyou-page .woocommerce-form-login {
+	background: #fff;
+	border: 1px solid var(--kids-thankyou-border);
+	border-radius: 8px;
+	padding: 32px 28px;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+	text-align: left;
+}
+
+.kids-shop-thankyou-page .woocommerce-verify-email .button,
+.kids-shop-thankyou-page .woocommerce-form-login .button {
+	background: var(--kids-thankyou-success);
+	color: #fff;
+	border: none;
+	border-radius: 6px;
+	padding: 10px 20px;
+	font-weight: 600;
+}
+
+.kids-shop-thankyou-page .woocommerce-verify-email .button:hover,
+.kids-shop-thankyou-page .woocommerce-form-login .button:hover {
+	background: var(--kids-thankyou-success-hover);
+	color: #fff;
+}
+
+body.kids-shop-thankyou-page-body .entry-header,
+body.kids-shop-thankyou-page-body .page-title {
+	display: none;
+}
+
+@media (max-width: 480px) {
+	.kids-shop-thankyou-card {
+		padding: 36px 20px 28px;
+	}
+
+	.kids-shop-thankyou-card__icon {
+		width: 64px;
+		height: 64px;
+		margin-bottom: 22px;
+	}
+
+	.kids-shop-thankyou-card__eyebrow {
+		font-size: 16px;
+	}
+
+	.kids-shop-thankyou-card__headline {
+		font-size: 1.5rem;
+	}
+
+	.kids-shop-thankyou-card__btn {
+		width: 100%;
+	}
+}

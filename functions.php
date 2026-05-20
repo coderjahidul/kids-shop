@@ -220,6 +220,9 @@ function kids_shop_body_class($classes)
 	if (function_exists('is_checkout') && is_checkout() && !is_wc_endpoint_url('order-received')) {
 		$classes[] = 'kids-shop-checkout-page';
 	}
+	if (function_exists('is_checkout') && is_checkout() && is_wc_endpoint_url('order-received')) {
+		$classes[] = 'kids-shop-thankyou-page-body';
+	}
 	if (is_page('login')) {
 		$classes[] = 'kids-shop-auth-page-body';
 		$classes[] = 'kids-shop-login-page';
@@ -270,6 +273,24 @@ function kids_shop_checkout_page_template($template)
 	return $template;
 }
 add_filter('template_include', 'kids_shop_checkout_page_template', 99);
+
+/**
+ * Use theme thank you layout on the order received page.
+ *
+ * @param string $template Path to template.
+ * @return string
+ */
+function kids_shop_thankyou_page_template($template)
+{
+	if (function_exists('is_checkout') && is_checkout() && is_wc_endpoint_url('order-received') && !is_admin()) {
+		$custom = get_template_directory() . '/woocommerce/thankyou-page.php';
+		if (file_exists($custom)) {
+			return $custom;
+		}
+	}
+	return $template;
+}
+add_filter('template_include', 'kids_shop_thankyou_page_template', 99);
 
 /**
  * Use theme My Account layout on the WooCommerce account page.
@@ -360,6 +381,27 @@ function kids_shop_enqueue_checkout_assets()
 	);
 }
 add_action('wp_enqueue_scripts', 'kids_shop_enqueue_checkout_assets', 20);
+
+/**
+ * Enqueue thank you page assets.
+ */
+function kids_shop_enqueue_thankyou_assets()
+{
+	if (!function_exists('is_checkout') || !is_checkout() || !is_wc_endpoint_url('order-received')) {
+		return;
+	}
+
+	$theme_version = wp_get_theme()->get('Version');
+	$css_path = get_template_directory() . '/assets/kids-shop-thankyou.css';
+
+	wp_enqueue_style(
+		'kids-shop-thankyou',
+		get_template_directory_uri() . '/assets/kids-shop-thankyou.css',
+		array('kids-shop-style'),
+		file_exists($css_path) ? (string) filemtime($css_path) : $theme_version
+	);
+}
+add_action('wp_enqueue_scripts', 'kids_shop_enqueue_thankyou_assets', 20);
 
 /**
  * Match checkout CTA text to design.
