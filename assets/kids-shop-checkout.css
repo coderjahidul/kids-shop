@@ -314,164 +314,372 @@ select#billing_state
 	color: var(--shop-color-secondary, #D12C60);
 }
 
+/* Shipping option dropdown */
+.kids-shop-checkout-page .kids-shop-shipping-section {
+	margin-top: 24px;
+}
+
+.kids-shop-checkout-page .kids-shop-shipping-options {
+	display: block;
+}
+
+.kids-shop-checkout-page .kids-shop-shipping-select {
+	width: 100%;
+	height: 48px;
+	border: 1px solid #c9c9c9 !important;
+	border-radius: 5px !important;
+	padding: 0 16px !important;
+	font-size: 14px;
+	color: #1e293b;
+	background-color: #ffffff !important;
+	box-shadow: none !important;
+	cursor: pointer;
+	outline: none;
+}
+
+.kids-shop-checkout-page .kids-shop-shipping-select:hover {
+	border-color: #94a3b8 !important;
+}
+
+.kids-shop-checkout-page .kids-shop-shipping-select:focus {
+	border-color: var(--shop-color-primary, #27A7B8) !important;
+	box-shadow: 0 0 0 3px color-mix(in srgb, var(--shop-color-primary, #27A7B8) 12%, transparent 88%) !important;
+}
+
+.kids-shop-checkout-page .kids-shop-shipping-placeholder {
+	margin: 0;
+	font-size: 14px;
+	color: #64748b;
+}
+
 /* Hide raw WooCommerce payment list as it's fully integrated/replaced */
 .kids-shop-checkout-page .woocommerce-checkout-payment .payment_methods,
 .kids-shop-checkout-page .woocommerce-checkout-payment .payment_method_cod {
 	display: none !important;
 }
 
-/* Right Panel: Order Review Table */
+/* Right Panel: Order Review */
 .kids-shop-checkout-page .kids-shop-checkout-order-panel .woocommerce-checkout-review-order-table {
 	width: 100%;
-	border-collapse: collapse;
-	margin-bottom: 24px;
+	margin-bottom: 0;
 }
 
-.kids-shop-checkout-page .kids-shop-checkout-order-panel .woocommerce-checkout-review-order-table thead {
-	display: none;
-}
-
-.kids-shop-checkout-page .kids-shop-checkout-order-panel .woocommerce-checkout-review-order-table tbody {
-	display: block;
-}
-
-.kids-shop-checkout-page .kids-shop-checkout-order-panel .woocommerce-checkout-review-order-table .cart_item {
+.kids-shop-checkout-page .kids-shop-checkout-items {
 	display: flex;
-	justify-content: space-between;
+	flex-direction: column;
+	gap: 12px;
+	margin-bottom: 20px;
+}
+
+.kids-shop-checkout-page .kids-shop-checkout-item {
+	position: relative;
+	display: flex;
+	align-items: flex-start;
+	gap: 14px;
+	padding: 14px;
+	border: 1px solid #d5d5d5;
+	border-radius: 4px;
+	background: #ffffff;
+}
+
+.kids-shop-checkout-page .kids-shop-checkout-item__remove {
+	position: absolute;
+	top: 10px;
+	right: 10px;
+	display: inline-flex;
 	align-items: center;
-	padding: 14px 0;
-	border-bottom: 1px solid #f1f5f9;
+	justify-content: center;
+	width: 24px;
+	height: 24px;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	cursor: pointer;
+	color: #b0b0b0;
 }
 
-.kids-shop-checkout-page .kids-shop-checkout-order-panel .woocommerce-checkout-review-order-table .product-name {
-	font-size: 14px;
-	font-weight: 500;
-	color: #334155;
-	line-height: 1.4;
-	flex: 1;
-	padding-right: 15px;
+.kids-shop-checkout-page .kids-shop-checkout-item__remove svg {
+	fill: currentColor;
 }
 
-.kids-shop-checkout-page .kids-shop-checkout-order-panel .woocommerce-checkout-review-order-table .product-name .product-quantity {
-	color: #64748b;
-	font-weight: 500;
-	font-size: 13px;
-	margin-left: 6px;
+.kids-shop-checkout-page .kids-shop-checkout-item__remove:hover {
+	color: #8f8f8f;
 }
 
-.kids-shop-checkout-page .kids-shop-checkout-order-panel .woocommerce-checkout-review-order-table .product-total {
-	font-size: 14px;
-	font-weight: 600;
-	color: #0f172a;
-	text-align: right;
+.kids-shop-checkout-page .kids-shop-checkout-item__media {
+	flex: 0 0 80px;
 }
 
-.kids-shop-checkout-page .kids-shop-checkout-order-panel .woocommerce-checkout-review-order-table tfoot {
+.kids-shop-checkout-page .kids-shop-checkout-item__image-link {
 	display: block;
+}
+
+.kids-shop-checkout-page .kids-shop-checkout-item__image {
+	display: block;
+	width: 80px;
+	height: 80px;
+	object-fit: cover;
+	border: 1px solid #ececec;
+	border-radius: 2px;
+	background: #fafafa;
+}
+
+.kids-shop-checkout-page .kids-shop-checkout-item__body {
+	flex: 1;
+	min-width: 0;
+	padding-right: 28px;
+}
+
+.kids-shop-checkout-page .kids-shop-checkout-item__name,
+.kids-shop-checkout-page .kids-shop-checkout-item__name a {
+	font-size: 15px;
+	font-weight: 700;
+	line-height: 1.35;
+	color: #121212;
+	text-decoration: none;
+}
+
+.kids-shop-checkout-page .kids-shop-checkout-item__body .variation,
+.kids-shop-checkout-page .kids-shop-checkout-item__body dl {
+	margin: 4px 0 0;
+	font-size: 12px;
+	color: #64748b;
+}
+
+.kids-shop-checkout-page .kids-shop-checkout-item__meta {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
 	margin-top: 10px;
 }
 
-.kids-shop-checkout-page .kids-shop-checkout-order-panel .woocommerce-checkout-review-order-table tfoot tr {
+.kids-shop-checkout-page .kids-shop-checkout-item__qty {
+	display: inline-flex;
+	align-items: center;
+	gap: 0;
+}
+
+.kids-shop-checkout-page .kids-shop-checkout-item__qty .quantity-button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 28px;
+	height: 28px;
+	padding: 0;
+	border: 0;
+	background: #e8e8e8;
+	color: #121212;
+	font-size: 16px;
+	font-weight: 500;
+	line-height: 1;
+	cursor: pointer;
+}
+
+.kids-shop-checkout-page .kids-shop-checkout-item__qty .quantity-input {
+	width: 34px;
+	height: 28px;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	border-radius: 0;
+	background: #e8e8e8;
+	font-size: 14px;
+	font-weight: 600;
+	text-align: center;
+	color: #121212;
+	-moz-appearance: textfield;
+	appearance: textfield;
+}
+
+.kids-shop-checkout-page .kids-shop-checkout-item__qty .quantity-input::-webkit-outer-spin-button,
+.kids-shop-checkout-page .kids-shop-checkout-item__qty .quantity-input::-webkit-inner-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}
+
+.kids-shop-checkout-page .kids-shop-checkout-item__price {
+	display: inline-flex;
+	align-items: baseline;
+	gap: 8px;
+	white-space: nowrap;
+}
+
+.kids-shop-checkout-page .kids-shop-checkout-item__price-current,
+.kids-shop-checkout-page .kids-shop-checkout-item__price-current .woocommerce-Price-amount {
+	font-size: 15px;
+	font-weight: 700;
+	color: #121212;
+}
+
+.kids-shop-checkout-page .kids-shop-checkout-item__price-regular,
+.kids-shop-checkout-page .kids-shop-checkout-item__price-regular .woocommerce-Price-amount {
+	font-size: 13px;
+	color: rgba(148, 143, 143, 0.75);
+}
+
+.kids-shop-checkout-page .kids-shop-checkout-item__price-regular del {
+	text-decoration: line-through;
+}
+
+.kids-shop-checkout-page .kids-shop-checkout-summary {
+	margin-top: 4px;
+	padding-top: 8px;
+}
+
+.kids-shop-checkout-page .kids-shop-checkout-summary__row {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	padding: 10px 0;
+	gap: 16px;
+	padding: 6px 0;
+	font-size: 15px;
+	color: #121212;
 }
 
-.kids-shop-checkout-page .kids-shop-checkout-order-panel .woocommerce-checkout-review-order-table tfoot th {
-	font-size: 14px;
+.kids-shop-checkout-page .kids-shop-checkout-summary__row span:last-child,
+.kids-shop-checkout-page .kids-shop-checkout-summary__row .woocommerce-Price-amount {
 	font-weight: 500;
-	color: #64748b;
 }
 
-.kids-shop-checkout-page .kids-shop-checkout-order-panel .woocommerce-checkout-review-order-table tfoot td {
-	font-size: 14px;
-	font-weight: 600;
-	color: #0f172a;
-	text-align: right;
-}
-
-.kids-shop-checkout-page .kids-shop-checkout-order-panel .woocommerce-checkout-review-order-table tfoot tr.order-total {
-	margin-top: 12px;
-	padding-top: 18px;
-	border-top: 2px solid #f1f5f9;
-}
-
-.kids-shop-checkout-page .kids-shop-checkout-order-panel .woocommerce-checkout-review-order-table tfoot tr.order-total th {
+.kids-shop-checkout-page .kids-shop-checkout-summary__row--total {
+	margin-top: 8px;
+	padding-top: 14px;
+	border-top: 1px solid #ececec;
 	font-size: 16px;
 	font-weight: 700;
-	color: #0f172a;
 }
 
-.kids-shop-checkout-page .kids-shop-checkout-order-panel .woocommerce-checkout-review-order-table tfoot tr.order-total td {
-	font-size: 24px;
+.kids-shop-checkout-page .kids-shop-checkout-summary__row--total span,
+.kids-shop-checkout-page .kids-shop-checkout-summary__row--total .woocommerce-Price-amount {
 	font-weight: 700;
-	color: var(--shop-color-secondary, #D12C60);
+	color: #121212;
+}
+
+.kids-shop-checkout-page .kids-shop-checkout-coupon-toggle {
+	display: inline-block;
+	margin: 8px 0 0;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	color: #121212;
+	font-size: 14px;
+	font-weight: 500;
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+.kids-shop-checkout-page .kids-shop-checkout-coupon-toggle:hover {
+	color: var(--shop-color-primary, #27A7B8);
+}
+
+.kids-shop-checkout-page .woocommerce-form-coupon {
+	margin-top: 12px;
+	padding: 14px;
+	border: 1px solid #ececec;
+	border-radius: 8px;
+	background: #fafafa;
+}
+
+.kids-shop-checkout-page .woocommerce-form-coupon .form-row {
+	display: flex;
+	gap: 10px;
+	margin: 0;
+}
+
+.kids-shop-checkout-page .woocommerce-form-coupon .input-text {
+	flex: 1;
+	height: 42px;
+	border: 1px solid #d5d5d5 !important;
+	border-radius: 6px !important;
+}
+
+.kids-shop-checkout-page .woocommerce-form-coupon .button {
+	height: 42px;
+	border-radius: 6px !important;
+}
+
+.kids-shop-checkout-page .kids-shop-checkout-order-footer {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	margin-top: 18px;
 }
 
 .kids-shop-checkout-page .woocommerce-checkout-review-order-table .woocommerce-Price-amount {
-	font-weight: 700;
+	font-weight: inherit;
 }
 
 /* Submit Section placing inside order review panel */
-.kids-shop-checkout-page .woocommerce-checkout-payment {
+.kids-shop-checkout-page .kids-shop-checkout-order-footer .woocommerce-checkout-payment {
+	flex: 0 0 auto;
 	background: transparent;
 	padding: 0;
-	margin-top: 20px;
+	margin: 0;
 }
 
-.kids-shop-checkout-page .woocommerce-checkout-payment .form-row.place-order {
+.kids-shop-checkout-page .kids-shop-checkout-order-footer .woocommerce-checkout-payment .form-row.place-order {
 	display: block;
 	margin: 0;
 	padding: 0;
 }
 
-.kids-shop-checkout-page .woocommerce-checkout-payment .woocommerce-terms-and-conditions-wrapper,
-.kids-shop-checkout-page .woocommerce-checkout-payment .wc_payment_methods+div:not(.form-row) {
+.kids-shop-checkout-page .kids-shop-checkout-order-footer .woocommerce-checkout-payment .woocommerce-terms-and-conditions-wrapper,
+.kids-shop-checkout-page .kids-shop-checkout-order-footer .woocommerce-checkout-payment .wc_payment_methods+div:not(.form-row) {
 	display: none !important;
 }
 
 /* Main CTA Confirm Order Button */
 .kids-shop-checkout-page #place_order {
-	width: 100% !important;
-	display: block !important;
+	width: auto !important;
+	min-width: 180px;
+	display: inline-flex !important;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
 	float: none !important;
 	background-color: var(--shop-color-primary, #27A7B8) !important;
 	color: #ffffff !important;
-	font-size: 15px !important;
+	font-size: 14px !important;
 	font-weight: 700 !important;
 	text-align: center !important;
-	text-transform: uppercase;
-	letter-spacing: 0.5px;
-	height: 52px !important;
-	border-radius: 12px !important;
+	text-transform: none;
+	letter-spacing: 0;
+	height: 44px !important;
+	padding: 0 22px !important;
+	border-radius: 8px !important;
 	border: none !important;
 	cursor: pointer !important;
-	box-shadow: 0 4px 14px color-mix(in srgb, var(--shop-color-primary, #27A7B8) 30%, transparent 70%) !important;
-	transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
-	margin-top: 10px !important;
+	box-shadow: none !important;
+	transition: background-color 0.2s ease !important;
+	margin-top: 0 !important;
 	user-select: none;
+}
+
+.kids-shop-checkout-page #place_order .kids-shop-place-order-icon {
+	font-size: 14px;
+	line-height: 1;
 }
 
 .kids-shop-checkout-page #place_order:hover {
 	background-color: color-mix(in srgb, var(--shop-color-primary, #27A7B8) 90%, black 10%) !important;
-	box-shadow: 0 6px 20px color-mix(in srgb, var(--shop-color-primary, #27A7B8) 40%, transparent 60%) !important;
-	transform: translateY(-1px);
+	box-shadow: none !important;
+	transform: none;
 }
 
 .kids-shop-checkout-page #place_order:active {
-	transform: translateY(1px);
-	box-shadow: 0 2px 8px color-mix(in srgb, var(--shop-color-primary, #27A7B8) 30%, transparent 70%) !important;
+	transform: none;
+	box-shadow: none !important;
 }
 
 /* Back to Cart link */
 .kids-shop-checkout-page .kids-shop-back-to-cart {
-	display: block;
-	text-align: center;
-	margin-top: 20px;
-	color: #64748b;
+	display: inline-block;
+	margin: 0;
+	color: #121212;
 	font-size: 14px;
-	font-weight: 600;
+	font-weight: 500;
 	text-decoration: none;
 	transition: color 0.2s ease;
 }
@@ -529,6 +737,38 @@ select#billing_state
 		padding: 0 10px;
 		font-size: 13px;
 		justify-content: center;
+	}
+
+	.kids-shop-checkout-page .kids-shop-checkout-item {
+		padding: 12px;
+	}
+
+	.kids-shop-checkout-page .kids-shop-checkout-item__media {
+		flex-basis: 64px;
+	}
+
+	.kids-shop-checkout-page .kids-shop-checkout-item__image {
+		width: 64px;
+		height: 64px;
+	}
+
+	.kids-shop-checkout-page .kids-shop-checkout-item__meta {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 8px;
+	}
+
+	.kids-shop-checkout-page .kids-shop-checkout-order-footer {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.kids-shop-checkout-page .kids-shop-checkout-order-footer .woocommerce-checkout-payment {
+		width: 100%;
+	}
+
+	.kids-shop-checkout-page #place_order {
+		width: 100% !important;
 	}
 }
 

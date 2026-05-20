@@ -149,6 +149,88 @@ function kids_shop_get_sold_count( $product ) {
 }
 
 /**
+ * Related products for single product product-row (same cards as cart suggestions).
+ *
+ * @param int $product_id Product ID.
+ * @param int $limit      Max products.
+ * @return WC_Product[]
+ */
+function kids_shop_get_related_products_for_row( $product_id, $limit = 5 ) {
+	if ( ! function_exists( 'wc_get_product' ) ) {
+		return array();
+	}
+
+	$product_id = absint( $product_id );
+	$limit      = max( 1, (int) $limit );
+
+	if ( ! $product_id ) {
+		return array();
+	}
+
+	$products = array();
+	$seen     = array( $product_id => true );
+
+	if ( function_exists( 'wc_get_related_products' ) ) {
+		$related_ids = wc_get_related_products( $product_id, $limit + 4 );
+		foreach ( $related_ids as $related_id ) {
+			if ( count( $products ) >= $limit ) {
+				break;
+			}
+
+			$related_id = (int) $related_id;
+			if ( $related_id <= 0 || isset( $seen[ $related_id ] ) ) {
+				continue;
+			}
+
+			$related = wc_get_product( $related_id );
+			if ( ! $related || ! $related->is_visible() ) {
+				continue;
+			}
+
+			$seen[ $related_id ] = true;
+			$products[]          = $related;
+		}
+	}
+
+	if ( count( $products ) >= $limit ) {
+		return array_slice( $products, 0, $limit );
+	}
+
+	$terms = wp_get_post_terms( $product_id, 'product_cat', array( 'fields' => 'ids' ) );
+	if ( empty( $terms ) || is_wp_error( $terms ) ) {
+		return $products;
+	}
+
+	$cat_products = wc_get_products(
+		array(
+			'status'   => 'publish',
+			'limit'    => $limit - count( $products ),
+			'exclude'  => array_keys( $seen ),
+			'category' => array_map( 'intval', $terms ),
+			'orderby'  => 'popularity',
+			'order'    => 'DESC',
+		)
+	);
+
+	foreach ( $cat_products as $cat_product ) {
+		if ( ! $cat_product || ! $cat_product->is_visible() ) {
+			continue;
+		}
+		$pid = (int) $cat_product->get_id();
+		if ( isset( $seen[ $pid ] ) ) {
+			continue;
+		}
+		$seen[ $pid ] = true;
+		$products[]   = $cat_product;
+		if ( count( $products ) >= $limit ) {
+			break;
+		}
+	}
+
+	return array_slice( $products, 0, $limit );
+}
+
+/**
  * Filter main shop / category queries by ?categories= slug.
  */
 function kids_shop_filter_products_by_category_param( $query ) {
@@ -184,3 +266,56 @@ function kids_shop_filter_products_by_category_param( $query ) {
 	$query->set( 'tax_query', $tax_query );
 }
 add_action( 'pre_get_posts', 'kids_shop_filter_products_by_category_param' );
+
+/**
+ * Buy Now URL: add simple product to cart and go to checkout.
+ *
+ * @param WC_Product $product  Product.
+ * @param int        $quantity Quantity (default 1).
+ * @return string
+ */
+function kids_shop_buy_now_url( $product, $quantity = 1 ) {
+	if ( ! $product || ! is_a( $product, 'WC_Product' ) ) {
+		return '';
+	}
+
+	$product_id = $product->get_id();
+	$permalink  = get_permalink( $product_id );
+
+	if ( ! $product->is_purchasable() || ! $product->is_in_stock() ) {
+		return $permalink;
+	}
+
+	if ( ! $product->is_type( 'simple' ) ) {
+		return $permalink;
+	}
+
+	$quantity = max( 1, (int) $quantity );
+
+	if ( ! function_exists( 'wc_get_checkout_url' ) ) {
+		return $permalink;
+	}
+
+	return add_query_arg(
+		array(
+			'add-to-cart'       => $product_id,
+			'quantity'          => $quantity,
+			'kids_shop_buy_now' => '1',
+		),
+		wc_get_checkout_url()
+	);
+}
+
+/**
+ * After Buy Now add-to-cart, stay on checkout (not cart/product page).
+ *
+ * @param string $url Redirect URL.
+ * @return string
+ */
+function kids_shop_buy_now_add_to_cart_redirect( $url ) {
+	if ( ! empty( $_REQUEST['kids_shop_buy_now'] ) && function_exists( 'wc_get_checkout_url' ) ) {
+		return wc_get_checkout_url();
+	}
+	return $url;
+}
+add_filter( 'woocommerce_add_to_cart_redirect', 'kids_shop_buy_now_add_to_cart_redirect' );

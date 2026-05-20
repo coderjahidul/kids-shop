@@ -20,42 +20,217 @@ function kids_shop_get_cart_suggestion_products( $limit = 5 ) {
 		return array();
 	}
 
-	$exclude = array();
-	if ( WC()->cart && ! WC()->cart->is_empty() ) {
-		foreach ( WC()->cart->get_cart() as $item ) {
-			$exclude[] = (int) $item['product_id'];
-		}
+	$limit = max( 1, (int) $limit );
+	$pool  = kids_shop_collect_cart_suggestion_ids( $limit * 4 );
+	$found = kids_shop_products_from_ids( $pool, $limit );
+
+	if ( count( $found ) >= $limit ) {
+		return $found;
 	}
 
-	$cross_sell_ids = WC()->cart ? WC()->cart->get_cross_sells() : array();
-	if ( ! empty( $cross_sell_ids ) ) {
-		$products = array();
-		foreach ( array_slice( array_diff( $cross_sell_ids, $exclude ), 0, $limit ) as $product_id ) {
-			$product = wc_get_product( $product_id );
-			if ( $product && $product->is_visible() ) {
-				$products[] = $product;
-			}
-		}
-		if ( count( $products ) >= $limit ) {
-			return $products;
-		}
-		$exclude = array_merge( $exclude, wp_list_pluck( $products, 'id' ) );
-		$limit   = $limit - count( $products );
-	} else {
-		$products = array();
-	}
+	$exclude = kids_shop_product_list_ids( $found );
+	$need    = $limit - count( $found );
 
-	$query_products = wc_get_products(
+	$popular = wc_get_products(
 		array(
 			'status'  => 'publish',
-			'limit'   => $limit,
+			'limit'   => $need,
 			'exclude' => $exclude,
 			'orderby' => 'popularity',
 			'order'   => 'DESC',
 		)
 	);
 
-	return array_merge( $products, $query_products );
+	$found = array_merge( $found, $popular );
+	if ( count( $found ) >= $limit ) {
+		return array_slice( $found, 0, $limit );
+	}
+
+	$exclude = array_merge( $exclude, kids_shop_product_list_ids( $found ) );
+	$need    = $limit - count( $found );
+
+	$recent = wc_get_products(
+		array(
+			'status'  => 'publish',
+			'limit'   => $need,
+			'exclude' => $exclude,
+			'orderby' => 'date',
+			'order'   => 'DESC',
+		)
+	);
+
+	return array_slice( array_merge( $found, $recent ), 0, $limit );
+}
+
+/**
+ * Product IDs currently in the cart (including variations).
+ *
+ * @return int[]
+ */
+function kids_shop_get_cart_product_ids() {
+	$ids = array();
+
+	if ( ! WC()->cart || WC()->cart->is_empty() ) {
+		return $ids;
+	}
+
+	foreach ( WC()->cart->get_cart() as $item ) {
+		if ( ! empty( $item['product_id'] ) ) {
+			$ids[] = (int) $item['product_id'];
+		}
+		if ( ! empty( $item['variation_id'] ) ) {
+			$ids[] = (int) $item['variation_id'];
+		}
+	}
+
+	return array_values( array_unique( array_filter( $ids ) ) );
+}
+
+/**
+ * Gather related / cross-sell / upsell / category product IDs from cart contents.
+ *
+ * @param int   $max_ids  Max candidate IDs.
+ * @return int[]
+ */
+function kids_shop_collect_cart_suggestion_ids( $max_ids = 20 ) {
+	$candidate_ids = array();
+
+	if ( WC()->cart && ! WC()->cart->is_empty() ) {
+		$cross_sells = WC()->cart->get_cross_sells();
+		if ( ! empty( $cross_sells ) ) {
+			$candidate_ids = array_merge( $candidate_ids, array_map( 'intval', $cross_sells ) );
+		}
+
+		foreach ( WC()->cart->get_cart() as $item ) {
+			$product = isset( $item['data'] ) ? $item['data'] : null;
+			if ( ! $product || ! is_a( $product, 'WC_Product' ) ) {
+				continue;
+			}
+
+			$product_id = (int) $product->get_id();
+			$parent_id  = (int) $product->get_parent_id();
+			$base_id    = $parent_id > 0 ? $parent_id : $product_id;
+
+			if ( function_exists( 'wc_get_related_products' ) ) {
+				$related = wc_get_related_products( $base_id, 6 );
+				if ( ! empty( $related ) ) {
+					$candidate_ids = array_merge( $candidate_ids, array_map( 'intval', $related ) );
+				}
+			}
+
+			$upsells = $product->get_upsell_ids();
+			if ( ! empty( $upsells ) ) {
+				$candidate_ids = array_merge( $candidate_ids, array_map( 'intval', $upsells ) );
+			}
+
+			$cross = $product->get_cross_sell_ids();
+			if ( ! empty( $cross ) ) {
+				$candidate_ids = array_merge( $candidate_ids, array_map( 'intval', $cross ) );
+			}
+
+			$terms = wp_get_post_terms( $base_id, 'product_cat', array( 'fields' => 'ids' ) );
+			if ( ! empty( $terms ) && ! is_wp_error( $terms ) ) {
+				$cat_products = wc_get_products(
+					array(
+						'status'   => 'publish',
+						'limit'    => 6,
+						'category' => array_map( 'intval', $terms ),
+						'orderby'  => 'popularity',
+						'order'    => 'DESC',
+						'return'   => 'ids',
+					)
+				);
+				if ( ! empty( $cat_products ) ) {
+					$candidate_ids = array_merge( $candidate_ids, array_map( 'intval', $cat_products ) );
+				}
+			}
+		}
+	}
+
+	$candidate_ids = array_values(
+		array_unique(
+			array_filter(
+				array_map( 'intval', $candidate_ids ),
+				function ( $id ) {
+					return $id > 0;
+				}
+			)
+		)
+	);
+
+	return array_slice( $candidate_ids, 0, max( 1, (int) $max_ids ) );
+}
+
+/**
+ * Load visible products from an ordered list of IDs.
+ *
+ * @param int[] $ids     Product IDs in priority order.
+ * @param int   $limit   Max products to return.
+ * @param int[] $exclude IDs already picked (dedupe only).
+ * @return WC_Product[]
+ */
+function kids_shop_products_from_ids( $ids, $limit, $exclude = array() ) {
+	$products = array();
+	$seen     = array();
+
+	foreach ( $ids as $product_id ) {
+		if ( count( $products ) >= $limit ) {
+			break;
+		}
+
+		$product_id = (int) $product_id;
+		if ( $product_id <= 0 || in_array( $product_id, $exclude, true ) || isset( $seen[ $product_id ] ) ) {
+			continue;
+		}
+
+		$product = wc_get_product( $product_id );
+		if ( ! $product || ! $product->is_visible() || ! $product->is_purchasable() ) {
+			continue;
+		}
+
+		$seen[ $product_id ] = true;
+		$products[]            = $product;
+	}
+
+	return $products;
+}
+
+/**
+ * Extract product IDs from WC_Product objects.
+ *
+ * @param WC_Product[] $products Products.
+ * @return int[]
+ */
+function kids_shop_product_list_ids( $products ) {
+	$ids = array();
+
+	foreach ( $products as $product ) {
+		if ( $product && is_a( $product, 'WC_Product' ) ) {
+			$ids[] = (int) $product->get_id();
+		}
+	}
+
+	return $ids;
+}
+
+/**
+ * Render cart suggestion section HTML.
+ *
+ * @param int $limit Max products.
+ * @return string
+ */
+function kids_shop_get_cart_suggestions_html( $limit = 5 ) {
+	if ( kids_shop_using_output_handler_buffer() ) {
+		return '';
+	}
+
+	return kids_shop_capture_template_part(
+		'template-parts/cart/suggestions',
+		null,
+		array(
+			'suggestion_limit' => $limit,
+		)
+	);
 }
 
 /**
@@ -356,9 +531,26 @@ function kids_shop_enqueue_cart_fragment_scripts() {
 		true
 	);
 
+	$buy_now_js = get_template_directory() . '/assets/buy-now.js';
+	wp_enqueue_script(
+		'kids-shop-buy-now',
+		get_template_directory_uri() . '/assets/buy-now.js',
+		array( 'jquery', 'wc-add-to-cart', 'kids-shop-cart-sync' ),
+		file_exists( $buy_now_js ) ? (string) filemtime( $buy_now_js ) : wp_get_theme()->get( 'Version' ),
+		true
+	);
+	wp_localize_script(
+		'kids-shop-buy-now',
+		'kidsShopBuyNow',
+		array(
+			'checkoutUrl' => function_exists( 'wc_get_checkout_url' ) ? wc_get_checkout_url() : home_url( '/checkout/' ),
+		)
+	);
+
 	$deps[] = 'wc-add-to-cart';
 	$deps[] = 'wc-cart-fragments';
 	$deps[] = 'kids-shop-cart-sync';
+	$deps[] = 'kids-shop-buy-now';
 
 	return $deps;
 }
@@ -370,6 +562,24 @@ function kids_shop_enqueue_cart_fragment_scripts() {
  */
 function kids_shop_is_cart_context() {
 	return function_exists( 'is_cart' ) && is_cart();
+}
+
+/**
+ * Whether checkout-specific formatting should apply.
+ *
+ * @return bool
+ */
+function kids_shop_is_checkout_context() {
+	return function_exists( 'is_checkout' ) && is_checkout() && ! is_wc_endpoint_url( 'order-received' );
+}
+
+/**
+ * Cart and checkout share the same price presentation.
+ *
+ * @return bool
+ */
+function kids_shop_is_cart_or_checkout_context() {
+	return kids_shop_is_cart_context() || kids_shop_is_checkout_context();
 }
 
 /**
@@ -412,7 +622,7 @@ function kids_shop_cart_format_line_total( $amount ) {
  * @return string
  */
 function kids_shop_cart_price_format( $format ) {
-	if ( kids_shop_is_cart_context() ) {
+	if ( kids_shop_is_cart_or_checkout_context() ) {
 		return '%1$s&nbsp;%2$s';
 	}
 	return $format;
@@ -426,7 +636,7 @@ add_filter( 'woocommerce_price_format', 'kids_shop_cart_price_format' );
  * @return bool
  */
 function kids_shop_cart_trim_price_zeros( $trim ) {
-	if ( kids_shop_is_cart_context() ) {
+	if ( kids_shop_is_cart_or_checkout_context() ) {
 		return true;
 	}
 	return $trim;
@@ -440,7 +650,7 @@ add_filter( 'woocommerce_price_trim_zeros', 'kids_shop_cart_trim_price_zeros' );
  * @return int
  */
 function kids_shop_cart_price_decimals( $decimals ) {
-	if ( kids_shop_is_cart_context() ) {
+	if ( kids_shop_is_cart_or_checkout_context() ) {
 		return 0;
 	}
 	return $decimals;

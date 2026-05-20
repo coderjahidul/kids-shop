@@ -52,6 +52,7 @@ function kids_shop_enqueue_styles()
 			array(
 				'ajaxUrl' => admin_url('admin-ajax.php'),
 				'cartUrl' => function_exists('wc_get_cart_url') ? wc_get_cart_url() : '',
+				'checkoutUrl' => function_exists('wc_get_checkout_url') ? wc_get_checkout_url() : '',
 				'i18n' => array(
 					'addedToCart' => __('Product added to cart!', 'kids-shop'),
 					'viewCart' => __('View Cart', 'kids-shop'),
@@ -328,6 +329,32 @@ function kids_shop_enqueue_cart_assets()
 		$theme_version
 	);
 
+	$shop_deps = kids_shop_enqueue_cart_fragment_scripts();
+	$shop_js = get_template_directory() . '/assets/shop.js';
+
+	wp_enqueue_script(
+		'kids-shop-shop-js',
+		get_template_directory_uri() . '/assets/shop.js',
+		$shop_deps,
+		file_exists($shop_js) ? (string) filemtime($shop_js) : $theme_version,
+		true
+	);
+
+	wp_localize_script(
+		'kids-shop-shop-js',
+		'kidsShop',
+		array(
+			'ajaxUrl' => admin_url('admin-ajax.php'),
+			'cartUrl' => function_exists('wc_get_cart_url') ? wc_get_cart_url() : '',
+			'i18n'    => array(
+				'addedToCart' => __('Product added to cart!', 'kids-shop'),
+				'viewCart'    => __('View Cart', 'kids-shop'),
+				'close'       => __('Close', 'kids-shop'),
+				'error'       => __('Could not add to cart. Please try again.', 'kids-shop'),
+			),
+		)
+	);
+
 	$cart_css = get_template_directory() . '/assets/kids-shop-cart.css';
 	wp_enqueue_style(
 		'kids-shop-cart',
@@ -343,7 +370,7 @@ function kids_shop_enqueue_cart_assets()
 	wp_enqueue_script(
 		'kids-shop-cart-js',
 		get_template_directory_uri() . '/assets/cart.js',
-		array('jquery', 'wc-cart', 'wc-cart-fragments'),
+		array('jquery', 'wc-cart', 'wc-cart-fragments', 'kids-shop-shop-js'),
 		file_exists($cart_js) ? (string) filemtime($cart_js) : $theme_version,
 		true
 	);
@@ -372,6 +399,7 @@ function kids_shop_enqueue_checkout_assets()
 
 	$theme_version = wp_get_theme()->get('Version');
 	$css_path = get_template_directory() . '/assets/kids-shop-checkout.css';
+	$js_path = get_template_directory() . '/assets/checkout.js';
 
 	wp_enqueue_style(
 		'kids-shop-checkout',
@@ -379,8 +407,155 @@ function kids_shop_enqueue_checkout_assets()
 		array('kids-shop-style'),
 		file_exists($css_path) ? (string) filemtime($css_path) : $theme_version
 	);
+
+	wp_enqueue_script(
+		'kids-shop-checkout',
+		get_template_directory_uri() . '/assets/checkout.js',
+		array('jquery', 'wc-checkout'),
+		file_exists($js_path) ? (string) filemtime($js_path) : $theme_version,
+		true
+	);
+
+	wp_localize_script(
+		'kids-shop-checkout',
+		'kidsShopCheckout',
+		array(
+			'ajaxUrl' => admin_url('admin-ajax.php'),
+			'wcAjaxUrl' => WC_AJAX::get_endpoint('%%endpoint%%'),
+			'nonce' => wp_create_nonce('kids_shop_checkout'),
+		)
+	);
 }
 add_action('wp_enqueue_scripts', 'kids_shop_enqueue_checkout_assets', 20);
+
+/**
+ * Update checkout cart item quantity via AJAX.
+ */
+function kids_shop_ajax_update_checkout_cart_item()
+{
+	check_ajax_referer('kids_shop_checkout', 'security');
+
+	if (!function_exists('WC') || !WC()->cart) {
+		wp_send_json_error();
+	}
+
+	$cart_item_key = isset($_POST['cart_item_key']) ? wc_clean(wp_unslash($_POST['cart_item_key'])) : '';
+	$quantity = isset($_POST['quantity']) ? absint($_POST['quantity']) : 0;
+
+	if (!$cart_item_key || $quantity < 1) {
+		wp_send_json_error();
+	}
+
+	WC()->cart->set_quantity($cart_item_key, $quantity, true);
+	wp_send_json_success();
+}
+add_action('wp_ajax_kids_shop_update_checkout_cart_item', 'kids_shop_ajax_update_checkout_cart_item');
+add_action('wp_ajax_nopriv_kids_shop_update_checkout_cart_item', 'kids_shop_ajax_update_checkout_cart_item');
+
+/**
+ * Add checkmark icon to checkout confirm button.
+ *
+ * @param string $button Place order button HTML.
+ * @return string
+ */
+function kids_shop_checkout_order_button_html($button)
+{
+	if (!function_exists('is_checkout') || !is_checkout() || is_wc_endpoint_url('order-received')) {
+		return $button;
+	}
+
+	$label = esc_html__('Confirm Order', 'kids-shop');
+
+	if (false !== strpos($button, $label)) {
+		$button = str_replace(
+			'>' . $label . '<',
+			'><span class="kids-shop-place-order-icon" aria-hidden="true">&#10003;</span><span>' . $label . '</span><',
+			$button
+		);
+	}
+
+	return $button;
+}
+add_filter('woocommerce_order_button_html', 'kids_shop_checkout_order_button_html');
+
+/**
+ * Keep checkout order item count in sync after AJAX updates.
+ *
+ * @param array $fragments Checkout fragments.
+ * @return array
+ */
+function kids_shop_checkout_order_review_fragments($fragments)
+{
+	if (!function_exists('WC') || !WC()->cart) {
+		return $fragments;
+	}
+
+	$item_count = (int) WC()->cart->get_cart_contents_count();
+	ob_start();
+	printf(
+		/* translators: %d: item count */
+		esc_html__('Order Items (%d Items)', 'kids-shop'),
+		$item_count
+	);
+	$fragments['.kids-shop-checkout-order-count'] = ob_get_clean();
+
+	ob_start();
+	get_template_part( 'template-parts/checkout/shipping', 'options' );
+	$fragments['.kids-shop-shipping-options'] = ob_get_clean();
+
+	return $fragments;
+}
+add_filter('woocommerce_update_order_review_fragments', 'kids_shop_checkout_order_review_fragments');
+
+/**
+ * Ensure checkout shipping address and rates are ready before rendering.
+ */
+function kids_shop_prepare_checkout_shipping()
+{
+	if (!function_exists('is_checkout') || !is_checkout() || is_wc_endpoint_url('order-received')) {
+		return;
+	}
+
+	if (!function_exists('WC') || !WC()->cart || !WC()->customer || !WC()->cart->needs_shipping()) {
+		return;
+	}
+
+	$country = WC()->customer->get_billing_country();
+	if (!$country) {
+		$country = WC()->countries->get_base_country() ?: 'BD';
+		WC()->customer->set_billing_country($country);
+	}
+
+	WC()->customer->set_shipping_country($country);
+	WC()->customer->set_shipping_state(WC()->customer->get_billing_state());
+	WC()->customer->set_shipping_city(WC()->customer->get_billing_city());
+	WC()->customer->set_shipping_postcode(WC()->customer->get_billing_postcode());
+	WC()->customer->set_shipping_address_1(WC()->customer->get_billing_address_1());
+	WC()->customer->set_shipping_address_2(WC()->customer->get_billing_address_2());
+	WC()->customer->set_calculated_shipping(true);
+
+	WC()->cart->calculate_shipping();
+	WC()->cart->calculate_totals();
+}
+add_action('woocommerce_before_checkout_form', 'kids_shop_prepare_checkout_shipping', 5);
+add_action('woocommerce_checkout_update_order_review', 'kids_shop_prepare_checkout_shipping', 5);
+
+/**
+ * Default checkout countries for Bangladesh store.
+ *
+ * @param string $country Default country.
+ * @return string
+ */
+function kids_shop_default_checkout_country($country)
+{
+	if (function_exists('is_checkout') && is_checkout() && !is_wc_endpoint_url('order-received')) {
+		return WC()->countries->get_base_country() ?: 'BD';
+	}
+
+	return $country;
+}
+add_filter('default_checkout_billing_country', 'kids_shop_default_checkout_country');
+add_filter('default_checkout_shipping_country', 'kids_shop_default_checkout_country');
 
 /**
  * Enqueue thank you page assets.
@@ -478,6 +653,13 @@ function kids_shop_customize_checkout_fields($fields)
 	$fields['shipping'] = array();
 	$fields['account'] = array();
 	$fields['order'] = array();
+
+	$fields['billing']['billing_country'] = array(
+		'type'     => 'hidden',
+		'default'  => 'BD',
+		'required' => true,
+	);
+
 	return $fields;
 }
 add_filter('woocommerce_checkout_fields', 'kids_shop_customize_checkout_fields', 20);

@@ -238,11 +238,18 @@
 	margin: 0 auto 16px;
 }
 
-.kids-shop-cart-page app-cart .container.kids-shop-cart-layout,
-.kids-shop-cart-page .container.kids-shop-cart-suggestions {
+.kids-shop-cart-page app-cart .container.kids-shop-cart-layout {
 	width: 93% !important;
 	margin-left: auto;
 	margin-right: auto;
+}
+
+/* You May Like — full width below cart row (same grid as Related Products) */
+.kids-shop-cart-page app-cart .kids-shop-product-row.kids-shop-cart-suggestions {
+	width: 93% !important;
+	max-width: 100% !important;
+	margin-left: auto !important;
+	margin-right: auto !important;
 }
 
 .kids-shop-cart-form .screen-reader-text,
@@ -502,7 +509,7 @@
 		display: block !important;
 	}
 
-	app-cart[_nghost-ng-c713332739] .kids-shop-cart-suggestions {
+	app-cart[_nghost-ng-c713332739] .kids-shop-product-row.kids-shop-cart-suggestions {
 		display: block !important;
 		margin-top: 32px !important;
 	}
@@ -604,12 +611,29 @@
 	}
 
 	/* Container width */
-	.kids-shop-cart-page app-cart .container.kids-shop-cart-layout,
-	.kids-shop-cart-page .container.kids-shop-cart-suggestions {
+	.kids-shop-cart-page app-cart .container.kids-shop-cart-layout {
 		width: 100% !important;
 		padding: 0 12px !important;
 		margin: 0 auto !important;
 		flex-direction: column !important;
+	}
+
+	.kids-shop-cart-page app-cart .kids-shop-product-row.kids-shop-cart-suggestions {
+		width: 100% !important;
+		padding: 0 12px !important;
+		margin-top: 16px !important;
+	}
+
+	.kids-shop-cart-page .kids-shop-product-row-panel {
+		padding: 14px 12px 6px !important;
+		border-radius: 12px !important;
+	}
+
+	.kids-shop-cart-page .kids-shop-product-row .products-cards {
+		display: grid !important;
+		grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+		gap: 7px !important;
+		margin-bottom: 12px !important;
 	}
 
 	/* "My Cart" heading row */
@@ -824,12 +848,14 @@
 		height: 42px !important;
 	}
 
-	/* Suggestions section */
-	.kids-shop-cart-page .container.kids-shop-cart-suggestions {
+	/* You May Like — mobile (match Related Products 2-col grid) */
+	.kids-shop-cart-page app-cart .kids-shop-product-row.kids-shop-cart-suggestions {
 		margin-top: 8px !important;
+		margin-bottom: 100px !important;
 	}
 
-	.kids-shop-cart-page .suggestion-section .title {
+	.kids-shop-cart-page .kids-shop-product-row__title,
+	.kids-shop-cart-page .kids-shop-product-row .title {
 		font-size: 16px !important;
 	}
 

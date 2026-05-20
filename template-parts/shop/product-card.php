@@ -29,7 +29,7 @@ $on_sale      = $product->is_on_sale();
 $regular      = $product->get_regular_price();
 $sale_price   = $product->get_sale_price();
 $display      = $product->get_price();
-$buy_now_url  = $product->is_type( 'simple' ) ? $product->add_to_cart_url() . '&quantity=1' : $permalink;
+$buy_now_url  = kids_shop_buy_now_url( $product, 1 );
 ?>
 <app-product-card-1 _nghost-ng-c4050667118="" class="ng-star-inserted" data-product-id="<?php echo esc_attr( $product_id ); ?>">
 	<div _ngcontent-ng-c4050667118="" class="product-card-wrapper">
@@ -64,7 +64,7 @@ $buy_now_url  = $product->is_type( 'simple' ) ? $product->add_to_cart_url() . '&
 					<span _ngcontent-ng-c4050667118="" class="new-price"><?php echo esc_html( kids_shop_format_price( $display ) ); ?></span>
 				</div>
 				<div _ngcontent-ng-c4050667118="" class="action-buttons">
-					<a _ngcontent-ng-c4050667118="" class="buy-now-btn ng-star-inserted" href="<?php echo esc_url( $buy_now_url ); ?>"><?php esc_html_e( 'Buy Now', 'kids-shop' ); ?></a>
+					<a _ngcontent-ng-c4050667118="" class="buy-now-btn kids-shop-buy-now ng-star-inserted" href="<?php echo esc_url( $buy_now_url ); ?>" data-product_id="<?php echo esc_attr( (string) $product_id ); ?>"><?php esc_html_e( 'Buy Now', 'kids-shop' ); ?></a>
 					<?php if ( $product->is_purchasable() && $product->is_in_stock() ) : ?>
 						<div _ngcontent-ng-c4050667118="" class="add-cart-wrapper ng-star-inserted">
 							<button _ngcontent-ng-c4050667118="" type="button" class="add-cart-icon-btn kids-shop-add-to-cart" data-product_id="<?php echo esc_attr( $product_id ); ?>" aria-label="<?php esc_attr_e( 'Add to cart', 'kids-shop' ); ?>">

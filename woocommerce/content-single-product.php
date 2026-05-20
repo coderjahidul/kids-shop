@@ -48,20 +48,11 @@ if ( $product && $product->is_on_sale() && '' !== $regular && '' !== $sale ) {
 	}
 }
 
-$buy_now_url = $permalink;
-if ( $product && $product->is_type( 'simple' ) && $product->is_purchasable() && $product->is_in_stock() ) {
-	$buy_now_url = add_query_arg(
-		array(
-			'add-to-cart' => $product_id,
-			'quantity'    => 1,
-		),
-		wc_get_checkout_url()
-	);
-}
-
 $min_q = $product ? $product->get_min_purchase_quantity() : 1;
 $max_q = $product ? $product->get_max_purchase_quantity() : '';
 $max_q = '' !== $max_q ? (int) $max_q : '';
+
+$buy_now_url = $product ? kids_shop_buy_now_url( $product, max( 1, (int) $min_q ) ) : $permalink;
 
 $content_raw = get_post_field( 'post_content', $product_id );
 $desc_plain  = wp_strip_all_tags( $content_raw );
@@ -132,7 +123,7 @@ $svg_bag  = '<svg class="kids-shop-sp-btn-icon" width="18" height="18" viewBox="
 						<?php echo $svg_cart; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 						<span><?php esc_html_e( 'Add to cart', 'kids-shop' ); ?></span>
 					</button>
-					<a class="kids-shop-sp-buy-now" href="<?php echo esc_url( $buy_now_url ); ?>">
+					<a class="kids-shop-sp-buy-now kids-shop-buy-now" href="<?php echo esc_url( $buy_now_url ); ?>" data-product_id="<?php echo esc_attr( (string) $product_id ); ?>">
 						<?php echo $svg_bag; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 						<span><?php esc_html_e( 'Buy Now', 'kids-shop' ); ?></span>
 					</a>
@@ -141,7 +132,7 @@ $svg_bag  = '<svg class="kids-shop-sp-btn-icon" width="18" height="18" viewBox="
 				<div class="kids-shop-sp-cart kids-shop-sp-cart--fallback">
 					<?php woocommerce_template_single_add_to_cart(); ?>
 					<?php if ( $product && $product->is_type( 'simple' ) && $product->is_purchasable() && $product->is_in_stock() ) : ?>
-						<a class="kids-shop-sp-buy-now kids-shop-sp-buy-now--solo" href="<?php echo esc_url( $buy_now_url ); ?>">
+						<a class="kids-shop-sp-buy-now kids-shop-sp-buy-now--solo kids-shop-buy-now" href="<?php echo esc_url( $buy_now_url ); ?>" data-product_id="<?php echo esc_attr( (string) $product_id ); ?>">
 							<?php echo $svg_bag; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 							<span><?php esc_html_e( 'Buy Now', 'kids-shop' ); ?></span>
 						</a>
@@ -206,11 +197,7 @@ $svg_bag  = '<svg class="kids-shop-sp-btn-icon" width="18" height="18" viewBox="
 		</div>
 	</div>
 
-	<?php if ( function_exists( 'woocommerce_output_related_products' ) ) : ?>
-		<div class="kids-shop-sp-related">
-			<?php woocommerce_output_related_products(); ?>
-		</div>
-	<?php endif; ?>
+	<?php get_template_part( 'template-parts/shop/related', 'products' ); ?>
 </section>
 
 <?php do_action( 'woocommerce_after_single_product' ); ?>

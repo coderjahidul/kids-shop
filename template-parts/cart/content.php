@@ -163,30 +163,10 @@ $grand_total    = kids_shop_cart_format_price( (float) WC()->cart->get_total( 'e
 				</div>
 			</div>
 		</div>
+
+		<?php get_template_part( 'template-parts/cart/suggestions' ); ?>
 	</app-cart>
 
 	<?php wp_nonce_field( 'woocommerce-cart', 'woocommerce-cart-nonce' ); ?>
 	<?php do_action( 'woocommerce_after_cart' ); ?>
 </form>
-
-<?php
-$suggestions = kids_shop_get_cart_suggestion_products( 5 );
-if ( ! empty( $suggestions ) ) :
-	?>
-	<div _ngcontent-ng-c713332739="" class="container ng-star-inserted kids-shop-cart-suggestions">
-		<div _ngcontent-ng-c713332739="" class="suggestion-section">
-			<h3 _ngcontent-ng-c713332739="" class="title"><?php esc_html_e( 'You May Like', 'kids-shop' ); ?></h3>
-			<div _ngcontent-ng-c713332739="" class="suggestion-border-element"></div>
-			<div _ngcontent-ng-c713332739="" class="products-cards">
-				<?php
-				foreach ( $suggestions as $product ) {
-					$GLOBALS['product'] = $product;
-					get_template_part( 'template-parts/shop/product', 'card' );
-				}
-				wp_reset_postdata();
-				?>
-			</div>
-		</div>
-	</div>
-	<?php
-endif;

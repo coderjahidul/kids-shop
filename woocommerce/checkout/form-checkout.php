@@ -59,12 +59,20 @@ $item_count = WC()->cart ? (int) WC()->cart->get_cart_contents_count() : 0;
 					<span class="kids-shop-payment-check">&#10003;</span>
 					<span class="kids-shop-payment-label"><?php esc_html_e('Cash on Delivery', 'kids-shop'); ?></span>
 				</div>
+
+				<?php if ( WC()->cart && WC()->cart->needs_shipping() && WC()->cart->show_shipping() ) : ?>
+					<div class="kids-shop-shipping-section">
+						<div class="kids-shop-payment-title"><?php esc_html_e('Select Shipping Option', 'kids-shop'); ?></div>
+						<?php get_template_part( 'template-parts/checkout/shipping', 'options' ); ?>
+					</div>
+				<?php endif; ?>
 			</div>
 		</div>
 
 		<div class="kids-shop-checkout-right">
 			<div class="kids-shop-checkout-panel kids-shop-checkout-order-panel">
 				<h3 class="kids-shop-checkout-title">
+					<span class="kids-shop-checkout-order-count">
 					<?php
 					printf(
 						/* translators: %d: item count */
@@ -72,18 +80,29 @@ $item_count = WC()->cart ? (int) WC()->cart->get_cart_contents_count() : 0;
 						$item_count
 					);
 					?>
+					</span>
 				</h3>
 				<div class="kids-shop-checkout-divider"></div>
 
 				<?php do_action('woocommerce_checkout_before_order_review_heading'); ?>
 
 				<div id="order_review" class="woocommerce-checkout-review-order">
-					<?php do_action('woocommerce_checkout_order_review'); ?>
+					<?php woocommerce_order_review(); ?>
 				</div>
 
-				<a class="kids-shop-back-to-cart" href="<?php echo esc_url(wc_get_cart_url()); ?>">
-					&larr; <?php esc_html_e('Back to Cart', 'kids-shop'); ?>
-				</a>
+				<?php if ( wc_coupons_enabled() ) : ?>
+					<button type="button" class="kids-shop-checkout-coupon-toggle showcoupon" aria-controls="woocommerce-checkout-form-coupon" aria-expanded="false">
+						<?php esc_html_e('Do have any coupon code?', 'kids-shop'); ?>
+					</button>
+					<?php wc_get_template( 'checkout/form-coupon.php' ); ?>
+				<?php endif; ?>
+
+				<div class="kids-shop-checkout-order-footer">
+					<a class="kids-shop-back-to-cart" href="<?php echo esc_url(wc_get_cart_url()); ?>">
+						&larr; <?php esc_html_e('Back to Cart', 'kids-shop'); ?>
+					</a>
+					<?php woocommerce_checkout_payment(); ?>
+				</div>
 			</div>
 		</div>
 	</div>

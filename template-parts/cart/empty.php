@@ -27,4 +27,6 @@ $shop_url = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 
 			</app-empty-data>
 		</div>
 	</div>
+
+	<?php get_template_part( 'template-parts/cart/suggestions' ); ?>
 </app-cart>
