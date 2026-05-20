@@ -1,0 +1,167 @@
+/* My Account & generic pages */
+.kids-shop-page {
+	padding-top: 24px;
+	padding-bottom: 72px;
+	background: #fff;
+	min-height: 50vh;
+}
+
+.kids-shop-page .container {
+	max-width: 1100px;
+	margin: 0 auto;
+	padding: 0 16px;
+}
+
+.kids-shop-page__header {
+	margin-bottom: 24px;
+}
+
+.kids-shop-page__title {
+	margin: 0;
+	font-size: 28px;
+	font-weight: 700;
+	color: #253d4e;
+}
+
+.kids-shop-page__content {
+	color: #253d4e;
+	line-height: 1.6;
+}
+
+/* WooCommerce My Account */
+.kids-shop-myaccount-page .woocommerce {
+	max-width: 100%;
+}
+
+.kids-shop-myaccount-page .woocommerce-MyAccount-navigation {
+	float: left;
+	width: 28%;
+	padding-right: 24px;
+	box-sizing: border-box;
+}
+
+.kids-shop-myaccount-page .woocommerce-MyAccount-navigation ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	border: 1px solid #e5e7eb;
+	border-radius: 10px;
+	overflow: hidden;
+}
+
+.kids-shop-myaccount-page .woocommerce-MyAccount-navigation li {
+	margin: 0;
+	border-bottom: 1px solid #e5e7eb;
+}
+
+.kids-shop-myaccount-page .woocommerce-MyAccount-navigation li:last-child {
+	border-bottom: none;
+}
+
+.kids-shop-myaccount-page .woocommerce-MyAccount-navigation a {
+	display: block;
+	padding: 14px 16px;
+	color: #253d4e;
+	text-decoration: none;
+	font-weight: 500;
+	font-size: 14px;
+	transition: background 0.2s ease, color 0.2s ease;
+}
+
+.kids-shop-myaccount-page .woocommerce-MyAccount-navigation li.is-active a,
+.kids-shop-myaccount-page .woocommerce-MyAccount-navigation a:hover {
+	background: color-mix(in srgb, var(--shop-color-primary, #27a7b8) 10%, #fff);
+	color: var(--shop-color-primary, #27a7b8);
+}
+
+.kids-shop-myaccount-page .woocommerce-MyAccount-content {
+	float: right;
+	width: 72%;
+	box-sizing: border-box;
+}
+
+.kids-shop-myaccount-page .woocommerce-MyAccount-content::after,
+.kids-shop-myaccount-page .woocommerce::after {
+	content: '';
+	display: table;
+	clear: both;
+}
+
+.kids-shop-myaccount-page .woocommerce form.login,
+.kids-shop-myaccount-page .woocommerce form.register {
+	max-width: 480px;
+	margin: 0 auto;
+	padding: 32px;
+	border: 1px solid #e5e7eb;
+	border-radius: 12px;
+	background: #fafbfc;
+}
+
+.kids-shop-myaccount-page .woocommerce form.login h2,
+.kids-shop-myaccount-page .woocommerce form.register h2 {
+	margin-top: 0;
+	font-size: 22px;
+	color: #253d4e;
+}
+
+.kids-shop-myaccount-page .woocommerce .form-row input.input-text,
+.kids-shop-myaccount-page .woocommerce .form-row select,
+.kids-shop-myaccount-page .woocommerce .form-row textarea {
+	width: 100%;
+	padding: 12px 14px;
+	border: 1px solid #e5e7eb;
+	border-radius: 8px;
+	font-size: 15px;
+	box-sizing: border-box;
+}
+
+.kids-shop-myaccount-page .woocommerce .form-row input.input-text:focus {
+	border-color: var(--shop-color-primary, #27a7b8);
+	outline: none;
+	box-shadow: 0 0 0 3px color-mix(in srgb, var(--shop-color-primary, #27a7b8) 20%, transparent);
+}
+
+.kids-shop-myaccount-page .woocommerce .button,
+.kids-shop-myaccount-page .woocommerce button[type='submit'] {
+	background: var(--shop-color-primary, #27a7b8) !important;
+	color: #fff !important;
+	border: none !important;
+	padding: 12px 24px !important;
+	border-radius: 8px !important;
+	font-weight: 600 !important;
+	cursor: pointer;
+}
+
+.kids-shop-myaccount-page .woocommerce .button:hover,
+.kids-shop-myaccount-page .woocommerce button[type='submit']:hover {
+	background: #1e8a98 !important;
+}
+
+.kids-shop-myaccount-page .woocommerce table.shop_table {
+	border-collapse: collapse;
+	width: 100%;
+}
+
+.kids-shop-myaccount-page .woocommerce table.shop_table th,
+.kids-shop-myaccount-page .woocommerce table.shop_table td {
+	padding: 12px;
+	border-bottom: 1px solid #e5e7eb;
+	text-align: left;
+}
+
+.kids-shop-myaccount-page .woocommerce-Address {
+	margin-bottom: 24px;
+}
+
+@media (max-width: 768px) {
+	.kids-shop-myaccount-page .woocommerce-MyAccount-navigation,
+	.kids-shop-myaccount-page .woocommerce-MyAccount-content {
+		float: none;
+		width: 100%;
+		padding-right: 0;
+	}
+
+	.kids-shop-myaccount-page .woocommerce-MyAccount-navigation {
+		margin-bottom: 24px;
+	}
+}

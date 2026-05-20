@@ -27,6 +27,8 @@ function kids_shop_get_template_replacements( $context = 'header' ) {
 	$shop     = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'shop' ) : home_url( '/shop/' );
 	$cart     = function_exists( 'wc_get_cart_url' ) ? wc_get_cart_url() : home_url( '/cart/' );
 	$checkout = function_exists( 'wc_get_checkout_url' ) ? wc_get_checkout_url() : home_url( '/checkout/' );
+	$login    = function_exists( 'kids_shop_get_login_url' ) ? kids_shop_get_login_url() : home_url( '/login/' );
+	$signup   = function_exists( 'kids_shop_get_signup_url' ) ? kids_shop_get_signup_url() : home_url( '/signup/' );
 	$wa       = kids_shop_get_whatsapp_url();
 
 	$map = array(
@@ -43,6 +45,12 @@ function kids_shop_get_template_replacements( $context = 'header' ) {
 		'href="https://kiddomart.softlabit.shop/cart"'    => 'href="' . esc_url( $cart ) . '"',
 		'https://kiddomart.softlabit.shop/checkout'       => untrailingslashit( $checkout ),
 		'href="https://kiddomart.softlabit.shop/checkout"' => 'href="' . esc_url( $checkout ) . '"',
+		'https://kiddomart.softlabit.shop/login'          => untrailingslashit( $login ),
+		'href="https://kiddomart.softlabit.shop/login"'   => 'href="' . esc_url( $login ) . '"',
+		'routerlink="/login"'                             => 'href="' . esc_url( $login ) . '"',
+		'https://kiddomart.softlabit.shop/signup'         => untrailingslashit( $signup ),
+		'href="https://kiddomart.softlabit.shop/signup"'  => 'href="' . esc_url( $signup ) . '"',
+		'routerlink="/signup"'                            => 'href="' . esc_url( $signup ) . '"',
 		'https://facebook.com/'                   => esc_url( kids_shop_get_option( 'social_facebook', $defaults['social_facebook'] ) ),
 		'https://instagram.com/'                  => esc_url( kids_shop_get_option( 'social_instagram', $defaults['social_instagram'] ) ),
 		'https://youtube.com/'                    => esc_url( kids_shop_get_option( 'social_youtube', $defaults['social_youtube'] ) ),
@@ -126,11 +134,13 @@ function kids_shop_apply_template_replacements( $html, $context = 'header' ) {
 
 		$html = kids_shop_replace_header_search_markup( $html );
 		$html = kids_shop_replace_header_cart_markup( $html );
+		$html = kids_shop_replace_header_auth_markup( $html );
 	}
 
 	if ( 'footer' === $context ) {
 		$html = kids_shop_replace_footer_copyright_markup( $html );
 		$html = kids_shop_replace_footer_link_columns( $html );
+		$html = kids_shop_replace_footer_auth_markup( $html );
 	}
 
 	return $html;
@@ -301,6 +311,57 @@ function kids_shop_replace_header_cart_dropdown( $html ) {
 	}
 
 	return substr( $html, 0, $start ) . kids_shop_get_header_cart_dropdown_wrap_html() . substr( $html, $close_end );
+}
+
+/**
+ * Show Account link in header when user is logged in (hide Login / SignUp).
+ *
+ * @param string $html Header HTML.
+ * @return string
+ */
+function kids_shop_replace_header_auth_markup( $html ) {
+	if ( ! is_user_logged_in() || ! function_exists( 'kids_shop_get_account_url' ) ) {
+		return $html;
+	}
+
+	$account = esc_url( kids_shop_get_account_url() );
+	$label   = esc_html__( '', 'kids-shop' );
+
+	$replaced = preg_replace_callback(
+		'#<div[^>]*class="user-auth"[^>]*>\s*<a[^>]*>(.*?)</a>\s*<h3[^>]*>.*?</h3>\s*<!-- -->\s*<!-- -->\s*</div>#s',
+		static function ( $matches ) use ( $account, $label ) {
+			return '<div _ngcontent-ng-c1701678261="" class="user-auth kids-shop-user-auth--logged-in">'
+				. '<a _ngcontent-ng-c1701678261="" href="' . $account . '" aria-label="' . esc_attr( $label ) . '">'
+				. $matches[1]
+				. '</a><h3 _ngcontent-ng-c1701678261=""><a _ngcontent-ng-c1701678261="" href="' . $account . '">' . $label . '</a></h3><!-- --><!-- --></div>';
+		},
+		$html,
+		1
+	);
+
+	return $replaced ?? $html;
+}
+
+/**
+ * Point mobile bottom-nav Account item to My Account or Login.
+ *
+ * @param string $html Footer HTML.
+ * @return string
+ */
+function kids_shop_replace_footer_auth_markup( $html ) {
+	if ( ! function_exists( 'kids_shop_get_account_url' ) || ! function_exists( 'kids_shop_get_login_url' ) ) {
+		return $html;
+	}
+
+	$url = is_user_logged_in() ? kids_shop_get_account_url() : kids_shop_get_login_url();
+	$url = esc_url( $url );
+
+	return preg_replace(
+		'#(<div[^>]*class="account-section[^"]*"[^>]*)\s*routerlink="[^"]*"#',
+		'$1 href="' . $url . '"',
+		$html,
+		1
+	);
 }
 
 /**

@@ -1,0 +1,327 @@
+/* Login & Sign Up — centered card (KiddoMart reference) */
+.kids-shop-auth-page {
+	--kids-auth-primary: var(--shop-color-primary, #27a7b8);
+	--kids-auth-text: #1a1a1a;
+	--kids-auth-muted: #6b7280;
+	--kids-auth-border: #e5e7eb;
+	--kids-auth-bg: #f5f6f8;
+	--kids-auth-card-radius: 8px;
+	--kids-auth-input-radius: 6px;
+	background: var(--kids-auth-bg);
+	min-height: calc(100vh - 180px);
+	padding: 48px 16px 80px;
+	box-sizing: border-box;
+}
+
+.kids-shop-auth-page__wrap {
+	max-width: 440px;
+	margin: 0 auto;
+}
+
+.kids-shop-auth-card {
+	background: #fff;
+	border: 1px solid var(--kids-auth-border);
+	border-radius: var(--kids-auth-card-radius);
+	padding: 40px 36px 36px;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+/* Card header */
+.kids-shop-auth-card__icon {
+	width: 56px;
+	height: 56px;
+	margin: 0 auto 20px;
+	border-radius: 50%;
+	background: var(--kids-auth-primary);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.kids-shop-auth-card__title {
+	margin: 0 0 8px;
+	font-size: 28px;
+	font-weight: 700;
+	line-height: 1.2;
+	color: var(--kids-auth-text);
+	text-align: center;
+	letter-spacing: -0.02em;
+}
+
+.kids-shop-auth-card__subtitle {
+	margin: 0 0 28px;
+	font-size: 14px;
+	line-height: 1.5;
+	color: var(--kids-auth-muted);
+	text-align: center;
+}
+
+/* Notices */
+.kids-shop-auth-notice {
+	margin: 0 0 20px;
+	padding: 12px 14px;
+	border-radius: var(--kids-auth-input-radius);
+	font-size: 14px;
+	line-height: 1.45;
+}
+
+.kids-shop-auth-notice p {
+	margin: 0;
+}
+
+.kids-shop-auth-notice--error,
+.woocommerce-error {
+	background: #fef2f2;
+	border: 1px solid #fecaca;
+	color: #b91c1c;
+}
+
+.kids-shop-auth-notice--success,
+.woocommerce-message {
+	background: #ecfdf5;
+	border: 1px solid #a7f3d0;
+	color: #047857;
+}
+
+.kids-shop-auth-notice--info {
+	background: #eff6ff;
+	border: 1px solid #bfdbfe;
+	color: #1d4ed8;
+}
+
+.kids-shop-auth-page .woocommerce-error,
+.kids-shop-auth-page .woocommerce-message,
+.kids-shop-auth-page .woocommerce-info {
+	list-style: none;
+	margin: 0 0 20px;
+	padding: 12px 14px;
+	border-radius: var(--kids-auth-input-radius);
+	font-size: 14px;
+}
+
+.kids-shop-auth-page .woocommerce-error li,
+.kids-shop-auth-page .woocommerce-message li,
+.kids-shop-auth-page .woocommerce-info li {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+/* Form */
+.kids-shop-auth-form {
+	display: flex;
+	flex-direction: column;
+	gap: 0;
+}
+
+.kids-shop-auth-form__label {
+	margin: 0 0 20px;
+	font-size: 28px;
+	font-weight: 700;
+	line-height: 1.2;
+	color: var(--kids-auth-text);
+	text-align: center;
+	letter-spacing: -0.02em;
+}
+
+.kids-shop-auth-field {
+	margin-bottom: 18px;
+}
+
+.kids-shop-auth-field label {
+	display: block;
+	margin-bottom: 8px;
+	font-size: 14px;
+	font-weight: 500;
+	color: #374151;
+}
+
+.kids-shop-auth-field label .required {
+	color: #ef4444;
+}
+
+.kids-shop-auth-input {
+	width: 100%;
+	box-sizing: border-box;
+	height: 44px;
+	padding: 0 14px;
+	border: 1px solid var(--kids-auth-border);
+	border-radius: var(--kids-auth-input-radius);
+	font-size: 14px;
+	color: var(--kids-auth-text);
+	background: #fff;
+	transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.kids-shop-auth-input::placeholder {
+	color: #9ca3af;
+}
+
+.kids-shop-auth-input:focus {
+	outline: none;
+	border-color: var(--kids-auth-primary);
+	box-shadow: 0 0 0 3px rgba(39, 167, 184, 0.15);
+}
+
+.kids-shop-auth-input-wrap {
+	position: relative;
+}
+
+.kids-shop-auth-input-wrap .kids-shop-auth-input {
+	padding-right: 44px;
+}
+
+.kids-shop-auth-toggle-pw {
+	position: absolute;
+	right: 4px;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 36px;
+	height: 36px;
+	padding: 0;
+	border: none;
+	background: transparent;
+	color: #9ca3af;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 4px;
+}
+
+.kids-shop-auth-toggle-pw:hover {
+	color: #6b7280;
+}
+
+.kids-shop-auth-eye--hide {
+	display: none;
+}
+
+.kids-shop-auth-toggle-pw.is-visible .kids-shop-auth-eye--show {
+	display: none;
+}
+
+.kids-shop-auth-toggle-pw.is-visible .kids-shop-auth-eye--hide {
+	display: block;
+}
+
+/* Field meta row (hint + forget password) */
+.kids-shop-auth-field-meta {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	margin-top: 8px;
+	flex-wrap: wrap;
+}
+
+.kids-shop-auth-field-hint {
+	font-size: 12px;
+	color: var(--kids-auth-muted);
+	margin: 0;
+}
+
+.kids-shop-auth-field-hint::before {
+	content: "• ";
+}
+
+.kids-shop-auth-field-hint--solo {
+	margin-top: 8px;
+}
+
+.kids-shop-auth-link {
+	font-size: 12px;
+	color: var(--kids-auth-muted);
+	text-decoration: none;
+	white-space: nowrap;
+}
+
+.kids-shop-auth-link:hover {
+	color: var(--kids-auth-primary);
+	text-decoration: underline;
+}
+
+.kids-shop-auth-link--forget {
+	margin-left: auto;
+}
+
+.kids-shop-auth-hint {
+	font-size: 13px;
+	color: var(--kids-auth-muted);
+	margin: 0 0 18px;
+}
+
+/* Submit */
+.kids-shop-auth-btn {
+	display: block;
+	width: 100%;
+	height: 48px;
+	margin-top: 8px;
+	padding: 0 20px;
+	border: none;
+	border-radius: var(--kids-auth-input-radius);
+	background: var(--kids-auth-primary);
+	color: #fff;
+	font-size: 16px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.kids-shop-auth-btn:hover {
+	background: #1f96a6;
+}
+
+.kids-shop-auth-btn:active {
+	transform: scale(0.99);
+}
+
+.kids-shop-auth-btn--outline {
+	text-align: center;
+	line-height: 48px;
+	text-decoration: none;
+	background: transparent;
+	color: var(--kids-auth-primary);
+	border: 1px solid var(--kids-auth-primary);
+}
+
+.kids-shop-auth-btn--outline:hover {
+	background: rgba(39, 167, 184, 0.08);
+}
+
+/* Footer switch link */
+.kids-shop-auth-switch {
+	margin: 20px 0 0;
+	font-size: 14px;
+	color: var(--kids-auth-muted);
+	text-align: center;
+	line-height: 1.5;
+}
+
+.kids-shop-auth-switch a {
+	color: var(--kids-auth-primary);
+	font-weight: 600;
+	text-decoration: none;
+}
+
+.kids-shop-auth-switch a:hover {
+	text-decoration: underline;
+}
+
+/* Hide default page title on auth pages */
+body.kids-shop-login-page .entry-header,
+body.kids-shop-signup-page .entry-header,
+body.kids-shop-login-page .page-title,
+body.kids-shop-signup-page .page-title {
+	display: none;
+}
+
+@media (max-width: 480px) {
+	.kids-shop-auth-card {
+		padding: 32px 20px 28px;
+	}
+
+	.kids-shop-auth-card__title {
+		font-size: 24px;
+	}
+}

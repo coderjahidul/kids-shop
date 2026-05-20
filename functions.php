@@ -94,6 +94,7 @@ require get_template_directory() . '/inc/header-search.php';
 require get_template_directory() . '/inc/shop-helpers.php';
 require get_template_directory() . '/inc/home-helpers.php';
 require get_template_directory() . '/inc/cart-helpers.php';
+require get_template_directory() . '/inc/auth-helpers.php';
 
 /**
  * Settings shortcut on Themes screen.
@@ -203,6 +204,17 @@ function kids_shop_body_class($classes)
 	}
 	if (function_exists('is_cart') && is_cart()) {
 		$classes[] = 'kids-shop-cart-page';
+	}
+	if (is_page('login')) {
+		$classes[] = 'kids-shop-auth-page-body';
+		$classes[] = 'kids-shop-login-page';
+	}
+	if (is_page('signup')) {
+		$classes[] = 'kids-shop-auth-page-body';
+		$classes[] = 'kids-shop-signup-page';
+	}
+	if (function_exists('is_account_page') && is_account_page()) {
+		$classes[] = 'kids-shop-myaccount-page';
 	}
 	return $classes;
 }
@@ -315,3 +327,98 @@ function kids_shop_print_cart_fragment_bootstrap() {
 	);
 }
 add_action( 'wp_footer', 'kids_shop_print_cart_fragment_bootstrap', 5 );
+
+/**
+ * Enqueue login & sign up page assets.
+ */
+function kids_shop_enqueue_auth_assets() {
+	if ( ! is_page( 'login' ) && ! is_page( 'signup' ) ) {
+		return;
+	}
+
+	$theme_version = wp_get_theme()->get( 'Version' );
+	$auth_css      = get_template_directory() . '/assets/kids-shop-auth.css';
+	$auth_js       = get_template_directory() . '/assets/auth.js';
+
+	wp_enqueue_style(
+		'kids-shop-auth',
+		get_template_directory_uri() . '/assets/kids-shop-auth.css',
+		array( 'kids-shop-style' ),
+		file_exists( $auth_css ) ? (string) filemtime( $auth_css ) : $theme_version
+	);
+
+	wp_enqueue_script(
+		'kids-shop-auth-js',
+		get_template_directory_uri() . '/assets/auth.js',
+		array(),
+		file_exists( $auth_js ) ? (string) filemtime( $auth_js ) : $theme_version,
+		true
+	);
+}
+add_action( 'wp_enqueue_scripts', 'kids_shop_enqueue_auth_assets', 20 );
+
+/**
+ * Enqueue My Account page assets.
+ */
+function kids_shop_enqueue_myaccount_assets() {
+	if ( ! function_exists( 'is_account_page' ) || ! is_account_page() ) {
+		return;
+	}
+
+	$theme_version = wp_get_theme()->get( 'Version' );
+	$css_path      = get_template_directory() . '/assets/kids-shop-myaccount.css';
+
+	wp_enqueue_style(
+		'kids-shop-myaccount',
+		get_template_directory_uri() . '/assets/kids-shop-myaccount.css',
+		array( 'kids-shop-style' ),
+		file_exists( $css_path ) ? (string) filemtime( $css_path ) : $theme_version
+	);
+}
+add_action( 'wp_enqueue_scripts', 'kids_shop_enqueue_myaccount_assets', 20 );
+
+/**
+ * Use theme login page instead of wp-login.php for front-end links.
+ *
+ * @param string $login_url Login URL.
+ * @param string $redirect  Redirect target.
+ * @return string
+ */
+function kids_shop_login_url( $login_url, $redirect ) {
+	$url = kids_shop_get_login_url();
+	if ( $redirect ) {
+		$url = add_query_arg( 'redirect_to', urlencode( $redirect ), $url );
+	}
+	return $url;
+}
+add_filter( 'login_url', 'kids_shop_login_url', 10, 2 );
+
+/**
+ * Send failed logins back to the themed login page.
+ */
+function kids_shop_login_failed_redirect() {
+	if ( is_admin() ) {
+		return;
+	}
+	$url = add_query_arg( 'login', 'failed', kids_shop_get_login_url() );
+	wp_safe_redirect( $url );
+	exit;
+}
+add_action( 'wp_login_failed', 'kids_shop_login_failed_redirect' );
+
+/**
+ * Redirect empty login attempts from the themed form.
+ */
+function kids_shop_authenticate_empty_login( $user, $username, $password ) {
+	if ( is_admin() || empty( $_POST['wp-submit'] ) ) {
+		return $user;
+	}
+	if ( empty( $username ) || empty( $password ) ) {
+		$url = add_query_arg( 'login', 'empty', kids_shop_get_login_url() );
+		wp_safe_redirect( $url );
+		exit;
+	}
+	return $user;
+}
+add_filter( 'authenticate', 'kids_shop_authenticate_empty_login', 30, 3 );
+

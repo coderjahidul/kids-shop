@@ -11,7 +11,6 @@
 			var(--kids-cart-col-delete)
 	);
 	padding-top: 24px;
-	padding-bottom: 80px;
 	background: #fff;
 }
 
@@ -242,7 +241,6 @@
 .kids-shop-cart-page app-cart .container.kids-shop-cart-layout,
 .kids-shop-cart-page .container.kids-shop-cart-suggestions {
 	width: 93% !important;
-	max-width: 1400px;
 	margin-left: auto;
 	margin-right: auto;
 }
