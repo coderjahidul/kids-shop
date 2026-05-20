@@ -1,167 +1,1247 @@
-/* My Account & generic pages */
-.kids-shop-page {
-	padding-top: 24px;
-	padding-bottom: 72px;
-	background: #fff;
+/* My Account — KiddoMart dashboard layout */
+.kids-shop-myaccount {
+	--kids-ma-primary: var(--shop-color-primary, #27a7b8);
+	--kids-ma-text: #253d4e;
+	--kids-ma-muted: #6b7280;
+	--kids-ma-border: #e0e0e0;
+	--kids-ma-bg: #f5f6f8;
+	--kids-ma-card-radius: 10px;
+	--kids-ma-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+	padding: 28px 0 72px;
+	background: var(--kids-ma-bg);
 	min-height: 50vh;
 }
 
-.kids-shop-page .container {
-	max-width: 1100px;
+.kids-shop-myaccount__container {
+	max-width: 1280px;
 	margin: 0 auto;
 	padding: 0 16px;
-}
-
-.kids-shop-page__header {
-	margin-bottom: 24px;
-}
-
-.kids-shop-page__title {
-	margin: 0;
-	font-size: 28px;
-	font-weight: 700;
-	color: #253d4e;
-}
-
-.kids-shop-page__content {
-	color: #253d4e;
-	line-height: 1.6;
-}
-
-/* WooCommerce My Account */
-.kids-shop-myaccount-page .woocommerce {
-	max-width: 100%;
-}
-
-.kids-shop-myaccount-page .woocommerce-MyAccount-navigation {
-	float: left;
-	width: 28%;
-	padding-right: 24px;
 	box-sizing: border-box;
 }
 
-.kids-shop-myaccount-page .woocommerce-MyAccount-navigation ul {
+/* Three-column grid (dashboard); two-column on orders / address / settings */
+.kids-shop-myaccount__grid {
+	display: grid;
+	grid-template-columns: 220px minmax(0, 1fr) 280px;
+	gap: 24px;
+	align-items: start;
+}
+
+.kids-shop-myaccount__grid--two-col {
+	grid-template-columns: 220px minmax(0, 1fr);
+}
+
+.kids-shop-myaccount__main--wide {
+	min-width: 0;
+}
+
+/* Sidebar navigation */
+.kids-shop-myaccount-nav__list {
 	list-style: none;
 	margin: 0;
 	padding: 0;
-	border: 1px solid #e5e7eb;
-	border-radius: 10px;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.kids-shop-myaccount-nav__item {
+	margin: 0;
+}
+
+.kids-shop-myaccount-nav__link {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 14px 16px;
+	background: #fff;
+	border: 1px solid var(--kids-ma-border);
+	border-radius: var(--kids-ma-card-radius);
+	color: var(--kids-ma-muted);
+	text-decoration: none;
+	font-size: 14px;
+	font-weight: 500;
+	transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.kids-shop-myaccount-nav__icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+}
+
+.kids-shop-myaccount-nav__item.is-active .kids-shop-myaccount-nav__link,
+.kids-shop-myaccount-nav__link:hover {
+	background: var(--kids-ma-primary);
+	border-color: var(--kids-ma-primary);
+	color: #fff;
+}
+
+/* Main column panels */
+.kids-shop-myaccount__main {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+	min-width: 0;
+}
+
+.kids-shop-myaccount-panel {
+	background: #fff;
+	border-radius: var(--kids-ma-card-radius);
+	box-shadow: var(--kids-ma-shadow);
 	overflow: hidden;
 }
 
-.kids-shop-myaccount-page .woocommerce-MyAccount-navigation li {
+.kids-shop-myaccount-panel__header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 18px 20px;
+	border-bottom: 1px solid #f0f0f0;
+}
+
+.kids-shop-myaccount-panel__title {
 	margin: 0;
-	border-bottom: 1px solid #e5e7eb;
+	font-size: 18px;
+	font-weight: 600;
+	color: var(--kids-ma-text);
 }
 
-.kids-shop-myaccount-page .woocommerce-MyAccount-navigation li:last-child {
-	border-bottom: none;
+.kids-shop-myaccount-panel__body {
+	padding: 32px 20px 36px;
+	text-align: center;
 }
 
-.kids-shop-myaccount-page .woocommerce-MyAccount-navigation a {
-	display: block;
-	padding: 14px 16px;
-	color: #253d4e;
-	text-decoration: none;
-	font-weight: 500;
+.kids-shop-myaccount-panel__summary {
+	margin: 0 0 16px;
+	font-size: 15px;
+	color: var(--kids-ma-muted);
+}
+
+/* Buttons */
+.kids-shop-myaccount-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 8px 18px;
 	font-size: 14px;
-	transition: background 0.2s ease, color 0.2s ease;
-}
-
-.kids-shop-myaccount-page .woocommerce-MyAccount-navigation li.is-active a,
-.kids-shop-myaccount-page .woocommerce-MyAccount-navigation a:hover {
-	background: color-mix(in srgb, var(--shop-color-primary, #27a7b8) 10%, #fff);
-	color: var(--shop-color-primary, #27a7b8);
-}
-
-.kids-shop-myaccount-page .woocommerce-MyAccount-content {
-	float: right;
-	width: 72%;
+	font-weight: 600;
+	border-radius: 8px;
+	text-decoration: none;
+	cursor: pointer;
+	transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 	box-sizing: border-box;
+	white-space: nowrap;
 }
 
-.kids-shop-myaccount-page .woocommerce-MyAccount-content::after,
-.kids-shop-myaccount-page .woocommerce::after {
-	content: '';
-	display: table;
-	clear: both;
+.kids-shop-myaccount-btn--outline {
+	background: #fff;
+	color: var(--kids-ma-primary);
+	border: 1.5px solid var(--kids-ma-primary);
 }
 
-.kids-shop-myaccount-page .woocommerce form.login,
-.kids-shop-myaccount-page .woocommerce form.register {
-	max-width: 480px;
-	margin: 0 auto;
-	padding: 32px;
-	border: 1px solid #e5e7eb;
-	border-radius: 12px;
-	background: #fafbfc;
+.kids-shop-myaccount-btn--outline:hover {
+	background: color-mix(in srgb, var(--kids-ma-primary) 8%, #fff);
+	color: var(--kids-ma-primary);
 }
 
-.kids-shop-myaccount-page .woocommerce form.login h2,
-.kids-shop-myaccount-page .woocommerce form.register h2 {
-	margin-top: 0;
-	font-size: 22px;
-	color: #253d4e;
+.kids-shop-myaccount-btn--solid {
+	background: var(--kids-ma-primary);
+	color: #fff;
+	border: 1.5px solid var(--kids-ma-primary);
 }
 
-.kids-shop-myaccount-page .woocommerce .form-row input.input-text,
-.kids-shop-myaccount-page .woocommerce .form-row select,
-.kids-shop-myaccount-page .woocommerce .form-row textarea {
+.kids-shop-myaccount-btn--solid:hover {
+	background: color-mix(in srgb, var(--kids-ma-primary) 85%, #000);
+	color: #fff;
+}
+
+.kids-shop-myaccount-panel__action {
+	flex-shrink: 0;
+}
+
+/* Empty state */
+.kids-shop-myaccount-empty {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 12px;
+}
+
+.kids-shop-myaccount-empty__illus {
+	margin-bottom: 4px;
+}
+
+.kids-shop-myaccount-empty__title {
+	margin: 0;
+	font-size: 16px;
+	font-weight: 600;
+	color: var(--kids-ma-muted);
+}
+
+.kids-shop-myaccount-empty__message {
+	margin: 0;
+	font-size: 14px;
+	color: var(--kids-ma-muted);
+	max-width: 320px;
+}
+
+/* Profile card */
+.kids-shop-myaccount-profile {
+	background: #fff;
+	border-radius: var(--kids-ma-card-radius);
+	box-shadow: var(--kids-ma-shadow);
+	padding: 28px 24px 24px;
+	text-align: center;
+}
+
+.kids-shop-myaccount-profile__avatar {
+	width: 120px;
+	height: 120px;
+	margin: 0 auto 20px;
+	border-radius: 50%;
+	background: var(--kids-ma-primary);
+	color: #fff;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.kids-shop-myaccount-profile__initials {
+	font-size: 36px;
+	font-weight: 700;
+	letter-spacing: 0.02em;
+}
+
+.kids-shop-myaccount-profile__name {
+	margin: 0 0 16px;
+	font-size: 18px;
+	font-weight: 700;
+	color: var(--kids-ma-text);
+	line-height: 1.3;
+}
+
+.kids-shop-myaccount-profile__meta {
+	list-style: none;
+	margin: 0 0 20px;
+	padding: 0;
+	font-size: 13px;
+	line-height: 1.6;
+	color: var(--kids-ma-muted);
+	text-align: left;
+}
+
+.kids-shop-myaccount-profile__meta li {
+	margin-bottom: 8px;
+}
+
+.kids-shop-myaccount-profile__meta-label {
+	font-weight: 600;
+	color: var(--kids-ma-text);
+}
+
+.kids-shop-myaccount-profile__edit {
+	width: 100%;
+	max-width: 140px;
+}
+
+/* Endpoint content (orders, addresses, settings) */
+.kids-shop-myaccount__endpoint {
+	background: #fff;
+	border-radius: var(--kids-ma-card-radius);
+	box-shadow: var(--kids-ma-shadow);
+	padding: 24px;
+	min-width: 0;
+}
+
+.kids-shop-myaccount__endpoint .woocommerce-orders-table,
+.kids-shop-myaccount__endpoint .woocommerce-table--order-details {
+	width: 100%;
+}
+
+.kids-shop-myaccount__endpoint .woocommerce-orders-table th,
+.kids-shop-myaccount__endpoint .woocommerce-orders-table td {
+	padding: 12px;
+	border-bottom: 1px solid var(--kids-ma-border);
+	text-align: left;
+	font-size: 14px;
+}
+
+.kids-shop-myaccount__endpoint .woocommerce .button,
+.kids-shop-myaccount__endpoint .woocommerce button[type='submit'] {
+	background: var(--kids-ma-primary) !important;
+	color: #fff !important;
+	border: none !important;
+	padding: 10px 20px !important;
+	border-radius: 8px !important;
+	font-weight: 600 !important;
+}
+
+.kids-shop-myaccount__endpoint .woocommerce .form-row input.input-text,
+.kids-shop-myaccount__endpoint .woocommerce .form-row select,
+.kids-shop-myaccount__endpoint .woocommerce .form-row textarea {
 	width: 100%;
 	padding: 12px 14px;
-	border: 1px solid #e5e7eb;
+	border: 1px solid var(--kids-ma-border);
 	border-radius: 8px;
 	font-size: 15px;
 	box-sizing: border-box;
 }
 
-.kids-shop-myaccount-page .woocommerce .form-row input.input-text:focus {
-	border-color: var(--shop-color-primary, #27a7b8);
+.kids-shop-myaccount__endpoint .woocommerce .form-row input.input-text:focus {
+	border-color: var(--kids-ma-primary);
 	outline: none;
-	box-shadow: 0 0 0 3px color-mix(in srgb, var(--shop-color-primary, #27a7b8) 20%, transparent);
+	box-shadow: 0 0 0 3px color-mix(in srgb, var(--kids-ma-primary) 20%, transparent);
 }
 
-.kids-shop-myaccount-page .woocommerce .button,
-.kids-shop-myaccount-page .woocommerce button[type='submit'] {
-	background: var(--shop-color-primary, #27a7b8) !important;
-	color: #fff !important;
-	border: none !important;
-	padding: 12px 24px !important;
-	border-radius: 8px !important;
-	font-weight: 600 !important;
+.kids-shop-myaccount__endpoint h2,
+.kids-shop-myaccount__endpoint h3 {
+	color: var(--kids-ma-text);
+}
+
+/* Edit account: avoid nested white card (shell provides the card) */
+.kids-shop-myaccount__endpoint--edit-account {
+	background: transparent;
+	box-shadow: none;
+}
+
+/* ----- Orders (card list + filters) ----- */
+.kids-shop-orders__filters {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	margin-bottom: 20px;
+}
+
+.kids-shop-orders__filter {
+	padding: 8px 18px;
+	border-radius: 999px;
+	border: 1px solid var(--kids-ma-border);
+	background: #fff;
+	color: var(--kids-ma-text);
+	font-size: 13px;
+	font-weight: 600;
 	cursor: pointer;
+	transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
-.kids-shop-myaccount-page .woocommerce .button:hover,
-.kids-shop-myaccount-page .woocommerce button[type='submit']:hover {
-	background: #1e8a98 !important;
+.kids-shop-orders__filter.is-active,
+.kids-shop-orders__filter:hover {
+	background: var(--kids-ma-primary);
+	border-color: var(--kids-ma-primary);
+	color: #fff;
 }
 
-.kids-shop-myaccount-page .woocommerce table.shop_table {
-	border-collapse: collapse;
+.kids-shop-orders__list {
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+}
+
+.kids-shop-orders__card {
+	display: block;
+	text-decoration: none;
+	color: inherit;
+	background: #fff;
+	border: 1px solid var(--kids-ma-border);
+	border-radius: var(--kids-ma-card-radius);
+	padding: 16px 18px;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+	transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.kids-shop-orders__card:hover {
+	border-color: color-mix(in srgb, var(--kids-ma-primary) 45%, var(--kids-ma-border));
+	box-shadow: var(--kids-ma-shadow);
+}
+
+.kids-shop-orders__card-top {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	gap: 8px 12px;
+	margin-bottom: 14px;
+}
+
+.kids-shop-orders__badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 4px 12px;
+	border-radius: 999px;
+	font-size: 12px;
+	font-weight: 600;
+	background: #fff4e6;
+	color: #c2410c;
+}
+
+.kids-shop-orders__badge-dot {
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: currentColor;
+}
+
+.kids-shop-orders__card--status-processing .kids-shop-orders__badge,
+.kids-shop-orders__card--status-completed .kids-shop-orders__badge {
+	background: color-mix(in srgb, var(--kids-ma-primary) 12%, #fff);
+	color: var(--kids-ma-primary);
+}
+
+.kids-shop-orders__card--status-cancelled .kids-shop-orders__badge,
+.kids-shop-orders__card--status-refunded .kids-shop-orders__badge,
+.kids-shop-orders__card--status-failed .kids-shop-orders__badge {
+	background: #fee2e2;
+	color: #b91c1c;
+}
+
+.kids-shop-orders__card--status-on-hold .kids-shop-orders__badge {
+	background: #e0f2fe;
+	color: #0369a1;
+}
+
+.kids-shop-orders__date {
+	font-size: 13px;
+	color: var(--kids-ma-muted);
+}
+
+.kids-shop-orders__card-body {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+}
+
+.kids-shop-orders__thumb {
+	flex-shrink: 0;
+	width: 56px;
+	height: 56px;
+	border-radius: 8px;
+	overflow: hidden;
+	background: #f3f4f6;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.kids-shop-orders__thumb img,
+.kids-shop-orders__thumb-img {
 	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
 }
 
-.kids-shop-myaccount-page .woocommerce table.shop_table th,
-.kids-shop-myaccount-page .woocommerce table.shop_table td {
-	padding: 12px;
-	border-bottom: 1px solid #e5e7eb;
+.kids-shop-orders__thumb-placeholder {
+	color: #9ca3af;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	height: 100%;
+	background: #e5e7eb
+		url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' fill='none' stroke='%239ca3af' stroke-width='1.5' viewBox='0 0 24 24'%3E%3Crect x='3' y='3' width='18' height='18' rx='2'/%3E%3Ccircle cx='8.5' cy='8.5' r='1.5'/%3E%3Cpath d='M21 15l-5-5L5 21'/%3E%3C/svg%3E")
+		center / 28px 28px no-repeat;
+}
+
+.kids-shop-orders__info {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
 	text-align: left;
 }
 
-.kids-shop-myaccount-page .woocommerce-Address {
+.kids-shop-orders__id {
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--kids-ma-primary);
+}
+
+.kids-shop-orders__product {
+	font-size: 15px;
+	font-weight: 600;
+	color: var(--kids-ma-text);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.kids-shop-orders__price {
+	font-size: 15px;
+	font-weight: 600;
+	color: var(--kids-ma-text);
+}
+
+.kids-shop-orders__chevron {
+	flex-shrink: 0;
+	color: #ef4444;
+	display: flex;
+	align-items: center;
+}
+
+.kids-shop-orders__pagination {
+	margin-top: 24px;
+	display: flex;
+	gap: 12px;
+	justify-content: center;
+}
+
+.kids-shop-orders__empty {
+	text-align: center;
+	padding: 40px 20px 32px;
+}
+
+.kids-shop-orders__empty-title {
+	margin: 12px 0 8px;
+	font-size: 17px;
+	font-weight: 600;
+	color: var(--kids-ma-muted);
+}
+
+.kids-shop-orders__empty-text {
+	margin: 0 0 20px;
+	font-size: 14px;
+	color: var(--kids-ma-muted);
+}
+
+/* ----- Addresses ----- */
+.kids-shop-ma-address__page-title {
+	margin: 0 0 20px;
+	font-size: 22px;
+	font-weight: 700;
+	color: var(--kids-ma-text);
+}
+
+.kids-shop-ma-address__grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+	gap: 18px;
+}
+
+.kids-shop-ma-address__card {
+	background: #fff;
+	border: 1px solid var(--kids-ma-border);
+	border-radius: var(--kids-ma-card-radius);
+	padding: 18px 20px;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+.kids-shop-ma-address__card-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	margin-bottom: 12px;
+}
+
+.kids-shop-ma-address__card-title {
+	margin: 0;
+	font-size: 16px;
+	font-weight: 600;
+	color: var(--kids-ma-text);
+}
+
+.kids-shop-ma-address__edit {
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--kids-ma-primary);
+	text-decoration: none;
+}
+
+.kids-shop-ma-address__edit:hover {
+	text-decoration: underline;
+}
+
+.kids-shop-ma-address__formatted {
+	font-size: 14px;
+	line-height: 1.65;
+	color: var(--kids-ma-muted);
+}
+
+.kids-shop-ma-address__formatted br {
+	display: block;
+	content: '';
+	margin-top: 4px;
+}
+
+.kids-shop-ma-address__empty {
+	margin: 0;
+	font-size: 14px;
+	color: var(--kids-ma-muted);
+}
+
+.kids-shop-ma-address__card--add {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+	text-decoration: none;
+	min-height: 200px;
+	border-style: dashed;
+	border-width: 2px;
+	background: #fafbfc;
+	color: var(--kids-ma-muted);
+	transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+}
+
+.kids-shop-ma-address__card--add:hover {
+	border-color: var(--kids-ma-primary);
+	color: var(--kids-ma-primary);
+	background: color-mix(in srgb, var(--kids-ma-primary) 5%, #fff);
+}
+
+.kids-shop-ma-address__add-icon {
+	font-size: 40px;
+	font-weight: 300;
+	line-height: 1;
+	margin-bottom: 8px;
+	color: var(--kids-ma-muted);
+}
+
+.kids-shop-ma-address__card--add:hover .kids-shop-ma-address__add-icon {
+	color: var(--kids-ma-primary);
+}
+
+.kids-shop-ma-address__add-title {
+	font-size: 16px;
+	font-weight: 600;
+	color: var(--kids-ma-text);
+	margin-bottom: 6px;
+}
+
+.kids-shop-ma-address__add-hint {
+	font-size: 13px;
+	line-height: 1.45;
+	max-width: 220px;
+}
+
+/* ----- Edit address (billing / shipping form) ----- */
+.kids-shop-edit-address-form {
+	max-width: 800px;
+}
+
+.kids-shop-edit-address-form__back {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	margin-bottom: 20px;
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--kids-ma-primary);
+	text-decoration: none;
+}
+
+.kids-shop-edit-address-form__back:hover {
+	text-decoration: underline;
+}
+
+.kids-shop-edit-address-form__back-icon {
+	display: flex;
+	color: var(--kids-ma-primary);
+}
+
+.kids-shop-edit-address-form__header {
+	display: flex;
+	align-items: flex-start;
+	gap: 16px;
+	margin-bottom: 28px;
+	padding-bottom: 22px;
+	border-bottom: 1px solid #f0f0f0;
+}
+
+.kids-shop-edit-address-form__header-icon {
+	flex-shrink: 0;
+	width: 48px;
+	height: 48px;
+	border-radius: 10px;
+	background: color-mix(in srgb, var(--kids-ma-primary) 12%, #fff);
+	color: var(--kids-ma-primary);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.kids-shop-edit-address-form__title {
+	margin: 0 0 6px;
+	font-size: 22px;
+	font-weight: 700;
+	color: var(--kids-ma-text);
+	line-height: 1.25;
+}
+
+.kids-shop-edit-address-form__subtitle {
+	margin: 0;
+	font-size: 14px;
+	line-height: 1.55;
+	color: var(--kids-ma-muted);
+}
+
+.kids-shop-edit-address-form__form {
+	margin: 0;
+}
+
+.kids-shop-edit-address-form .woocommerce-address-fields {
+	margin: 0;
+}
+
+.kids-shop-edit-address-form__fields {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 16px 20px;
+	margin-bottom: 8px;
+}
+
+.kids-shop-edit-address-form__fields .form-row {
+	margin: 0;
+	padding: 0;
+}
+
+.kids-shop-edit-address-form__fields .form-row-wide,
+.kids-shop-edit-address-form__fields .form-row--full {
+	grid-column: 1 / -1;
+}
+
+.kids-shop-edit-address-form__fields label {
+	display: block;
+	margin-bottom: 6px;
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--kids-ma-text);
+}
+
+.kids-shop-edit-address-form__fields .optional {
+	font-weight: 400;
+	color: var(--kids-ma-muted);
+}
+
+.kids-shop-edit-address-form__fields .input-text,
+.kids-shop-edit-address-form__fields select,
+.kids-shop-edit-address-form__fields textarea {
+	width: 100%;
+	padding: 12px 14px;
+	border: 1px solid var(--kids-ma-border);
+	border-radius: 8px;
+	font-size: 15px;
+	box-sizing: border-box;
+	background: #fff;
+}
+
+.kids-shop-edit-address-form__fields .input-text:focus,
+.kids-shop-edit-address-form__fields select:focus,
+.kids-shop-edit-address-form__fields textarea:focus {
+	border-color: var(--kids-ma-primary);
+	outline: none;
+	box-shadow: 0 0 0 3px color-mix(in srgb, var(--kids-ma-primary) 18%, transparent);
+}
+
+.kids-shop-edit-address-form__fields .select2-container .select2-selection--single {
+	height: 46px;
+	border: 1px solid var(--kids-ma-border);
+	border-radius: 8px;
+}
+
+.kids-shop-edit-address-form__fields .select2-container--default .select2-selection--single .select2-selection__rendered {
+	line-height: 44px;
+	padding-left: 12px;
+}
+
+.kids-shop-edit-address-form__fields .select2-container--default .select2-selection--single .select2-selection__arrow {
+	height: 44px;
+}
+
+.kids-shop-edit-address-form__actions {
+	margin-top: 8px;
+	padding-top: 8px;
+}
+
+.kids-shop-edit-address-form__submit {
+	width: 100%;
+	max-width: 320px;
+	padding: 14px 24px !important;
+	font-size: 15px !important;
+	font-weight: 700 !important;
+	border-radius: 8px !important;
+	background: var(--kids-ma-primary) !important;
+	color: #fff !important;
+	border: none !important;
+	cursor: pointer;
+	transition: background 0.2s ease;
+}
+
+.kids-shop-edit-address-form__submit:hover {
+	background: color-mix(in srgb, var(--kids-ma-primary) 88%, #000) !important;
+	color: #fff !important;
+}
+
+@media (max-width: 600px) {
+	.kids-shop-edit-address-form__fields {
+		grid-template-columns: 1fr;
+	}
+
+	.kids-shop-edit-address-form__submit {
+		max-width: none;
+	}
+}
+
+/* ----- Edit account (settings) ----- */
+.kids-shop-edit-account {
+	max-width: 920px;
+}
+
+.kids-shop-edit-account__back {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	margin-bottom: 20px;
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--kids-ma-primary);
+	text-decoration: none;
+}
+
+.kids-shop-edit-account__back:hover {
+	text-decoration: underline;
+}
+
+.kids-shop-edit-account__back-icon {
+	display: flex;
+	color: var(--kids-ma-primary);
+}
+
+.kids-shop-edit-account__page-header {
+	display: flex;
+	align-items: flex-start;
+	gap: 16px;
 	margin-bottom: 24px;
+	padding-bottom: 22px;
+	border-bottom: 1px solid #f0f0f0;
+}
+
+.kids-shop-edit-account__page-icon {
+	flex-shrink: 0;
+	width: 48px;
+	height: 48px;
+	border-radius: 10px;
+	background: color-mix(in srgb, var(--kids-ma-primary) 12%, #fff);
+	color: var(--kids-ma-primary);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.kids-shop-edit-account__page-title {
+	margin: 0 0 6px;
+	font-size: 22px;
+	font-weight: 700;
+	color: var(--kids-ma-text);
+	line-height: 1.25;
+}
+
+.kids-shop-edit-account__page-subtitle {
+	margin: 0;
+	font-size: 14px;
+	line-height: 1.55;
+	color: var(--kids-ma-muted);
+}
+
+.kids-shop-edit-account__shell {
+	background: #fff;
+	border: 1px solid var(--kids-ma-border);
+	border-radius: var(--kids-ma-card-radius);
+	box-shadow: var(--kids-ma-shadow);
+	overflow: hidden;
+}
+
+.kids-shop-edit-account__grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 0;
+	align-items: stretch;
+}
+
+.kids-shop-edit-account__form {
+	margin: 0;
+	min-width: 0;
+}
+
+.kids-shop-edit-account__panel {
+	min-width: 0;
+	padding: 28px 26px 30px;
+	background: transparent;
+	border: none;
+	box-shadow: none;
+	border-radius: 0;
+}
+
+.kids-shop-edit-account__panel--password {
+	background: #fafbfc;
+}
+
+.kids-shop-edit-account__panel--status {
+	background: #fff;
+}
+
+.kids-shop-edit-account__heading {
+	margin: 0 0 18px;
+	font-size: 18px;
+	font-weight: 700;
+	color: var(--kids-ma-text);
+}
+
+.kids-shop-edit-account__extra-fields {
+	margin-bottom: 8px;
+}
+
+.kids-shop-edit-account__extra-fields .form-row {
+	margin: 0 0 16px;
+}
+
+.kids-shop-edit-account__extra-fields label {
+	display: block;
+	margin-bottom: 6px;
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--kids-ma-text);
+}
+
+.kids-shop-edit-account__extra-fields .input-text,
+.kids-shop-edit-account__extra-fields input[type='email'],
+.kids-shop-edit-account__extra-fields input[type='text'],
+.kids-shop-edit-account__extra-fields input[type='tel'],
+.kids-shop-edit-account__extra-fields select,
+.kids-shop-edit-account__extra-fields textarea {
+	width: 100%;
+	padding: 12px 14px;
+	border: 1px solid var(--kids-ma-border);
+	border-radius: 8px;
+	font-size: 15px;
+	box-sizing: border-box;
+}
+
+.kids-shop-edit-account__extra-fields .input-text:focus,
+.kids-shop-edit-account__extra-fields select:focus,
+.kids-shop-edit-account__extra-fields textarea:focus {
+	border-color: var(--kids-ma-primary);
+	outline: none;
+	box-shadow: 0 0 0 3px color-mix(in srgb, var(--kids-ma-primary) 18%, transparent);
+}
+
+.kids-shop-edit-account__after-password {
+	margin-top: 8px;
+	margin-bottom: 8px;
+}
+
+.kids-shop-edit-account__after-password .form-row {
+	margin-bottom: 12px;
+}
+
+.kids-shop-edit-account__fieldset {
+	border: none;
+	padding: 0;
+	margin: 0 0 8px;
+}
+
+.kids-shop-edit-account__password-row label {
+	display: block;
+	margin-bottom: 6px;
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--kids-ma-text);
+}
+
+.kids-shop-edit-account__password-row .input-text {
+	min-height: 48px;
+	padding: 12px 44px 12px 14px;
+	border: 1px solid var(--kids-ma-border);
+	border-radius: 8px;
+	font-size: 15px;
+}
+
+.kids-shop-edit-account__password-row .input-text:focus {
+	border-color: var(--kids-ma-primary);
+	outline: none;
+	box-shadow: 0 0 0 3px color-mix(in srgb, var(--kids-ma-primary) 18%, transparent);
+}
+
+.kids-shop-password-wrap {
+	position: relative;
+	display: block;
+}
+
+.kids-shop-password-wrap .input-text {
+	width: 100%;
+	padding-right: 44px;
+	box-sizing: border-box;
+}
+
+.kids-shop-password-toggle {
+	position: absolute;
+	right: 8px;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 36px;
+	height: 36px;
+	border: none;
+	background: transparent;
+	cursor: pointer;
+	border-radius: 6px;
+	opacity: 0.65;
+}
+
+.kids-shop-password-toggle:hover {
+	opacity: 1;
+	background: #f3f4f6;
+}
+
+.kids-shop-password-toggle::after {
+	content: '';
+	display: block;
+	width: 20px;
+	height: 20px;
+	margin: 0 auto;
+	background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' fill='none' stroke='%236b7280' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpath d='M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z'/%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3C/svg%3E")
+		center / contain no-repeat;
+}
+
+.kids-shop-edit-account__submit-wrap {
+	margin: 20px 0 0;
+}
+
+.kids-shop-edit-account__save {
+	width: 100%;
+	padding: 14px 20px !important;
+	font-size: 15px !important;
+	font-weight: 700 !important;
+	border-radius: 8px !important;
+	background: var(--kids-ma-primary) !important;
+	color: #fff !important;
+	border: none !important;
+	cursor: pointer;
+	transition: background 0.2s ease;
+}
+
+.kids-shop-edit-account__save:hover {
+	background: color-mix(in srgb, var(--kids-ma-primary) 88%, #000) !important;
+	color: #fff !important;
+}
+
+.kids-shop-edit-account__status-text {
+	margin: 0 0 16px;
+	font-size: 14px;
+	line-height: 1.65;
+	color: var(--kids-ma-muted);
+}
+
+.kids-shop-edit-account__status-active {
+	color: #16a34a;
+	font-weight: 700;
+}
+
+.kids-shop-edit-account__reason-label {
+	display: block;
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--kids-ma-text);
+	margin-bottom: 8px;
+}
+
+.kids-shop-edit-account__reason {
+	width: 100%;
+	min-height: 120px;
+	padding: 12px 14px;
+	border: 1px solid var(--kids-ma-border);
+	border-radius: 8px;
+	font-size: 14px;
+	resize: vertical;
+	box-sizing: border-box;
+	font-family: inherit;
+}
+
+.kids-shop-edit-account__reason:focus {
+	border-color: var(--kids-ma-primary);
+	outline: none;
+	box-shadow: 0 0 0 3px color-mix(in srgb, var(--kids-ma-primary) 18%, transparent);
+}
+
+.kids-shop-edit-account__deactivate {
+	width: 100%;
+	margin-top: 14px;
+	padding: 14px 20px;
+	font-size: 15px;
+	font-weight: 700;
+	color: #fff;
+	background: #f02d37;
+	border: none;
+	border-radius: 8px;
+	cursor: pointer;
+	transition: background 0.2s ease;
+}
+
+.kids-shop-edit-account__deactivate:hover {
+	background: #d92630;
+}
+
+.kids-shop-edit-account__deactivate-note {
+	margin: 12px 0 0;
+	font-size: 12px;
+	line-height: 1.5;
+	color: var(--kids-ma-muted);
+}
+
+@media (min-width: 901px) {
+	.kids-shop-edit-account__panel--password {
+		border-right: 1px solid var(--kids-ma-border);
+	}
+}
+
+@media (max-width: 900px) {
+	.kids-shop-edit-account__grid {
+		grid-template-columns: 1fr;
+	}
+
+	.kids-shop-edit-account__panel--password {
+		border-right: none;
+		border-bottom: 1px solid var(--kids-ma-border);
+	}
+}
+
+/* Guest login / register */
+.kids-shop-myaccount-guest {
+	max-width: 520px;
+	margin: 0 auto;
+}
+
+.kids-shop-myaccount-guest .woocommerce form.login,
+.kids-shop-myaccount-guest .woocommerce form.register {
+	padding: 32px;
+	border: 1px solid var(--kids-ma-border);
+	border-radius: var(--kids-ma-card-radius);
+	background: #fff;
+	box-shadow: var(--kids-ma-shadow);
+}
+
+.kids-shop-myaccount-guest .woocommerce .button,
+.kids-shop-myaccount-guest .woocommerce button[type='submit'] {
+	background: var(--kids-ma-primary) !important;
+	color: #fff !important;
+	border-radius: 8px !important;
+}
+
+/* WooCommerce notices */
+.kids-shop-myaccount .woocommerce-message,
+.kids-shop-myaccount .woocommerce-info,
+.kids-shop-myaccount .woocommerce-error {
+	margin: 0 0 20px;
+	padding: 12px 16px;
+	border-radius: 8px;
+	font-size: 14px;
+	list-style: none;
+}
+
+.kids-shop-myaccount .woocommerce-message {
+	background: #ecfdf5;
+	border: 1px solid #a7f3d0;
+	color: #065f46;
+}
+
+.kids-shop-myaccount .woocommerce-error {
+	background: #fef2f2;
+	border: 1px solid #fecaca;
+	color: #b91c1c;
+}
+
+/* Hide default WC nav if it appears */
+.kids-shop-myaccount .woocommerce-MyAccount-navigation {
+	display: none !important;
+}
+
+.kids-shop-myaccount-page .woocommerce-MyAccount-navigation {
+	display: none !important;
+}
+
+/* Responsive */
+@media (max-width: 1100px) {
+	.kids-shop-myaccount__grid {
+		grid-template-columns: 200px minmax(0, 1fr);
+	}
+
+	.kids-shop-myaccount__grid--two-col {
+		grid-template-columns: 200px minmax(0, 1fr);
+	}
+
+	.kids-shop-myaccount__profile {
+		grid-column: 1 / -1;
+	}
+
+	.kids-shop-myaccount-profile {
+		display: grid;
+		grid-template-columns: auto 1fr auto;
+		gap: 20px;
+		align-items: center;
+		text-align: left;
+		padding: 20px 24px;
+	}
+
+	.kids-shop-myaccount-profile__avatar {
+		width: 80px;
+		height: 80px;
+		margin: 0;
+	}
+
+	.kids-shop-myaccount-profile__initials {
+		font-size: 28px;
+	}
+
+	.kids-shop-myaccount-profile__name {
+		margin: 0 0 8px;
+	}
+
+	.kids-shop-myaccount-profile__meta {
+		margin: 0;
+	}
+
+	.kids-shop-myaccount-profile__edit {
+		width: auto;
+		align-self: center;
+	}
 }
 
 @media (max-width: 768px) {
-	.kids-shop-myaccount-page .woocommerce-MyAccount-navigation,
-	.kids-shop-myaccount-page .woocommerce-MyAccount-content {
-		float: none;
-		width: 100%;
-		padding-right: 0;
+	.kids-shop-myaccount__grid {
+		grid-template-columns: 1fr;
+		gap: 20px;
 	}
 
-	.kids-shop-myaccount-page .woocommerce-MyAccount-navigation {
-		margin-bottom: 24px;
+	.kids-shop-myaccount-nav__list {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		gap: 8px;
+	}
+
+	.kids-shop-myaccount-nav__link {
+		padding: 12px;
+		font-size: 13px;
+	}
+
+	.kids-shop-myaccount-panel__header {
+		flex-wrap: wrap;
+	}
+
+	.kids-shop-myaccount-profile {
+		display: block;
+		text-align: center;
+	}
+
+	.kids-shop-myaccount-profile__avatar {
+		margin: 0 auto 16px;
+	}
+
+	.kids-shop-myaccount-profile__meta {
+		text-align: center;
 	}
 }

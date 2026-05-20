@@ -95,6 +95,7 @@ require get_template_directory() . '/inc/shop-helpers.php';
 require get_template_directory() . '/inc/home-helpers.php';
 require get_template_directory() . '/inc/cart-helpers.php';
 require get_template_directory() . '/inc/auth-helpers.php';
+require get_template_directory() . '/inc/myaccount-helpers.php';
 
 /**
  * Settings shortcut on Themes screen.
@@ -239,6 +240,23 @@ function kids_shop_cart_page_template($template)
 add_filter('template_include', 'kids_shop_cart_page_template', 99);
 
 /**
+ * Use theme My Account layout on the WooCommerce account page.
+ *
+ * @param string $template Path to template.
+ * @return string
+ */
+function kids_shop_myaccount_page_template( $template ) {
+	if ( function_exists( 'is_account_page' ) && is_account_page() && ! is_admin() ) {
+		$custom = get_template_directory() . '/woocommerce/myaccount-page.php';
+		if ( file_exists( $custom ) ) {
+			return $custom;
+		}
+	}
+	return $template;
+}
+add_filter( 'template_include', 'kids_shop_myaccount_page_template', 99 );
+
+/**
  * Enqueue cart page assets.
  */
 function kids_shop_enqueue_cart_assets()
@@ -374,6 +392,17 @@ function kids_shop_enqueue_myaccount_assets() {
 		array( 'kids-shop-style' ),
 		file_exists( $css_path ) ? (string) filemtime( $css_path ) : $theme_version
 	);
+
+	if ( is_user_logged_in() ) {
+		$js_path = get_template_directory() . '/assets/myaccount.js';
+		wp_enqueue_script(
+			'kids-shop-myaccount',
+			get_template_directory_uri() . '/assets/myaccount.js',
+			array(),
+			file_exists( $js_path ) ? (string) filemtime( $js_path ) : $theme_version,
+			true
+		);
+	}
 }
 add_action( 'wp_enqueue_scripts', 'kids_shop_enqueue_myaccount_assets', 20 );
 
