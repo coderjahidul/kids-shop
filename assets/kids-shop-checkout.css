@@ -857,3 +857,173 @@ select#billing_state
 	color: var(--shop-color-primary, #e8007c) !important;
 	font-weight: 600 !important;
 }
+
+/* Premium Saved Address Preview Card and Custom Form actions */
+.kids-shop-checkout-page .kids-shop-address-preview-card {
+	background-color: #ffffff;
+	border: 2px solid #e2e8f0;
+	border-radius: 14px;
+	padding: 24px;
+	margin-bottom: 24px;
+	box-shadow: 0 4px 12px rgba(15, 23, 42, 0.02);
+	position: relative;
+	transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+	text-align: left;
+}
+
+.kids-shop-checkout-page .kids-shop-address-preview-card:hover {
+	border-color: var(--shop-color-primary, #27A7B8);
+	box-shadow: 0 6px 20px rgba(15, 23, 42, 0.04);
+}
+
+.kids-shop-checkout-page .kids-shop-address-preview-body {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.kids-shop-checkout-page .kids-shop-address-preview-name {
+	font-size: 16px;
+	font-weight: 700;
+	color: #0f172a;
+	margin: 0 0 4px;
+}
+
+.kids-shop-checkout-page .kids-shop-address-preview-row {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	font-size: 14px;
+	color: #475569;
+}
+
+.kids-shop-checkout-page .kids-shop-address-preview-icon {
+	font-size: 16px;
+	color: #94a3b8;
+	width: 20px;
+	display: inline-flex;
+	justify-content: center;
+}
+
+.kids-shop-checkout-page .kids-shop-address-preview-phone {
+	font-weight: 600;
+	color: #1e293b;
+}
+
+.kids-shop-checkout-page .kids-shop-address-preview-address {
+	line-height: 1.5;
+	color: #475569;
+}
+
+.kids-shop-checkout-page .kids-shop-address-preview-footer {
+	margin-top: 20px;
+	padding-top: 16px;
+	border-top: 1px solid #f1f5f9;
+	display: flex;
+	justify-content: flex-end;
+}
+
+.kids-shop-checkout-page .kids-shop-address-edit-btn {
+	height: 38px;
+	border: 1px solid #cbd5e1;
+	background-color: #ffffff;
+	color: #475569;
+	border-radius: 8px;
+	padding: 0 16px;
+	font-size: 13px;
+	font-weight: 600;
+	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	transition: all 0.2s ease;
+}
+
+.kids-shop-checkout-page .kids-shop-address-edit-btn:hover {
+	border-color: var(--shop-color-primary, #27A7B8);
+	color: var(--shop-color-primary, #27A7B8);
+	background-color: color-mix(in srgb, var(--shop-color-primary, #27A7B8) 4%, white 96%);
+}
+
+.kids-shop-checkout-page .kids-shop-address-edit-btn span {
+	font-size: 14px;
+}
+
+/* New Address Custom actions and form styling */
+.kids-shop-checkout-page .kids-shop-address-form-actions {
+	background-color: #f8fafc;
+	border: 1px dashed #cbd5e1;
+	border-radius: 12px;
+	padding: 24px;
+	margin-top: 16px;
+}
+
+.kids-shop-checkout-page #kids_shop_address_label_field_wrapper {
+	margin-bottom: 20px;
+}
+
+.kids-shop-checkout-page #kids_shop_address_label_field_wrapper label {
+	font-size: 13px;
+	font-weight: 600;
+	color: #475569;
+	margin-bottom: 6px;
+	display: inline-block;
+}
+
+.kids-shop-checkout-page #kids_shop_address_label_field_wrapper input {
+	width: 100%;
+	height: 48px;
+	border: 1px solid #cbd5e1;
+	border-radius: 10px;
+	padding: 0 16px;
+	font-size: 14px;
+	color: #1e293b;
+	background-color: #ffffff;
+	transition: all 0.2s ease;
+	outline: none;
+}
+
+.kids-shop-checkout-page #kids_shop_address_label_field_wrapper input:focus {
+	border-color: var(--shop-color-primary, #27A7B8);
+	box-shadow: 0 0 0 3px color-mix(in srgb, var(--shop-color-primary, #27A7B8) 12%, transparent 88%);
+}
+
+.kids-shop-checkout-page .kids-shop-address-form-buttons {
+	display: flex;
+	gap: 12px;
+	justify-content: flex-end;
+}
+
+.kids-shop-checkout-page .kids-shop-save-address-btn,
+.kids-shop-checkout-page .kids-shop-cancel-address-btn {
+	height: 44px;
+	border-radius: 8px !important;
+	padding: 0 20px !important;
+	font-size: 14px !important;
+	font-weight: 700 !important;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	text-transform: none !important;
+	letter-spacing: 0 !important;
+}
+
+.kids-shop-checkout-page .kids-shop-save-address-btn {
+	background-color: var(--shop-color-primary, #27A7B8) !important;
+	color: #ffffff !important;
+	border: none !important;
+}
+
+.kids-shop-checkout-page .kids-shop-save-address-btn:hover {
+	background-color: color-mix(in srgb, var(--shop-color-primary, #27A7B8) 90%, black 10%) !important;
+}
+
+.kids-shop-checkout-page .kids-shop-cancel-address-btn {
+	background-color: #f1f5f9 !important;
+	color: #475569 !important;
+	border: 1px solid #cbd5e1 !important;
+}
+
+.kids-shop-checkout-page .kids-shop-cancel-address-btn:hover {
+	background-color: #e2e8f0 !important;
+	color: #1e293b !important;
+}

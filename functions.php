@@ -616,7 +616,7 @@ function kids_shop_customize_checkout_fields($fields)
 		}
 
 		if (isset($fields['billing']['billing_phone'])) {
-			$fields['billing']['billing_phone']['label'] = __('Enter Your Phone Number', 'kids-shop');
+			$fields['billing']['billing_phone']['label'] = __('Phone Number', 'kids-shop');
 			$fields['billing']['billing_phone']['placeholder'] = '';
 			$fields['billing']['billing_phone']['required'] = true;
 			$fields['billing']['billing_phone']['priority'] = 20;
@@ -825,5 +825,100 @@ function kids_shop_checkout_body_class($classes)
 	return $classes;
 }
 add_filter('body_class', 'kids_shop_checkout_body_class');
+
+/**
+ * Get saved addresses for a user, automatically initializing "Home" address from default WooCommerce billing info.
+ *
+ * @param int $user_id User ID.
+ * @return array
+ */
+function kids_shop_get_saved_addresses($user_id)
+{
+	if (!$user_id) {
+		return array();
+	}
+
+	$saved = get_user_meta($user_id, '_kids_shop_saved_addresses', true);
+	if (!is_array($saved)) {
+		$saved = array();
+	}
+
+	// Migrate default billing info to Home if saved address list is empty
+	if (empty($saved)) {
+		$first_name = get_user_meta($user_id, 'billing_first_name', true);
+		$phone      = get_user_meta($user_id, 'billing_phone', true);
+		$state      = get_user_meta($user_id, 'billing_state', true);
+		$address_1  = get_user_meta($user_id, 'billing_address_1', true);
+
+		$saved['home'] = array(
+			'id'         => 'home',
+			'label'      => __('Home', 'kids-shop'),
+			'first_name' => $first_name ?: '',
+			'phone'      => $phone ?: '',
+			'state'      => $state ?: '',
+			'address_1'  => $address_1 ?: '',
+		);
+		update_user_meta($user_id, '_kids_shop_saved_addresses', $saved);
+	}
+
+	return $saved;
+}
+
+/**
+ * AJAX handler to save a custom user address.
+ */
+function kids_shop_ajax_save_address()
+{
+	check_ajax_referer('kids_shop_checkout', 'security');
+
+	$user_id = get_current_user_id();
+	if (!$user_id) {
+		wp_send_json_error(array('message' => __('You must be logged in to save addresses.', 'kids-shop')));
+	}
+
+	$label      = isset($_POST['label']) ? sanitize_text_field(wp_unslash($_POST['label'])) : '';
+	$first_name = isset($_POST['first_name']) ? sanitize_text_field(wp_unslash($_POST['first_name'])) : '';
+	$phone      = isset($_POST['phone']) ? sanitize_text_field(wp_unslash($_POST['phone'])) : '';
+	$state      = isset($_POST['state']) ? sanitize_text_field(wp_unslash($_POST['state'])) : '';
+	$address_1  = isset($_POST['address_1']) ? sanitize_textarea_field(wp_unslash($_POST['address_1'])) : '';
+
+	if (empty($label) || empty($first_name) || empty($phone) || empty($state) || empty($address_1)) {
+		wp_send_json_error(array('message' => __('All fields are required.', 'kids-shop')));
+	}
+
+	$saved = kids_shop_get_saved_addresses($user_id);
+	$id    = sanitize_key($label);
+	if (empty($id)) {
+		$id = 'address_' . time();
+	}
+
+	$address = array(
+		'id'         => $id,
+		'label'      => $label,
+		'first_name' => $first_name,
+		'phone'      => $phone,
+		'state'      => $state,
+		'address_1'  => $address_1,
+	);
+
+	$saved[$id] = $address;
+	update_user_meta($user_id, '_kids_shop_saved_addresses', $saved);
+
+	// Sync to default billing info if this is the first custom one or Home
+	if ('home' === $id || 1 === count($saved)) {
+		update_user_meta($user_id, 'billing_first_name', $first_name);
+		update_user_meta($user_id, 'billing_phone', $phone);
+		update_user_meta($user_id, 'billing_state', $state);
+		update_user_meta($user_id, 'billing_address_1', $address_1);
+	}
+
+	wp_send_json_success(array(
+		'address'   => $address,
+		'addresses' => $saved,
+		'message'   => __('Address saved successfully!', 'kids-shop'),
+	));
+}
+add_action('wp_ajax_kids_shop_save_address', 'kids_shop_ajax_save_address');
+
 
 

@@ -29,16 +29,66 @@ $item_count = WC()->cart ? (int) WC()->cart->get_cart_contents_count() : 0;
 				<h3 class="kids-shop-checkout-title"><?php esc_html_e('Delivery Address', 'kids-shop'); ?></h3>
 				<p class="kids-shop-checkout-subtitle"><?php esc_html_e('Manage Saved Address', 'kids-shop'); ?></p>
 				<div class="kids-shop-checkout-divider"></div>
-				<div class="kids-shop-address-switches" aria-hidden="true">
-					<div class="kids-shop-address-switch kids-shop-address-switch--active">
-						<span class="kids-shop-address-switch-icon">&#10003;</span>
-						<span><?php esc_html_e('Home', 'kids-shop'); ?></span>
+				<?php
+				$user_id = get_current_user_id();
+				$saved_addresses = array();
+				if ($user_id && function_exists('kids_shop_get_saved_addresses')) {
+					$saved_addresses = kids_shop_get_saved_addresses($user_id);
+				}
+				?>
+
+				<?php if (!empty($saved_addresses)): ?>
+					<div class="kids-shop-address-switches" aria-label="<?php esc_attr_e('Saved Addresses', 'kids-shop'); ?>">
+						<?php 
+						$active_id = 'home';
+						foreach ($saved_addresses as $addr_id => $addr): 
+							$is_active = ($addr_id === $active_id);
+						?>
+							<div class="kids-shop-address-switch <?php echo $is_active ? 'kids-shop-address-switch--active' : ''; ?>" 
+								data-address-id="<?php echo esc_attr($addr_id); ?>" 
+								data-address="<?php echo esc_attr(wp_json_encode($addr)); ?>">
+								<span class="kids-shop-address-switch-icon">&#10003;</span>
+								<span><?php echo esc_html($addr['label']); ?></span>
+							</div>
+						<?php endforeach; ?>
+						<div class="kids-shop-address-switch kids-shop-address-switch--add">
+							<span class="kids-shop-address-switch-plus">+</span>
+							<span><?php esc_html_e('Add New Address', 'kids-shop'); ?></span>
+						</div>
 					</div>
-					<div class="kids-shop-address-switch kids-shop-address-switch--add">
-						<span class="kids-shop-address-switch-plus">+</span>
-						<span><?php esc_html_e('Add New Address', 'kids-shop'); ?></span>
+					<input type="hidden" name="kids_shop_selected_address_id" id="kids_shop_selected_address_id" value="<?php echo esc_attr($active_id); ?>">
+
+					<!-- Beautiful Address Preview Card -->
+					<div class="kids-shop-address-preview-card" style="display: none;">
+						<div class="kids-shop-address-preview-body">
+							<h4 class="kids-shop-address-preview-name"></h4>
+							<div class="kids-shop-address-preview-row kids-shop-address-preview-phone-row">
+								<span class="kids-shop-address-preview-icon">📞</span>
+								<span class="kids-shop-address-preview-phone"></span>
+							</div>
+							<div class="kids-shop-address-preview-row kids-shop-address-preview-location-row">
+								<span class="kids-shop-address-preview-icon">📍</span>
+								<span class="kids-shop-address-preview-address"></span>
+							</div>
+						</div>
+						<div class="kids-shop-address-preview-footer">
+							<button type="button" class="kids-shop-address-edit-btn button secondary">
+								<span>✏️</span> <?php esc_html_e('Edit Address', 'kids-shop'); ?>
+							</button>
+						</div>
 					</div>
-				</div>
+				<?php else: ?>
+					<div class="kids-shop-address-switches" aria-hidden="true" style="display: none;">
+						<div class="kids-shop-address-switch kids-shop-address-switch--active">
+							<span class="kids-shop-address-switch-icon">&#10003;</span>
+							<span><?php esc_html_e('Home', 'kids-shop'); ?></span>
+						</div>
+						<div class="kids-shop-address-switch kids-shop-address-switch--add">
+							<span class="kids-shop-address-switch-plus">+</span>
+							<span><?php esc_html_e('Add New Address', 'kids-shop'); ?></span>
+						</div>
+					</div>
+				<?php endif; ?>
 
 				<?php if ($checkout->get_checkout_fields()): ?>
 					<?php do_action('woocommerce_checkout_before_customer_details'); ?>
@@ -47,6 +97,19 @@ $item_count = WC()->cart ? (int) WC()->cart->get_cart_contents_count() : 0;
 						<div class="kids-shop-checkout-billing">
 							<?php do_action('woocommerce_checkout_billing'); ?>
 						</div>
+
+						<?php if (!empty($saved_addresses)): ?>
+							<div class="kids-shop-address-form-actions" style="display: none;">
+								<div class="form-row form-row-wide" id="kids_shop_address_label_field_wrapper">
+									<label for="kids_shop_address_label"><?php esc_html_e('Address Label (e.g. Office, Home 2) *', 'kids-shop'); ?></label>
+									<input type="text" class="input-text" name="kids_shop_address_label" id="kids_shop_address_label" placeholder="<?php esc_attr_e('e.g. Office', 'kids-shop'); ?>">
+								</div>
+								<div class="kids-shop-address-form-buttons">
+									<button type="button" class="kids-shop-save-address-btn button alt"><?php esc_html_e('Save Address', 'kids-shop'); ?></button>
+									<button type="button" class="kids-shop-cancel-address-btn button secondary"><?php esc_html_e('Cancel', 'kids-shop'); ?></button>
+								</div>
+							</div>
+						<?php endif; ?>
 					</div>
 
 					<?php do_action('woocommerce_checkout_after_customer_details'); ?>
